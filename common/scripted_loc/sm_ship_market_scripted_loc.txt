@@ -1,0 +1,79 @@
+########################################################################
+# Ship Market - Scripted Localisation (v0.6)
+# defined_text = { name = X  value = value:<script_value> } -> [X] prints it.
+########################################################################
+
+defined_text = { name = GetShipMarketWorkingPrice  value = value:sm_working_price_display }
+defined_text = { name = GetSaleOfferPrice          value = value:sm_sale_offer_price }
+defined_text = { name = GetDbgFleetCount           value = value:sm_dbg_count_display }
+defined_text = { name = GetShipMarketLastValue     value = value:sm_last_market_value_display }
+defined_text = { name = GetShipMarketRecommended   value = value:sm_recommended_price }
+defined_text = { name = GetTradePrice              value = value:sm_trade_price }
+
+# Inspect screen: details of the currently-inspected fleet.
+defined_text = { name = GetInspectPrice        value = value:sm_inspect_price }
+defined_text = { name = GetInspectPower        value = value:sm_inspect_power }
+defined_text = { name = GetInspectShips        value = value:sm_inspect_ships }
+defined_text = { name = GetInspectCorvettes    value = value:sm_inspect_corv }
+defined_text = { name = GetInspectFrigates     value = value:sm_inspect_frig }
+defined_text = { name = GetInspectDestroyers   value = value:sm_inspect_dest }
+defined_text = { name = GetInspectCruisers     value = value:sm_inspect_cru }
+defined_text = { name = GetInspectBattleships  value = value:sm_inspect_bb }
+defined_text = { name = GetInspectTitans       value = value:sm_inspect_tit }
+
+# Recommissioning status: approximate days remaining per fleet.
+defined_text = { name = GetReact1Left  value = value:sm_recand_1_left }
+defined_text = { name = GetReact2Left  value = value:sm_recand_2_left }
+defined_text = { name = GetReact3Left  value = value:sm_recand_3_left }
+defined_text = { name = GetReact4Left  value = value:sm_recand_4_left }
+defined_text = { name = GetReact5Left  value = value:sm_recand_5_left }
+defined_text = { name = GetReact6Left  value = value:sm_recand_6_left }
+
+# Ship Lease: recommended monthly (term-aware, v0.9.26), the seller's working
+# fee, and the fee/term shown on the offer (lessee side).
+defined_text = { name = GetLeaseRecoMonthly   value = value:sm_lease_reco_monthly }
+defined_text = { name = GetLeaseWorkingFee    value = value:sm_lease_working_fee_display }
+defined_text = { name = GetLeaseMonthlyOffer  value = value:sm_offer_fee }
+defined_text = { name = GetLeaseOfferDays     value = value:sm_lease_offer_days_display }
+
+# Destroyed-mid-contract settlement amount (current scope = the notice recipient;
+# both lessor and lessee carry sm_settle_total - see sm_lease.910).
+defined_text = { name = GetSettleTotal        value = value:sm_settle_value }
+
+# v0.9.28 Mothball State Report (sm_market_debug.8).
+defined_text = { name = GetDbgmMil     value = value:sm_dbgm_mil_display }
+defined_text = { name = GetDbgmFlag    value = value:sm_dbgm_flag_display }
+defined_text = { name = GetDbgmMod     value = value:sm_dbgm_mod_display }
+defined_text = { name = GetDbgmDesync  value = value:sm_dbgm_desync_display }
+defined_text = { name = GetDbgmListed  value = value:sm_dbgm_listed_display }
+defined_text = { name = GetDbgmPending value = value:sm_dbgm_pending_display }
+defined_text = { name = GetDbgmLout    value = value:sm_dbgm_lout_display }
+defined_text = { name = GetDbgmReact   value = value:sm_dbgm_react_display }
+defined_text = { name = GetDbgmOffmap  value = value:sm_dbgm_offmap_display }
+defined_text = { name = GetDbgmMothoff value = value:sm_dbgm_mothoff_display }
+defined_text = { name = GetDbgmCombat  value = value:sm_dbgm_combat_display }
+
+# v0.9.32 telemetry census stamp.
+defined_text = { name = GetTelemYear  value = value:sm_telem_year_display }
+
+# v0.9.33 telemetry classification flags (0/1 columns for the census).
+defined_text = {
+	name = GetTelemDealer
+	text = { trigger = { OR = { has_valid_civic = civic_sm_arms_consortium has_valid_civic = civic_sm_fleet_chandlers } } localization_key = sm_flag_1 }
+	text = { trigger = { NOR = { has_valid_civic = civic_sm_arms_consortium has_valid_civic = civic_sm_fleet_chandlers } } localization_key = sm_flag_0 }
+}
+defined_text = {
+	name = GetTelemShipwright
+	text = { trigger = { has_valid_civic = civic_sm_assembly_line_shipwrights } localization_key = sm_flag_1 }
+	text = { trigger = { NOT = { has_valid_civic = civic_sm_assembly_line_shipwrights } } localization_key = sm_flag_0 }
+}
+defined_text = {
+	name = GetTelemMil
+	text = { trigger = { OR = { has_ethic = ethic_militarist has_ethic = ethic_fanatic_militarist } } localization_key = sm_flag_1 }
+	text = { trigger = { NOR = { has_ethic = ethic_militarist has_ethic = ethic_fanatic_militarist } } localization_key = sm_flag_0 }
+}
+defined_text = {
+	name = GetTelemPac
+	text = { trigger = { OR = { has_ethic = ethic_pacifist has_ethic = ethic_fanatic_pacifist } } localization_key = sm_flag_1 }
+	text = { trigger = { NOR = { has_ethic = ethic_pacifist has_ethic = ethic_fanatic_pacifist } } localization_key = sm_flag_0 }
+}

@@ -1,0 +1,68 @@
+########################################################################
+# Ship Market - Civics (v0.9.29). Stellaris 4.4.3 "Pegasus".
+#
+# Two identities for the "Lord of War" playstyle:
+#  * civic_sm_arms_consortium / civic_sm_fleet_chandlers (megacorp mirror):
+#    the DEALER - +5% trade value produced (the arms trade IS commerce) plus
+#    script-side effects (customer acceptance x1.25, wake recommission
+#    360->270, mothball trade/inventory bonus x1.5) + a standing
+#    "Merchants of Death" -20 opinion with pacifist/xenophile empires
+#    (triggered opinion modifier). Script effects live in the Ship Market
+#    scripts; the civic description lists them.
+#  * civic_sm_assembly_line_shipwrights: the FOUNDRY - real modifiers:
+#    cheaper/faster ship construction but -20% fire rate empire-wide. Sold
+#    ships recompute stats under the BUYER's empire (full strength for them);
+#    leased fleets get a compensating fleet modifier at signing
+#    (sm_lease_shipwright_tune, see sm_finalize_lease).
+#
+# Balance yardsticks (vanilla): one civic ~= one +10-15% modifier
+# (citizen_service +15% naval cap; distinguished_admiralty +10% fire rate).
+# Shipwrights' upside (~1.5 civics) is paid for by a -20% fire rate malus
+# (~2 civics of downside for a fleet-keeping empire).
+########################################################################
+
+civic_sm_arms_consortium = {
+	potential = {
+		ethics = { NOT = { value = ethic_gestalt_consciousness } }
+		authority = { NOT = { value = auth_corporate } }
+	}
+	possible = {
+		ethics = { NOT = { value = ethic_fanatic_pacifist } }
+	}
+	modifier = {
+		country_trade_produces_mult = 0.05
+	}
+	random_weight = { base = 2 }
+	ai_weight = { base = 2 }
+}
+
+civic_sm_fleet_chandlers = {
+	potential = {
+		ethics = { NOT = { value = ethic_gestalt_consciousness } }
+		authority = { value = auth_corporate }
+	}
+	possible = {
+		ethics = { NOT = { value = ethic_fanatic_pacifist } }
+	}
+	modifier = {
+		country_trade_produces_mult = 0.05
+	}
+	random_weight = { base = 2 }
+	ai_weight = { base = 2 }
+}
+
+civic_sm_assembly_line_shipwrights = {
+	potential = {
+		ethics = { NOT = { value = ethic_gestalt_consciousness } }
+	}
+	possible = {
+		ethics = { NOT = { value = ethic_fanatic_pacifist } }
+	}
+	modifier = {
+		starbase_shipyard_build_cost_mult = -0.10
+		starbase_shipyard_build_speed_mult = 0.25
+		ship_fire_rate_mult = -0.20
+	}
+	random_weight = { base = 2 }
+	ai_weight = { base = 2 }
+}

@@ -1,0 +1,468 @@
+########################################################################
+# Ship Market - Direct Sale Offer Events (v0.9.1). Target: Stellaris 4.4.3 "Pegasus".
+#
+# NOTE ON ENTRY POINT: a button on the diplomacy screen is NOT possible — Stellaris
+# diplomatic action NAMES are engine-hardcoded ("new diplomacy actions can't be
+# added, only existing ones limitedly modified", Stellaris Wiki; confirmed in-game
+# by the "diplomatic action is missing token" error). So, like the lease flow, the
+# seller picks the RECIPIENT from a list. Entry is the Ship Market edict hub
+# (sm_market.5 -> "Offer a fleet for sale").
+#
+# Flow (all root = seller until the recipient decides):
+#   sm_market.5  -> sm_offer.10  pick which mothballed fleet to sell
+#   sm_offer.10  -> sm_offer.20  pick the recipient empire
+#   sm_offer.20  -> sm_offer.30  set the asking price, then send
+#   sm_offer.30  -> sm_offer.100 recipient accepts/declines (root = buyer)
+# Notices: .40 sent, .41 could-not-send, .200 sold (seller), .210 declined (seller),
+#          .201 purchase complete (buyer), .202 unavailable (buyer).
+########################################################################
+
+namespace = sm_offer
+
+# ----------------------------------------------------------------------
+# Sale: pick which mothballed fleet to offer (up to 6). Entered from the hub.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.10
+	title = "sm_offer.10.name"
+	desc = {
+		trigger = { exists = event_target:sm_socand_1 }
+		text = "sm_offer.10.desc_list"
+	}
+	desc = {
+		trigger = { NOT = { exists = event_target:sm_socand_1 } }
+		text = "sm_offer.10.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = {
+		sm_reconcile_mothball_state = yes
+		sm_count_inventory = yes
+		sm_build_sale_offer_candidates = yes
+	}
+
+	option = { name = "sm_offer.10.pick_1" trigger = { exists = event_target:sm_socand_1  event_target:sm_socand_1 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_1 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_2" trigger = { exists = event_target:sm_socand_2  event_target:sm_socand_2 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_2 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_3" trigger = { exists = event_target:sm_socand_3  event_target:sm_socand_3 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_3 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_4" trigger = { exists = event_target:sm_socand_4  event_target:sm_socand_4 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_4 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_5" trigger = { exists = event_target:sm_socand_5  event_target:sm_socand_5 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_5 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_6" trigger = { exists = event_target:sm_socand_6  event_target:sm_socand_6 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_6 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Sale: pick the recipient empire (up to 40 contacted empires; the list scrolls).
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.20
+	title = "sm_offer.20.name"
+	desc = {
+		trigger = { exists = event_target:sm_orecip_1 }
+		text = "sm_offer.20.desc_list"
+	}
+	desc = {
+		trigger = { NOT = { exists = event_target:sm_orecip_1 } }
+		text = "sm_offer.20.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = { name = "sm_offer.20.pick_1"  trigger = { exists = event_target:sm_orecip_1   event_target:sm_orecip_1  = { sm_lease_target_valid = yes } } event_target:sm_orecip_1  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_2"  trigger = { exists = event_target:sm_orecip_2   event_target:sm_orecip_2  = { sm_lease_target_valid = yes } } event_target:sm_orecip_2  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_3"  trigger = { exists = event_target:sm_orecip_3   event_target:sm_orecip_3  = { sm_lease_target_valid = yes } } event_target:sm_orecip_3  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_4"  trigger = { exists = event_target:sm_orecip_4   event_target:sm_orecip_4  = { sm_lease_target_valid = yes } } event_target:sm_orecip_4  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_5"  trigger = { exists = event_target:sm_orecip_5   event_target:sm_orecip_5  = { sm_lease_target_valid = yes } } event_target:sm_orecip_5  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_6"  trigger = { exists = event_target:sm_orecip_6   event_target:sm_orecip_6  = { sm_lease_target_valid = yes } } event_target:sm_orecip_6  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_7"  trigger = { exists = event_target:sm_orecip_7   event_target:sm_orecip_7  = { sm_lease_target_valid = yes } } event_target:sm_orecip_7  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_8"  trigger = { exists = event_target:sm_orecip_8   event_target:sm_orecip_8  = { sm_lease_target_valid = yes } } event_target:sm_orecip_8  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_9"  trigger = { exists = event_target:sm_orecip_9   event_target:sm_orecip_9  = { sm_lease_target_valid = yes } } event_target:sm_orecip_9  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_10" trigger = { exists = event_target:sm_orecip_10  event_target:sm_orecip_10 = { sm_lease_target_valid = yes } } event_target:sm_orecip_10 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_11" trigger = { exists = event_target:sm_orecip_11 event_target:sm_orecip_11 = { sm_lease_target_valid = yes } } event_target:sm_orecip_11 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_12" trigger = { exists = event_target:sm_orecip_12 event_target:sm_orecip_12 = { sm_lease_target_valid = yes } } event_target:sm_orecip_12 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_13" trigger = { exists = event_target:sm_orecip_13 event_target:sm_orecip_13 = { sm_lease_target_valid = yes } } event_target:sm_orecip_13 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_14" trigger = { exists = event_target:sm_orecip_14 event_target:sm_orecip_14 = { sm_lease_target_valid = yes } } event_target:sm_orecip_14 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_15" trigger = { exists = event_target:sm_orecip_15 event_target:sm_orecip_15 = { sm_lease_target_valid = yes } } event_target:sm_orecip_15 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_16" trigger = { exists = event_target:sm_orecip_16 event_target:sm_orecip_16 = { sm_lease_target_valid = yes } } event_target:sm_orecip_16 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_17" trigger = { exists = event_target:sm_orecip_17 event_target:sm_orecip_17 = { sm_lease_target_valid = yes } } event_target:sm_orecip_17 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_18" trigger = { exists = event_target:sm_orecip_18 event_target:sm_orecip_18 = { sm_lease_target_valid = yes } } event_target:sm_orecip_18 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_19" trigger = { exists = event_target:sm_orecip_19 event_target:sm_orecip_19 = { sm_lease_target_valid = yes } } event_target:sm_orecip_19 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_20" trigger = { exists = event_target:sm_orecip_20 event_target:sm_orecip_20 = { sm_lease_target_valid = yes } } event_target:sm_orecip_20 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_21" trigger = { exists = event_target:sm_orecip_21 event_target:sm_orecip_21 = { sm_lease_target_valid = yes } } event_target:sm_orecip_21 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_22" trigger = { exists = event_target:sm_orecip_22 event_target:sm_orecip_22 = { sm_lease_target_valid = yes } } event_target:sm_orecip_22 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_23" trigger = { exists = event_target:sm_orecip_23 event_target:sm_orecip_23 = { sm_lease_target_valid = yes } } event_target:sm_orecip_23 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_24" trigger = { exists = event_target:sm_orecip_24 event_target:sm_orecip_24 = { sm_lease_target_valid = yes } } event_target:sm_orecip_24 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_25" trigger = { exists = event_target:sm_orecip_25 event_target:sm_orecip_25 = { sm_lease_target_valid = yes } } event_target:sm_orecip_25 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_26" trigger = { exists = event_target:sm_orecip_26 event_target:sm_orecip_26 = { sm_lease_target_valid = yes } } event_target:sm_orecip_26 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_27" trigger = { exists = event_target:sm_orecip_27 event_target:sm_orecip_27 = { sm_lease_target_valid = yes } } event_target:sm_orecip_27 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_28" trigger = { exists = event_target:sm_orecip_28 event_target:sm_orecip_28 = { sm_lease_target_valid = yes } } event_target:sm_orecip_28 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_29" trigger = { exists = event_target:sm_orecip_29 event_target:sm_orecip_29 = { sm_lease_target_valid = yes } } event_target:sm_orecip_29 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_30" trigger = { exists = event_target:sm_orecip_30 event_target:sm_orecip_30 = { sm_lease_target_valid = yes } } event_target:sm_orecip_30 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_31" trigger = { exists = event_target:sm_orecip_31 event_target:sm_orecip_31 = { sm_lease_target_valid = yes } } event_target:sm_orecip_31 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_32" trigger = { exists = event_target:sm_orecip_32 event_target:sm_orecip_32 = { sm_lease_target_valid = yes } } event_target:sm_orecip_32 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_33" trigger = { exists = event_target:sm_orecip_33 event_target:sm_orecip_33 = { sm_lease_target_valid = yes } } event_target:sm_orecip_33 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_34" trigger = { exists = event_target:sm_orecip_34 event_target:sm_orecip_34 = { sm_lease_target_valid = yes } } event_target:sm_orecip_34 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_35" trigger = { exists = event_target:sm_orecip_35 event_target:sm_orecip_35 = { sm_lease_target_valid = yes } } event_target:sm_orecip_35 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_36" trigger = { exists = event_target:sm_orecip_36 event_target:sm_orecip_36 = { sm_lease_target_valid = yes } } event_target:sm_orecip_36 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_37" trigger = { exists = event_target:sm_orecip_37 event_target:sm_orecip_37 = { sm_lease_target_valid = yes } } event_target:sm_orecip_37 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_38" trigger = { exists = event_target:sm_orecip_38 event_target:sm_orecip_38 = { sm_lease_target_valid = yes } } event_target:sm_orecip_38 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_39" trigger = { exists = event_target:sm_orecip_39 event_target:sm_orecip_39 = { sm_lease_target_valid = yes } } event_target:sm_orecip_39 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_40" trigger = { exists = event_target:sm_orecip_40 event_target:sm_orecip_40 = { sm_lease_target_valid = yes } } event_target:sm_orecip_40 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+
+	option = { name = "sm_offer.20.back"  country_event = { id = sm_offer.10 } }
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Sale: set the asking price, then send the offer. Mirrors sm_market.110, but the
+# confirm SENDS a direct offer to the chosen recipient instead of listing a board.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.30
+	title = "sm_offer.30.name"
+	desc = "sm_offer.30.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	# Fine increments, capped at +/-1000 (v0.9.20). Option keys are legacy names; the real step is `value`.
+	option = { name = "sm_offer.30.add_1k"   change_variable = { which = sm_working_price value = 1000 }  sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.add_5k"   change_variable = { which = sm_working_price value = 100 }   sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.add_25k"  change_variable = { which = sm_working_price value = 10 }    sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.add_100k" change_variable = { which = sm_working_price value = -10 }   sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.sub_5k"   change_variable = { which = sm_working_price value = -100 }  sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.sub_1k"   change_variable = { which = sm_working_price value = -1000 } sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.reset"    sm_set_recommended_price = yes                               country_event = { id = sm_offer.30 } }
+
+	# Confirm: send the offer to the recipient.
+	option = {
+		name = "sm_offer.30.send"
+		sm_send_sale_offer = yes
+		if = {
+			limit = { has_country_flag = sm_sale_offer_sent }
+			remove_country_flag = sm_sale_offer_sent
+			country_event = { id = sm_offer.40 }
+		}
+		else = { country_event = { id = sm_offer.41 } }
+	}
+
+	option = { name = "sm_offer.30.back"  country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.30.cancel" }
+}
+
+# ----------------------------------------------------------------------
+# Seller notices.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.40
+	title = "sm_offer.40.name"
+	desc = "sm_offer.40.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_offer.ok" }
+}
+country_event = {
+	id = sm_offer.41
+	title = "sm_offer.41.name"
+	desc = "sm_offer.41.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_offer.ok" }
+}
+country_event = {
+	id = sm_offer.200
+	title = "sm_offer.200.name"
+	desc = "sm_offer.200.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	# AI bookkeeping: the fleet was SOLD (new owner) - strip any AI-offer flags so
+	# they can't linger on the buyer's fleet. No-op for player-sent offers.
+	immediate = {
+		if = {
+			limit = { exists = event_target:sm_sale_offer_fleet }
+			event_target:sm_sale_offer_fleet = {
+				remove_fleet_flag = sm_ai_offered
+				remove_fleet_flag = sm_ai_wait
+			}
+		}
+	}
+	option = { name = "sm_offer.ok" }
+}
+country_event = {
+	id = sm_offer.210
+	title = "sm_offer.210.name"
+	desc = "sm_offer.210.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	# AI bookkeeping: offer answered (declined/expired) - clear the wait marker so
+	# the monthly reconcile un-mothballs the fleet. No-op for player-sent offers.
+	immediate = {
+		if = {
+			limit = { exists = event_target:sm_sale_offer_fleet }
+			event_target:sm_sale_offer_fleet = { remove_fleet_flag = sm_ai_wait }
+		}
+	}
+	option = { name = "sm_offer.ok" }
+}
+
+# ----------------------------------------------------------------------
+# Recipient: incoming sale offer. AI resolves by ai_chance; a human (multiplayer)
+# sees the popup and chooses. root = buyer (recipient). Mirrors sm_lease.50.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.100
+	title = "sm_offer.100.name"
+	desc = "sm_offer.100.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	# Present as a real DIPLOMATIC message from the seller: sender portrait +
+	# diplomacy room, and it persists in the recipient's message queue until
+	# answered. from = the seller (this event is fired from the seller's scope in
+	# sm_send_sale_offer). This is the closest moddable thing to a "diplomatic
+	# action" — we cannot add a true diplomacy-screen action (engine-hardcoded).
+	diplomatic = yes
+
+	# Reconstruct THIS offer's globals from the recipient's slot BEFORE the AI reads the
+	# accept trigger / ai_chance (which reference sm_sale_offer_*). Concurrent-offer safe.
+	immediate = { sm_load_deal_slot = yes }
+
+	# ACCEPT — only if the offer is still valid and affordable. AI weights mirror
+	# the lease heuristic: likelier if at war, militarily outmatched, fond of the
+	# seller, or the price is a bargain.
+	option = {
+		name = "sm_offer.100.accept"
+		trigger = {
+			exists = event_target:sm_sale_offer_fleet
+			event_target:sm_sale_offer_fleet = { has_fleet_flag = sm_offer_pending  exists = owner  NOT = { owner = { is_same_value = root } } }
+			OR = {
+				has_global_flag = sm_debug_ai_autoaccept   # DEBUG force-accept: skip affordability
+				resource_stockpile_compare = { resource = trade  value >= value:sm_sale_offer_price }
+			}
+		}
+		# Soft-weight model: NEED (do they want warships?) x LIKE-US (opinion/trust) x
+		# PRICE (vs a fair price). Everything is a multiplier - nothing is an absolute
+		# "never" - so a great deal can still tempt a neutral empire, and a friend at
+		# war will almost always bite. Evaluated in root = buyer scope.
+		ai_chance = {
+			base = 3
+			modifier = { factor = 1000  has_global_flag = sm_debug_ai_autoaccept }   # console testing: `effect set_global_flag = sm_debug_ai_autoaccept`
+
+			# --- NEED: does this empire actually want more fleets? ---
+			modifier = { factor = 4  is_at_war = yes }   # fighting now -> wants ships
+			modifier = {                                 # ...and being out-gunned by an active enemy
+				factor = 3
+				is_at_war = yes
+				any_country = {
+					is_at_war_with = prev
+					relative_power = { who = prev  category = fleet  value > equivalent }
+				}
+			}
+			modifier = { factor = 1.5  has_ethic = "ethic_militarist" }          # militarist -> values a strong navy
+			modifier = { factor = 2    has_ethic = "ethic_fanatic_militarist" }
+			modifier = {                                                          # threatened at peace: a rival outclasses their fleet
+				factor = 1.5
+				any_country = {
+					is_rival = prev
+					relative_power = { who = prev  category = fleet  value > equivalent }
+				}
+			}
+			modifier = { factor = 0.5  is_at_war = no  has_ethic = "ethic_pacifist" }          # peaceful pacifist -> little need
+			modifier = { factor = 0.3  is_at_war = no  has_ethic = "ethic_fanatic_pacifist" }
+
+			# --- STATE (v0.9.25): can they actually field and afford it right now? ---
+			modifier = { factor = 1.5  used_naval_capacity_percent < 0.7 }    # plenty of naval-cap headroom
+			modifier = { factor = 0.4  used_naval_capacity_percent > 0.95 }   # at/over cap - can't support more ships
+			modifier = { factor = 1.4  resource_stockpile_compare = { resource = trade  value >= 5000 } }  # deep treasury
+			modifier = { factor = 0.6  has_monthly_income = { resource = trade  value < 0 } }               # running a trade deficit
+			modifier = { factor = 1.3  resource_stockpile_compare = { resource = alloys  value < 500 } }     # alloy-starved - buying beats building
+
+			# --- LIKE US: opinion of, and trust in, the seller ---
+			modifier = { factor = 1.5  opinion = { who = event_target:sm_sale_offer_seller  value > 0 } }     # mildly positive
+			modifier = { factor = 2    opinion = { who = event_target:sm_sale_offer_seller  value > 40 } }    # warm
+			modifier = { factor = 2    opinion = { who = event_target:sm_sale_offer_seller  value > 100 } }   # close
+			modifier = { factor = 1.5  trust   = { who = event_target:sm_sale_offer_seller  value > 20 } }    # trusts us to deliver
+			modifier = { factor = 1.3  has_opinion_modifier = { who = event_target:sm_sale_offer_seller  modifier = opinion_sm_arms_supplier } }  # repeat customer
+			modifier = { factor = 0.5  opinion = { who = event_target:sm_sale_offer_seller  value < 0 } }     # dislikes us
+			modifier = { factor = 0.3  opinion = { who = event_target:sm_sale_offer_seller  value < -50 } }   # hostile
+
+			# --- DEALER REPUTATION & EDICTS (v0.9.29) ---
+			modifier = {
+				factor = 1.25
+				event_target:sm_sale_offer_seller = {
+					OR = {
+						has_valid_civic = civic_sm_arms_consortium
+						has_valid_civic = civic_sm_fleet_chandlers
+					}
+				}
+			}
+			# v0.9.39 Wartime Brokerage REWORK: war acceptance was already ~91-94%
+			# saturated, so the old flat x1.5 bought ~nothing. Instead, at-war
+			# buyers TOLERATE ~50% higher prices: the bargain/fair bands below are
+			# stretched x1.5 for them (margin, not more yeses). Penalty bands
+			# (>200/>300) are deliberately NOT stretched - gouging still reads as
+			# gouging.
+			modifier = {
+				factor = 2.0
+				is_at_war = yes
+				event_target:sm_sale_offer_seller = { has_edict = sm_wartime_brokerage }
+				event_target:sm_sale_offer_fleet = {
+					check_variable = { which = sm_deal_pct value >= 75 }
+					check_variable = { which = sm_deal_pct value < 112 }
+				}
+			}
+			modifier = {
+				factor = 1.4
+				is_at_war = yes
+				event_target:sm_sale_offer_seller = { has_edict = sm_wartime_brokerage }
+				event_target:sm_sale_offer_fleet = {
+					check_variable = { which = sm_deal_pct value >= 110 }
+					check_variable = { which = sm_deal_pct value < 165 }
+				}
+			}
+
+			# --- PRICE: how good is the deal vs a fair price? ---
+			modifier = { factor = 2.0  event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value < 75 } } }   # a bargain
+			modifier = { factor = 1.4  event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value < 110 } } }  # fair
+			modifier = { factor = 0.4  event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value > 200 } } }  # pricey
+			modifier = { factor = 0.15 event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value > 300 } } }  # gouging
+		}
+		sm_accept_sale_offer = yes
+		if = {
+			limit = { has_country_flag = sm_sale_bought }
+			remove_country_flag = sm_sale_bought
+			event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.200 } }
+			country_event = { id = sm_offer.201 }
+		}
+		else = { country_event = { id = sm_offer.202 } }
+	}
+
+	# DECLINE — always available; release the seller's reserved fleet.
+	option = {
+		name = "sm_offer.100.decline"
+		ai_chance = {
+			base = 10
+			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
+		}
+		sm_decline_sale_offer = yes
+		event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } }
+	}
+}
+
+# ----------------------------------------------------------------------
+# Buyer notices.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.201
+	title = "sm_offer.201.name"
+	desc = "sm_offer.201.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_offer.ok" }
+}
+country_event = {
+	id = sm_offer.202
+	title = "sm_offer.202.name"
+	desc = "sm_offer.202.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_offer.ok" }
+}
+
+# ----------------------------------------------------------------------
+# Monthly (on_monthly_pulse_country): auto-decline offers left unanswered for ~30
+# days. Fires only for a country that currently holds a pending player offer; ticks
+# its TTL and, once expired, releases the reservation, notifies the sender, frees the
+# slot. Covers BOTH sale and lease (root = the recipient). Also reclaims leaked slots.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.900
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = { has_country_flag = sm_pending_player_offer }
+	immediate = { sm_expire_stale_offers = yes }
+}
+
+# ----------------------------------------------------------------------
+# Monthly (on_monthly_pulse_country): AI-INITIATED deals (v0.9.25).
+# First reconciles last month's outcome (waking rejected/expired fleets -
+# "un-mothball at the end of the month"), then, if the AI is at peace, off
+# cooldown, holds no outbound deal, and has EXCESS fleets (>= 3 sellable, so
+# 2+ always remain), a SMALL chance to initiate ONE deal: a targeted lease
+# offer, a targeted sale offer (recipient may be human or AI), or a board
+# listing. Recipients decide in sm_lease.50 / sm_offer.100 exactly as for
+# player-sent offers.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_offer.950
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		is_ai = yes
+		sm_country_can_open_ship_market = yes
+		OR = {
+			has_country_flag = sm_ai_offer_out		# has an outbound deal -> needs the reconcile
+			any_owned_fleet = { has_fleet_flag = sm_ai_offered }
+			AND = {						# ...or could start one
+				OR = {					# v0.9.36 wartime profiteers: dealers deal at war
+					is_at_war = no
+					has_valid_civic = civic_sm_arms_consortium
+					has_valid_civic = civic_sm_fleet_chandlers
+				}
+				OR = {					# frenzy debug flag skips the cooldown
+					NOT = { has_country_flag = sm_ai_offer_cooldown }
+					has_global_flag = sm_debug_ai_frenzy
+				}
+				sm_deal_slot_free = yes
+			}
+		}
+	}
+
+	immediate = {
+		sm_ai_reconcile_offers = yes
+		if = {
+			limit = {
+				OR = {				# v0.9.36 wartime profiteers
+					is_at_war = no
+					has_valid_civic = civic_sm_arms_consortium
+					has_valid_civic = civic_sm_fleet_chandlers
+				}
+				NOT = { has_country_flag = sm_ai_offer_out }
+				OR = {
+					NOT = { has_country_flag = sm_ai_offer_cooldown }
+					has_global_flag = sm_debug_ai_frenzy		# DEBUG: sm_market_debug.6 toggle
+				}
+				sm_deal_slot_free = yes
+			}
+			# EXCESS check: count sellable spare fleets; require >= 3.
+			set_variable = { which = sm_ai_eligible_count value = 0 }
+			every_owned_fleet = {
+				limit = { sm_fleet_ai_sellable = yes }
+				prev = { change_variable = { which = sm_ai_eligible_count value = 1 } }
+			}
+			if = {
+				limit = { check_variable = { which = sm_ai_eligible_count value >= 3 } }
+				random_list = {
+					# usually: do nothing. Under the frenzy debug flag this branch
+					# zeroes out, so every eligible AI attempts a deal every month.
+					88 = { modifier = { factor = 0  has_global_flag = sm_debug_ai_frenzy } }
+					4 = {
+						# v0.9.36: dealer civics roll heavier (8 vs 4 each)
+						modifier = { add = 4  OR = { has_valid_civic = civic_sm_arms_consortium  has_valid_civic = civic_sm_fleet_chandlers } }
+						sm_ai_send_lease_offer = yes
+					}
+					4 = {
+						# v0.9.36: dealer civics roll heavier (8 vs 4 each)
+						modifier = { add = 4  OR = { has_valid_civic = civic_sm_arms_consortium  has_valid_civic = civic_sm_fleet_chandlers } }
+						sm_ai_send_sale_offer = yes
+					}
+					4 = {
+						# v0.9.36: dealer civics roll heavier (8 vs 4 each)
+						modifier = { add = 4  OR = { has_valid_civic = civic_sm_arms_consortium  has_valid_civic = civic_sm_fleet_chandlers } }
+						sm_ai_board_list_fleet = yes
+					}
+				}
+			}
+		}
+	}
+}

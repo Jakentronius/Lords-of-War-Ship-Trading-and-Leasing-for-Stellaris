@@ -1,0 +1,257 @@
+########################################################################
+# Ship Market - AI-initiated deals (v0.9.25). Stellaris 4.4.3 "Pegasus".
+#
+# Monthly (sm_offer.950), an AI empire with EXCESS fleets, at peace, may
+# initiate ONE outbound deal: a targeted SALE offer, a targeted LEASE offer
+# (recipient = any contacted empire, human or AI - decided in sm_offer.100 /
+# sm_lease.50 exactly like player-sent offers), or a listing on the open
+# board. Rules (per design):
+#   * EXCESS only: needs >= 3 sellable spare fleets, so 2+ always remain.
+#   * ONE deal at a time: the sm_ai_offer_out country flag latches while any
+#     outbound deal (offer pending / board listing / leased-out fleet) lives.
+#   * REJECTED/EXPIRED offers: the fleet un-mothballs at the END OF THE MONTH
+#     (sm_ai_reconcile_offers), instantly - no recommission for AI cleanup.
+#   * Board listings get a ~6-month shelf life, then unlist + wake.
+#
+# Bookkeeping flags on the fleet:
+#   sm_ai_offered - this mothballed fleet is part of an AI-initiated deal
+#   sm_ai_wait    - the targeted offer is still awaiting an answer; cleared by
+#                   the seller notice events (sm_offer.200/.210, sm_lease.55/.56)
+#                   which ALWAYS fire (decline, accept, and 30-day TTL expiry).
+# Scripted-effect call depth kept <= 5.
+########################################################################
+
+# COUNTRY SCOPE (root = AI). Monthly cleanup of AI-initiated deals.
+sm_ai_reconcile_offers = {
+	# Board listings: tick the shelf life; unsold after ~6 months -> unlist + wake.
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_ai_offered  has_fleet_flag = sm_market_listing }
+		change_variable = { which = sm_ai_list_ttl value = -30 }
+	}
+	every_owned_fleet = {
+		limit = {
+			has_fleet_flag = sm_ai_offered
+			has_fleet_flag = sm_market_listing
+			check_variable = { which = sm_ai_list_ttl value < 1 }
+		}
+		sm_unlist_fleet = yes
+		remove_fleet_flag = sm_ai_offered
+		clear_variable = sm_ai_list_ttl
+		sm_clear_mothball = yes
+	}
+	# Targeted offer concluded without a deal (declined or expired; the notice
+	# event cleared sm_ai_wait) -> wake instantly.
+	every_owned_fleet = {
+		limit = {
+			has_fleet_flag = sm_ai_offered
+			has_fleet_flag = sm_mothballed
+			NOT = { has_fleet_flag = sm_ai_wait }
+			NOT = { has_fleet_flag = sm_offer_pending }
+			NOT = { has_fleet_flag = sm_market_listing }
+			NOT = { has_fleet_flag = sm_leased_out }
+			is_leased = no
+		}
+		remove_fleet_flag = sm_ai_offered
+		sm_clear_mothball = yes
+	}
+	# Deal went through (fleet leased out) or the fleet is somehow active again:
+	# drop the bookkeeping flags. (Sold fleets change owner; sm_offer.200 clears
+	# their flags at sale time.)
+	every_owned_fleet = {
+		limit = {
+			has_fleet_flag = sm_ai_offered
+			OR = {
+				has_fleet_flag = sm_leased_out
+				NOT = { has_fleet_flag = sm_mothballed }
+			}
+		}
+		remove_fleet_flag = sm_ai_offered
+		remove_fleet_flag = sm_ai_wait
+	}
+	# Free the one-deal-at-a-time latch once nothing is out any more. (A leased-out
+	# fleet keeps the latch until the lease ends - "one at a time" counts it.)
+	if = {
+		limit = {
+			has_country_flag = sm_ai_offer_out
+			NOR = {
+				any_owned_fleet = { has_fleet_flag = sm_ai_offered }
+				any_owned_fleet = { has_fleet_flag = sm_leased_out }
+				any_owned_fleet = { has_fleet_flag = sm_offer_pending }
+				any_owned_fleet = { has_fleet_flag = sm_market_listing }
+			}
+		}
+		remove_country_flag = sm_ai_offer_out
+	}
+}
+
+# COUNTRY SCOPE (root = AI seller). v0.9.36: dealer civics run half the deal
+# cooldown (180d vs 360d) - the supply-side buff that actually moves volume
+# (acceptance x1.25 on a fixed pipeline moved dealer income only ~+2% in the
+# predictor sweeps).
+sm_ai_set_deal_cooldown = {
+	if = {
+		limit = {
+			OR = {
+				has_valid_civic = civic_sm_arms_consortium
+				has_valid_civic = civic_sm_fleet_chandlers
+			}
+		}
+		set_timed_country_flag = { flag = sm_ai_offer_cooldown days = 180 }
+	}
+	else = {
+		set_timed_country_flag = { flag = sm_ai_offer_cooldown days = 360 }
+	}
+}
+
+# COUNTRY SCOPE (root = AI seller). Pick a recipient + surplus fleet and send a
+# targeted SALE offer at ~fair price (recommended x0.7 = ~105% of build value).
+# Caller guarantees: at peace, no latch, slot free, >= 3 sellable fleets.
+sm_ai_send_sale_offer = {
+	random_country = {
+		limit = {
+			sm_lease_target_valid = yes
+			NOT = { has_country_flag = sm_pending_player_offer }
+			opinion = { who = root  value > -50 }
+		}
+		save_event_target_as = sm_offer_recipient
+	}
+	if = {
+		limit = { exists = event_target:sm_offer_recipient }
+		random_owned_fleet = {
+			limit = { sm_fleet_ai_sellable = yes }
+			if = { limit = { exists = leader } leader = { unassign_leader = this } }
+			sm_mothball_fleet = yes
+			set_fleet_flag = sm_ai_offered
+			set_fleet_flag = sm_ai_wait
+			save_event_target_as = sm_pending_fleet
+		}
+		if = {
+			limit = { exists = event_target:sm_pending_fleet }
+			sm_set_recommended_price = yes
+			multiply_variable = { which = sm_working_price value = 0.7 }
+			sm_clamp_working_price = yes
+			sm_send_sale_offer = yes
+			if = {
+				limit = { has_country_flag = sm_sale_offer_sent }
+				remove_country_flag = sm_sale_offer_sent
+				set_country_flag = sm_ai_offer_out
+				sm_ai_set_deal_cooldown = yes
+			}
+			else = {
+				# Could not send (slot race) -> undo the mothball immediately.
+				event_target:sm_pending_fleet = {
+					remove_fleet_flag = sm_ai_offered
+					remove_fleet_flag = sm_ai_wait
+					sm_clear_mothball = yes
+				}
+			}
+		}
+	}
+}
+
+# COUNTRY SCOPE (root = AI lessor). Pick a recipient + surplus fleet and send a
+# targeted LEASE offer: 3-year term at ~fair fee (recommended x0.8).
+sm_ai_send_lease_offer = {
+	random_country = {
+		limit = {
+			sm_lease_target_valid = yes
+			NOT = { has_country_flag = sm_pending_player_offer }
+			opinion = { who = root  value > -50 }
+		}
+		save_event_target_as = sm_lease_target
+	}
+	if = {
+		limit = { exists = event_target:sm_lease_target }
+		random_owned_fleet = {
+			limit = { sm_fleet_ai_sellable = yes }
+			if = { limit = { exists = leader } leader = { unassign_leader = this } }
+			sm_mothball_fleet = yes
+			set_fleet_flag = sm_ai_offered
+			set_fleet_flag = sm_ai_wait
+			set_variable = { which = sm_lease_offer_days value = 1080 }
+			save_event_target_as = sm_lease_fleet
+		}
+		if = {
+			limit = { exists = event_target:sm_lease_fleet }
+			# v0.9.26: AI offers AT the term-aware recommendation (break-even at 60%
+			# of the fixed 3y term) - no discount; ratio = 100 reads as "fair".
+			sm_set_reco_lease_fee = yes
+			sm_prepare_offer = yes
+			# sm_prepare_offer has no success flag; it flags the recipient on success
+			# (and our recipient pick required the flag absent), so check that.
+			if = {
+				limit = { event_target:sm_lease_target = { has_country_flag = sm_pending_player_offer } }
+				set_country_flag = sm_ai_offer_out
+				sm_ai_set_deal_cooldown = yes
+			}
+			else = {
+				event_target:sm_lease_fleet = {
+					remove_fleet_flag = sm_ai_offered
+					remove_fleet_flag = sm_ai_wait
+					clear_variable = sm_lease_offer_days
+					sm_clear_mothball = yes
+				}
+			}
+		}
+	}
+}
+
+# COUNTRY SCOPE (any AI). DEBUG: attempt ONE deal RIGHT NOW, ignoring the monthly
+# chance and the cooldown (latch, free slot, peace, and the >= 3 excess rule still
+# apply, so it can't strip navies). Fired per country by sm_market_debug.7.
+sm_ai_force_deal_now = {
+	if = {
+		limit = {
+			is_ai = yes
+			sm_country_can_open_ship_market = yes
+			# v0.9.36 wartime profiteers: dealer civics may deal WHILE AT WAR
+			# (demand peaks exactly when the peace gate used to bind).
+			OR = {
+				is_at_war = no
+				has_valid_civic = civic_sm_arms_consortium
+				has_valid_civic = civic_sm_fleet_chandlers
+			}
+			NOT = { has_country_flag = sm_ai_offer_out }
+			sm_deal_slot_free = yes
+		}
+		set_variable = { which = sm_ai_eligible_count value = 0 }
+		every_owned_fleet = {
+			limit = { sm_fleet_ai_sellable = yes }
+			prev = { change_variable = { which = sm_ai_eligible_count value = 1 } }
+		}
+		if = {
+			limit = { check_variable = { which = sm_ai_eligible_count value >= 3 } }
+			random_list = {
+				34 = { sm_ai_send_lease_offer = yes }
+				33 = { sm_ai_send_sale_offer = yes }
+				33 = { sm_ai_board_list_fleet = yes }
+			}
+		}
+	}
+}
+
+# COUNTRY SCOPE (root = AI seller). List one surplus fleet on the open board at a
+# modest price (recommended x0.7), with a ~6-month shelf life (see reconcile).
+sm_ai_board_list_fleet = {
+	random_owned_fleet = {
+		limit = { sm_fleet_ai_sellable = yes }
+		if = { limit = { exists = leader } leader = { unassign_leader = this } }
+		sm_mothball_fleet = yes
+		set_fleet_flag = sm_ai_offered
+		set_variable = { which = sm_ai_list_ttl value = 180 }
+		save_event_target_as = sm_pending_fleet
+	}
+	if = {
+		limit = {
+			exists = event_target:sm_pending_fleet
+			event_target:sm_pending_fleet = { sm_fleet_can_be_listed = yes }
+		}
+		sm_set_recommended_price = yes
+		multiply_variable = { which = sm_working_price value = 0.7 }
+		sm_clamp_working_price = yes
+		event_target:sm_pending_fleet = { sm_list_fleet = yes }
+		remove_country_flag = sm_just_listed
+		set_country_flag = sm_ai_offer_out
+		sm_ai_set_deal_cooldown = yes
+	}
+}

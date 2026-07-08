@@ -1,0 +1,81 @@
+################################################################################
+# Ship Market - flat pop-up HUD dashboard (v0.9.25). Vanilla-only.
+#
+# v0.9.25 FLATTENED: no tab layer. The launcher toggles sm_dashboard_open, which
+# gates ONE action panel (Buy / Sell / Lease Out / Mothball Bay / Contracts).
+# Every element is an effectButtonType; visibility = its effect's `potential`.
+# Action buttons close the dashboard, then open their event screen.
+#
+# The if/else_if country-scope dance: effectButtonType effects can run in a
+# non-country scope depending on where the engine dispatches the click, so each
+# action resolves the player country via `is_scope_type` or `from`.
+################################################################################
+
+# ---- Launcher (always visible): open/close the whole dashboard ----------------
+sm_dashboard_toggle_effect = {
+	potential = { always = yes }
+	allow     = { always = yes }
+	effect = {
+		if = {
+			limit = { has_global_flag = sm_dashboard_open }
+			remove_global_flag = sm_dashboard_open
+		}
+		else = { set_global_flag = sm_dashboard_open }
+		# One-time hygiene: clear the retired v0.9.17 tab flags from old saves.
+		remove_global_flag = sm_tab_trade
+		remove_global_flag = sm_tab_lease
+		remove_global_flag = sm_tab_fleet
+		remove_global_flag = sm_tab_contracts
+	}
+}
+
+# ---- Action buttons: close the dashboard, then open the screen ----------------
+# (v0.9.26: the panel backing + its noop effect were removed - shading registered
+# slightly off the buttons.)
+sm_open_buy_effect = {
+	potential = { has_global_flag = sm_dashboard_open }
+	allow     = { always = yes }
+	effect = {
+		remove_global_flag = sm_dashboard_open
+		if      = { limit = { is_scope_type = country }                          country_event = { id = sm_market.1 } }
+		else_if = { limit = { exists = from  from = { is_scope_type = country } } from = { country_event = { id = sm_market.1 } } }
+	}
+}
+sm_open_sell_effect = {
+	potential = { has_global_flag = sm_dashboard_open }
+	allow     = { always = yes }
+	effect = {
+		remove_global_flag = sm_dashboard_open
+		if      = { limit = { is_scope_type = country }                          country_event = { id = sm_offer.10 } }
+		else_if = { limit = { exists = from  from = { is_scope_type = country } } from = { country_event = { id = sm_offer.10 } } }
+	}
+}
+# v0.9.25: goes straight to the fleet picker (sm_lease.10) - the sm_lease.1 mini-hub
+# was retired; "manage leases" now lives on the Contracts screen (sm_market.54).
+sm_open_lease_effect = {
+	potential = { has_global_flag = sm_dashboard_open }
+	allow     = { always = yes }
+	effect = {
+		remove_global_flag = sm_dashboard_open
+		if      = { limit = { is_scope_type = country }                          country_event = { id = sm_lease.10 } }
+		else_if = { limit = { exists = from  from = { is_scope_type = country } } from = { country_event = { id = sm_lease.10 } } }
+	}
+}
+sm_open_mothball_effect = {
+	potential = { has_global_flag = sm_dashboard_open }
+	allow     = { always = yes }
+	effect = {
+		remove_global_flag = sm_dashboard_open
+		if      = { limit = { is_scope_type = country }                          country_event = { id = sm_market.400 } }
+		else_if = { limit = { exists = from  from = { is_scope_type = country } } from = { country_event = { id = sm_market.400 } } }
+	}
+}
+sm_contracts_view_effect = {
+	potential = { has_global_flag = sm_dashboard_open }
+	allow     = { always = yes }
+	effect = {
+		remove_global_flag = sm_dashboard_open
+		if      = { limit = { is_scope_type = country }                          country_event = { id = sm_market.54 } }
+		else_if = { limit = { exists = from  from = { is_scope_type = country } } from = { country_event = { id = sm_market.54 } } }
+	}
+}

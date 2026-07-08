@@ -1,0 +1,134 @@
+########################################################################
+# Ship Commerce Menu - Scripted Effects (v0.9.4). Stellaris 4.4.3 "Pegasus".
+#   sm_count_inventory       - tally the player's fleet inventory into vars for
+#                              the hub dashboard (sm_market.5 desc).
+#   sm_build_diplo_candidates- snapshot up to 10 contacted empires into event
+#                              targets and cache each one's opinion of the player
+#                              for the diplomacy-lite view (sm_market.600).
+########################################################################
+
+# COUNTRY SCOPE (player, root). Count owned fleets by state into display vars.
+# Mirrors the every_owned_fleet + prev pattern used by sm_market_debug.10.
+# Buckets are made distinct so totals don't double-count:
+#   active  = live military fleets (not stored / leased out / reactivating)
+#   storage = mothballed but NOT listed and NOT offered (pure inventory)
+#   listed  = on the open market board     pending = out as a direct sale offer
+#   leased  = leased out to another empire  react = recommissioning back to service
+sm_count_inventory = {
+	set_variable = { which = sm_inv_active  value = 0 }
+	set_variable = { which = sm_inv_storage value = 0 }
+	set_variable = { which = sm_inv_listed  value = 0 }
+	set_variable = { which = sm_inv_pending value = 0 }
+	set_variable = { which = sm_inv_leased  value = 0 }
+	set_variable = { which = sm_inv_react   value = 0 }
+
+	every_owned_fleet = {
+		limit = {
+			is_ship_class = shipclass_military
+			NOT = { has_fleet_flag = sm_mothballed }
+			NOT = { has_fleet_flag = sm_leased_out }
+			NOT = { has_modifier = sm_reactivating_fleet }
+		}
+		prev = { change_variable = { which = sm_inv_active value = 1 } }
+	}
+	every_owned_fleet = {
+		limit = {
+			has_fleet_flag = sm_mothballed
+			NOT = { has_fleet_flag = sm_market_listing }
+			NOT = { has_fleet_flag = sm_offer_pending }
+		}
+		prev = { change_variable = { which = sm_inv_storage value = 1 } }
+	}
+	every_owned_fleet = { limit = { has_fleet_flag = sm_market_listing } prev = { change_variable = { which = sm_inv_listed value = 1 } } }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_offer_pending } prev = { change_variable = { which = sm_inv_pending value = 1 } } }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_leased_out } prev = { change_variable = { which = sm_inv_leased value = 1 } } }
+	every_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet } prev = { change_variable = { which = sm_inv_react value = 1 } } }
+
+	# --- Aggregate KPIs for the terminal dashboard (v0.9.9) --------------------
+	# Total monthly lease income = Σ leased fleets' sm_lease_monthly_fee. Read via a
+	# saved local event target (event_target:X.var) - the reliable cross-scope read
+	# here; `prev.var` did NOT resolve the fleet's variable. `prev` = the owner country.
+	# LEASING: total monthly income + total fleet power leased out. sm_fp / fee are
+	# cached on each fleet; read via a saved event target (event_target:X.var).
+	set_variable = { which = sm_total_lease_income value = 0 }
+	set_variable = { which = sm_fp_leased value = 0 }
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_leased_out }
+		save_event_target_as = sm_sum_fleet
+		prev = {
+			change_variable = { which = sm_total_lease_income value = event_target:sm_sum_fleet.sm_lease_monthly_fee }
+			# sm_leased_fp is the fleet's power captured at lease hand-over (sm_fp is cleared
+			# when the fleet is woken for the lessee - see sm_finalize_lease).
+			change_variable = { which = sm_fp_leased value = event_target:sm_sum_fleet.sm_leased_fp }
+		}
+	}
+	# FLEETS (in storage): total alloy value + total fleet power. RECOMPUTE each stored
+	# fleet's sm_cost_alloys first (sm_fleet_alloys reads event_target:sm_stat_fleet), so
+	# values captured before the sm_fleet_alloys fix refresh, then sum value + power.
+	set_variable = { which = sm_total_mothball_alloys value = 0 }
+	set_variable = { which = sm_fp_stored value = 0 }
+	every_owned_fleet = {
+		limit = {
+			has_fleet_flag = sm_mothballed
+			NOT = { has_fleet_flag = sm_market_listing }
+			NOT = { has_fleet_flag = sm_offer_pending }
+		}
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+		prev = {
+			change_variable = { which = sm_total_mothball_alloys value = event_target:sm_stat_fleet.sm_cost_alloys }
+			change_variable = { which = sm_fp_stored value = event_target:sm_stat_fleet.sm_fp }
+		}
+	}
+	# TRADE (listed for sale / pending offer): total alloy value + total fleet power.
+	set_variable = { which = sm_val_listed value = 0 }
+	set_variable = { which = sm_fp_listed value = 0 }
+	every_owned_fleet = {
+		limit = { OR = { has_fleet_flag = sm_market_listing  has_fleet_flag = sm_offer_pending } }
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+		prev = {
+			change_variable = { which = sm_val_listed value = event_target:sm_stat_fleet.sm_cost_alloys }
+			change_variable = { which = sm_fp_listed value = event_target:sm_stat_fleet.sm_fp }
+		}
+	}
+}
+
+# COUNTRY SCOPE (player, root). Snapshot up to 6 empires that currently have a
+# pending offer from the player (flagged sm_pending_player_offer) into sm_ocand_1..6 -
+# the "O" (offer pending) rows of the Outstanding Contracts table.
+sm_build_offer_candidates = {
+	# Clear stale slots first (globals persist -> ghost rows when the list shrinks).
+	clear_global_event_target = sm_ocand_1  clear_global_event_target = sm_ocand_2  clear_global_event_target = sm_ocand_3
+	clear_global_event_target = sm_ocand_4  clear_global_event_target = sm_ocand_5  clear_global_event_target = sm_ocand_6
+	every_country = { limit = { has_country_flag = sm_ocand_tmp } remove_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_1 set_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_2 set_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_3 set_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_4 set_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_5 set_country_flag = sm_ocand_tmp }
+	random_country = { limit = { has_country_flag = sm_pending_player_offer  sm_offer_sent_by_root = yes  NOT = { has_country_flag = sm_ocand_tmp } } save_global_event_target_as = sm_ocand_6 set_country_flag = sm_ocand_tmp }
+	every_country = { limit = { has_country_flag = sm_ocand_tmp } remove_country_flag = sm_ocand_tmp }
+}
+
+# COUNTRY SCOPE (player, root). Snapshot up to 10 contacted empires into
+# event_target:sm_dipl_1..10 and cache each empire's opinion of the player.
+# set_variable runs in the CANDIDATE's scope, so value:sm_opinion_of_root resolves
+# to THAT empire's opinion of root (the player) - see the script value. It is stored
+# on the empire as sm_dipl_op, which sm_dipl_<n>_op reads for display.
+sm_build_diplo_candidates = {
+	clear_global_event_target = sm_dipl_1  clear_global_event_target = sm_dipl_2  clear_global_event_target = sm_dipl_3  clear_global_event_target = sm_dipl_4  clear_global_event_target = sm_dipl_5
+	clear_global_event_target = sm_dipl_6  clear_global_event_target = sm_dipl_7  clear_global_event_target = sm_dipl_8  clear_global_event_target = sm_dipl_9  clear_global_event_target = sm_dipl_10
+	every_country = { limit = { has_country_flag = sm_dipl_tmp } remove_country_flag = sm_dipl_tmp }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_1  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_2  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_3  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_4  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_5  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_6  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_7  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_8  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_9  set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	random_country = { limit = { sm_diplo_listable = yes NOT = { has_country_flag = sm_dipl_tmp } } save_global_event_target_as = sm_dipl_10 set_country_flag = sm_dipl_tmp  set_variable = { which = sm_dipl_op value = value:sm_opinion_of_root } }
+	every_country = { limit = { has_country_flag = sm_dipl_tmp } remove_country_flag = sm_dipl_tmp }
+}

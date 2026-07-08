@@ -1,0 +1,23 @@
+# Ship Market - disable auto-pause on event popups.
+#
+# Stellaris' built-in EVENT_MESSAGE_TYPE (00_message_types.txt) ships with
+# default_autopause = yes AND can_disable = no, so EVERY event popup (our menus,
+# the offer notices, and vanilla events) hard-pauses the game with no per-event
+# opt-out. There is no country_event token to override this; the only lever is to
+# redefine the message type. This file loads after 00_message_types.txt (zz_ prefix)
+# and overrides that one key with default_autopause = no, leaving every other message
+# type untouched. Fully reversible: delete this file to restore vanilla auto-pause.
+#
+# Definition reproduced verbatim from vanilla except default_autopause.
+message_type = {
+	key = "EVENT_MESSAGE_TYPE"
+	icon = "GFX_message_other_alert"
+	icon_frame = 1
+
+	ping = "mixed_notification_yellow"
+
+	default_autopause = no
+	default_notification = no
+	default_popup = yes
+	can_disable = no
+}

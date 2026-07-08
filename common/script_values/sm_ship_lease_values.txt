@@ -1,0 +1,31 @@
+########################################################################
+# Ship Lease - Script Values (v0.9.26)
+# Target: Stellaris 4.4.3 "Pegasus". Flat math only; `mult` (not `multiply`).
+# Lease economics: a MONTHLY fee billed lessee -> lessor each month, plus the
+# first month charged upfront on signing.
+########################################################################
+
+# SUGGESTED monthly fee. v0.9.26: TERM-AWARE, computed in the effect
+# sm_compute_lease_reco (script values can't branch on the chosen term) and
+# stored on the lessor as sm_lease_reco_fee; this value just reads it back
+# (current scope = the lessor) for loc display. Design: the lessor breaks even
+# on the fleet's value partway through the term and profits after -
+#   1y: 80%   3y: 60%   5y: 50%   10y: 40%
+# (totals 1.25x / 1.67x / 2.0x / 2.5x of fleet value over the full term).
+sm_lease_reco_monthly = { base = 0  add = sm_lease_reco_fee }
+
+# The seller's working monthly fee while setting up an offer (current scope = lessor).
+sm_lease_working_fee_display = { base = 0  add = sm_lease_working_fee }
+
+# Offer/finalize (lessee side): the monthly fee stored on the offered fleet.
+sm_offer_fee = { base = 0  add = event_target:sm_lease_offer_fleet.sm_lease_monthly_fee }
+
+# Monthly billing: the fee stored on the fleet currently being billed.
+sm_billed_fee = { base = 0  add = event_target:sm_bill_fleet.sm_lease_monthly_fee }
+
+# Offer term in days, read off the offered fleet (lessee-side offer desc).
+sm_lease_offer_days_display = { base = 0  add = event_target:sm_lease_offer_fleet.sm_lease_offer_days }
+
+# Destroyed-mid-contract settlement: remaining contract value, stored on the
+# notice recipient (both lessor and lessee carry a copy - see sm_lease.910).
+sm_settle_value = { base = 0  add = sm_settle_total }

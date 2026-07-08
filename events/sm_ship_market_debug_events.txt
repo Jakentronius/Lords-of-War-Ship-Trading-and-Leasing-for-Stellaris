@@ -1,0 +1,279 @@
+########################################################################
+# Ship Market - Debug Events (v0.1)
+# Target: Stellaris 4.4.3 "Pegasus".
+# Fire from the in-game console, e.g.:  event sm_market_debug.1
+# These never delete fleets; cleanup always prefers unlocking.
+########################################################################
+
+namespace = sm_market_debug
+
+# Force-clear all market slots (unlocks listed fleets if they still exist).
+country_event = {
+	id = sm_market_debug.1
+	title = "sm_market_debug.1.name"
+	desc = "sm_market_debug.1.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		sm_clear_all_listings = yes
+	}
+}
+
+# Unlock any of MY fleets that are stuck with listing flags.
+country_event = {
+	id = sm_market_debug.2
+	title = "sm_market_debug.2.name"
+	desc = "sm_market_debug.2.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		every_owned_fleet = {
+			limit = { OR = { has_fleet_flag = sm_market_listing  has_fleet_flag = sm_mothballed } }
+			sm_force_reactivate_fleet = yes
+		}
+		sm_refresh_seller_mothball_modifier = yes
+	}
+}
+
+# Force every eligible AI empire to list a surplus fleet right now (clears their
+# cooldown first). For verifying the AI-seller feature without waiting.
+country_event = {
+	id = sm_market_debug.3
+	title = "sm_market_debug.3.name"
+	desc = "sm_market_debug.3.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		every_country = {
+			limit = {
+				is_ai = yes
+				sm_country_can_sell_on_ship_market = yes
+				is_at_war = no
+			}
+			# Fill toward the per-empire cap (each call lists one more).
+			sm_ai_list_surplus_fleet = yes
+			sm_ai_list_surplus_fleet = yes
+			sm_ai_list_surplus_fleet = yes
+		}
+	}
+}
+
+# Force every eligible AI empire to try BUYING a listing now (a few attempts each).
+# For verifying AI buyers / watching trades on demand.
+country_event = {
+	id = sm_market_debug.4
+	title = "sm_market_debug.4.name"
+	desc = "sm_market_debug.4.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		every_country = {
+			limit = { is_ai = yes  sm_country_can_open_ship_market = yes }
+			sm_ai_pick_listing = yes
+			if = {
+				limit = {
+					has_country_flag = sm_ai_found_listing
+					resource_stockpile_compare = { resource = trade  value >= value:sm_inspect_price }
+				}
+				sm_buy_fleet = yes
+				sm_trade_watch_notify = yes
+			}
+			remove_country_flag = sm_ai_found_listing
+		}
+	}
+}
+
+# Toggle the trade-watch: while on, each AI purchase pops a notification to you.
+country_event = {
+	id = sm_market_debug.5
+	title = "sm_market_debug.5.name"
+	desc = "sm_market_debug.5.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		if = { limit = { has_global_flag = sm_trade_watch } remove_global_flag = sm_trade_watch }
+		else = { set_global_flag = sm_trade_watch }
+	}
+}
+
+# Toggle AI DEAL FRENZY (v0.9.27): while on, every eligible AI attempts a deal
+# EVERY month (the 88% do-nothing branch zeroes out and the 1-year cooldown is
+# skipped in sm_offer.950). Excess/latch/slot rules still apply. Fire with:
+#   event sm_market_debug.6
+country_event = {
+	id = sm_market_debug.6
+	title = "sm_market_debug.6.name"
+	desc = "sm_market_debug.6.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		if = { limit = { has_global_flag = sm_debug_ai_frenzy } remove_global_flag = sm_debug_ai_frenzy }
+		else = { set_global_flag = sm_debug_ai_frenzy }
+	}
+}
+
+# Force AI deals RIGHT NOW (v0.9.27): every eligible AI immediately attempts one
+# deal (targeted lease/sale offer or board listing), ignoring the monthly chance
+# and cooldown. Latch, free-slot, at-peace and the >= 3-spare-fleets rule still
+# apply. Pair with sm_debug_ai_autoaccept to watch deals complete. Fire with:
+#   event sm_market_debug.7
+country_event = {
+	id = sm_market_debug.7
+	title = "sm_market_debug.7.name"
+	desc = "sm_market_debug.7.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		hidden_effect = {
+			every_country = { sm_ai_force_deal_now = yes }
+		}
+	}
+}
+
+# Toggle TELEMETRY (v0.9.32): while on, every empire logs a yearly market census
+# line (SM_TELEM,...) to game.log; deal ledger lines (SM_DEAL,...) always log.
+# Parse with tools/parse_telemetry.py. Fire with: event sm_market_debug.9
+country_event = {
+	id = sm_market_debug.9
+	title = "sm_market_debug.9.name"
+	desc = "sm_market_debug.9.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.ok"
+		if = { limit = { has_global_flag = sm_telemetry } remove_global_flag = sm_telemetry }
+		else = { set_global_flag = sm_telemetry }
+	}
+}
+
+# MOTHBALL STATE REPORT (v0.9.28): one-click diagnosis of the whole mothball
+# pipeline. Counts every fleet-state bucket, including the two trigger conditions
+# that emptied the pickers in v0.9.26 (off-map = NOT exists solar_system, and
+# in-combat) so a regression is visible as a NUMBER instead of a mystery.
+# "moth+offmap" > 0 while your mothballed fleets sit in home systems = proof the
+# solar_system check misbehaves on mothballed fleets. Fire with:
+#   event sm_market_debug.8
+country_event = {
+	id = sm_market_debug.8
+	title = "sm_market_debug.8.name"
+	desc = "sm_market_debug.8.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = {
+		# Count desyncs BEFORE repairing, then reconcile (flag<->modifier heal).
+		set_variable = { which = sm_dbgm_mil value = 0 }
+		set_variable = { which = sm_dbgm_flag value = 0 }
+		set_variable = { which = sm_dbgm_mod value = 0 }
+		set_variable = { which = sm_dbgm_desync value = 0 }
+		set_variable = { which = sm_dbgm_listed value = 0 }
+		set_variable = { which = sm_dbgm_pending value = 0 }
+		set_variable = { which = sm_dbgm_lout value = 0 }
+		set_variable = { which = sm_dbgm_react value = 0 }
+		set_variable = { which = sm_dbgm_offmap value = 0 }
+		set_variable = { which = sm_dbgm_mothoff value = 0 }
+		set_variable = { which = sm_dbgm_combat value = 0 }
+		every_owned_fleet = { limit = { is_ship_class = shipclass_military } prev = { change_variable = { which = sm_dbgm_mil value = 1 } } }
+		every_owned_fleet = { limit = { has_fleet_flag = sm_mothballed } prev = { change_variable = { which = sm_dbgm_flag value = 1 } } }
+		every_owned_fleet = { limit = { has_modifier = sm_mothballed_fleet } prev = { change_variable = { which = sm_dbgm_mod value = 1 } } }
+		every_owned_fleet = {
+			limit = {
+				OR = {
+					AND = { has_fleet_flag = sm_mothballed  NOT = { has_modifier = sm_mothballed_fleet }  NOT = { has_modifier = sm_reactivating_fleet } }
+					AND = { has_modifier = sm_mothballed_fleet  NOT = { has_fleet_flag = sm_mothballed } }
+				}
+			}
+			prev = { change_variable = { which = sm_dbgm_desync value = 1 } }
+		}
+		every_owned_fleet = { limit = { has_fleet_flag = sm_market_listing } prev = { change_variable = { which = sm_dbgm_listed value = 1 } } }
+		every_owned_fleet = { limit = { has_fleet_flag = sm_offer_pending } prev = { change_variable = { which = sm_dbgm_pending value = 1 } } }
+		every_owned_fleet = { limit = { has_fleet_flag = sm_leased_out } prev = { change_variable = { which = sm_dbgm_lout value = 1 } } }
+		every_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet } prev = { change_variable = { which = sm_dbgm_react value = 1 } } }
+		every_owned_fleet = { limit = { is_ship_class = shipclass_military  NOT = { exists = solar_system } } prev = { change_variable = { which = sm_dbgm_offmap value = 1 } } }
+		every_owned_fleet = { limit = { has_fleet_flag = sm_mothballed  NOT = { exists = solar_system } } prev = { change_variable = { which = sm_dbgm_mothoff value = 1 } } }
+		every_owned_fleet = { limit = { is_ship_class = shipclass_military  is_in_combat = yes } prev = { change_variable = { which = sm_dbgm_combat value = 1 } } }
+	}
+
+	# Repair: heal flag<->modifier desyncs + refresh the upkeep modifier, then re-run
+	# the report so the healed numbers show.
+	option = {
+		name = "sm_market_debug.8.repair"
+		hidden_effect = {
+			sm_reconcile_mothball_state = yes
+			sm_refresh_seller_mothball_modifier = yes
+			country_event = { id = sm_market_debug.8 }
+		}
+	}
+	option = { name = "sm_market.ok" }
+}
+
+# PROBE: open the custom GUI test window (interface/sm_ship_inventory.gui). Fire with
+#   event sm_market_debug.10
+# Verifies three things at once: (1) a modded custom_gui window renders from base
+# sprites, (2) the event desc — with a DYNAMIC scripted_loc value [GetDbgFleetCount]
+# — shows in the window, (3) the event OPTIONS render as clickable buttons in the
+# window's option_list. If this works, it is the foundation for a real "Ship
+# Inventory Menu" that skins our offer/lease/mothball events.
+country_event = {
+	id = sm_market_debug.10
+	title = "sm_market_debug.10.name"
+	desc = "sm_market_debug.10.desc"
+	picture = GFX_evt_ship_in_orbit	# silences "has no pictures" in error.log
+	is_triggered_only = yes
+	# PROBE ONLY (v0.9.24): custom_gui is kept HERE as the test hook. Verified against
+	# vanilla: every vanilla custom_gui user (curator, caravaneer) is a DIPLOMACY-
+	# presented event (diplomatic = yes / picture_event_data / enclave contact);
+	# on plain country_events the engine silently ignores it and uses the standard
+	# event window (confirmed in-game 2026-07-06). Stripped from the menu events.
+	custom_gui = "sm_inv_window"
+	custom_gui_option = "sm_inv_option"
+
+	# Count owned MILITARY fleets into a variable so the desc shows a real, live value.
+	# NOTE: raw every_owned_fleet also counts starbases, mining/research stations and
+	# civilian ships (constructors/science/transports) — that's the "115 fleets" bug.
+	# Filter to shipclass_military so the number matches the fleets the player sees.
+	immediate = {
+		set_variable = { which = sm_dbg_count value = 0 }
+		every_owned_fleet = {
+			limit = { is_ship_class = shipclass_military }
+			prev = { change_variable = { which = sm_dbg_count value = 1 } }
+		}
+	}
+
+	# These options become the buttons inside the custom window.
+	# hidden_effect + custom_tooltip suppress the engine's auto-generated effect
+	# tooltip — without it, the every_owned_fleet loop renders a per-fleet tooltip
+	# that fills the screen on hover.
+	option = {
+		name = "sm_market_debug.10.recount"
+		custom_tooltip = "sm_market_debug.10.recount_tt"
+		hidden_effect = {
+			set_variable = { which = sm_dbg_count value = 0 }
+			every_owned_fleet = {
+				limit = { is_ship_class = shipclass_military }
+				prev = { change_variable = { which = sm_dbg_count value = 1 } }
+			}
+			country_event = { id = sm_market_debug.10 }	# reopen to show the refreshed value
+		}
+	}
+	option = {
+		name = "sm_market_debug.10.hub"
+		country_event = { id = sm_market.5 }
+	}
+	option = { name = "sm_market.ok" }	# close
+}

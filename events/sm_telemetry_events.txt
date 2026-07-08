@@ -1,0 +1,35 @@
+########################################################################
+# Ship Market - Telemetry (v0.9.32). Stellaris 4.4.3 "Pegasus".
+#
+# OPT-IN data collection for AFK/observer balance runs. While the global flag
+# sm_telemetry is set (toggle: event sm_market_debug.9), every empire logs one
+# structured census line to game.log per year via the `log` effect (loc-token
+# substitution is engine-supported; vanilla logs [This.GetName] the same way).
+# Completed-deal ledger lines are ALWAYS logged (rare, useful for debugging).
+#
+# Parse with tools/parse_telemetry.py (repo root, not shipped) -> CSV.
+# Line formats (comma-separated, greppable prefixes):
+#   SM_TELEM,<runyear>,<empire>,<dealer01>,<shipwright01>,<militarist01>,<pacifist01>,<active>,<stored>,<listed>,<pending>,<leased>,<lease_income>,<stored_value>
+#   SM_DEAL,<kind>,... (logged from the deal effects, see sm_ship_market_effects)
+########################################################################
+
+namespace = sm_telem
+
+country_event = {
+	id = sm_telem.1
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		has_global_flag = sm_telemetry
+		is_country_type = default
+	}
+
+	immediate = {
+		# Per-empire run-year counter (game.log timestamps are wall-clock, not
+		# game date, so we stamp our own ordinal).
+		change_variable = { which = sm_telem_year value = 1 }
+		sm_count_inventory = yes
+		log = "SM_TELEM,[GetTelemYear],[Root.GetName],[GetTelemDealer],[GetTelemShipwright],[GetTelemMil],[GetTelemPac],[GetInvActive],[GetInvStorage],[GetInvListed],[GetInvPending],[GetInvLeased],[GetLeaseIncomeTotal],[GetMothballValueTotal]"
+	}
+}

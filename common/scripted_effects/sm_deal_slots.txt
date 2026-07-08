@@ -1,0 +1,81 @@
+################################################################################
+# Ship Market - concurrent offer "deal slots" (v0.9.13). Stellaris 4.4.3.
+#
+# Multiple pending offers used to clobber each other because they all shared single
+# global event targets (sm_sale_offer_* / sm_lease_offer_*). Each pending offer now
+# owns one of 6 SLOTS holding its fleet + recipient in indexed globals; the recipient
+# remembers its slot (sm_my_deal_slot) and offer type (sm_my_deal_type: 1=sale, 2=lease).
+# The decision event reconstructs the shared globals from ITS slot right before it
+# resolves (sm_load_deal_slot in the event immediate AND at the top of accept/decline,
+# which is atomic), so any number of concurrent offers resolve with the correct data.
+#
+# Called in the RECIPIENT (buyer/lessee) scope. On send the caller saves the fleet as
+# event_target:sm_deal_new_fleet and sets the recipient's sm_my_deal_type first.
+################################################################################
+
+# Allocate the first free slot to THIS recipient for the fleet in sm_deal_new_fleet.
+# (Guarded by sm_deal_slot_free in the send effects, so a free slot always exists.)
+sm_alloc_deal_slot = {
+	if = {
+		limit = { NOT = { has_global_flag = sm_deal_slot_1 } }
+		save_global_event_target_as = sm_deal_buyer_1
+		event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_1 }
+		set_variable = { which = sm_my_deal_slot value = 1 }
+		set_global_flag = sm_deal_slot_1
+	}
+	else_if = { limit = { NOT = { has_global_flag = sm_deal_slot_2 } } save_global_event_target_as = sm_deal_buyer_2  event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_2 }  set_variable = { which = sm_my_deal_slot value = 2 }  set_global_flag = sm_deal_slot_2 }
+	else_if = { limit = { NOT = { has_global_flag = sm_deal_slot_3 } } save_global_event_target_as = sm_deal_buyer_3  event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_3 }  set_variable = { which = sm_my_deal_slot value = 3 }  set_global_flag = sm_deal_slot_3 }
+	else_if = { limit = { NOT = { has_global_flag = sm_deal_slot_4 } } save_global_event_target_as = sm_deal_buyer_4  event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_4 }  set_variable = { which = sm_my_deal_slot value = 4 }  set_global_flag = sm_deal_slot_4 }
+	else_if = { limit = { NOT = { has_global_flag = sm_deal_slot_5 } } save_global_event_target_as = sm_deal_buyer_5  event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_5 }  set_variable = { which = sm_my_deal_slot value = 5 }  set_global_flag = sm_deal_slot_5 }
+	else_if = { limit = { NOT = { has_global_flag = sm_deal_slot_6 } } save_global_event_target_as = sm_deal_buyer_6  event_target:sm_deal_new_fleet = { save_global_event_target_as = sm_deal_fleet_6 }  set_variable = { which = sm_my_deal_slot value = 6 }  set_global_flag = sm_deal_slot_6 }
+	else = { set_variable = { which = sm_my_deal_slot value = 0 } }
+}
+
+# Reconstruct the shared offer globals from THIS recipient's slot + type.
+sm_load_deal_slot = {
+	if      = { limit = { check_variable = { which = sm_my_deal_slot value = 1 } } event_target:sm_deal_fleet_1 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_1 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 2 } } event_target:sm_deal_fleet_2 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_2 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 3 } } event_target:sm_deal_fleet_3 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_3 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 4 } } event_target:sm_deal_fleet_4 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_4 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 5 } } event_target:sm_deal_fleet_5 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_5 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 6 } } event_target:sm_deal_fleet_6 = { save_global_event_target_as = sm_deal_fleet_cur } event_target:sm_deal_buyer_6 = { save_global_event_target_as = sm_deal_buyer_cur } }
+	if = {
+		limit = { exists = event_target:sm_deal_fleet_cur  check_variable = { which = sm_my_deal_type value = 1 } }
+		event_target:sm_deal_fleet_cur = { save_global_event_target_as = sm_sale_offer_fleet  owner = { save_global_event_target_as = sm_sale_offer_seller } }
+		event_target:sm_deal_buyer_cur = { save_global_event_target_as = sm_sale_offer_buyer }
+	}
+	else_if = {
+		limit = { exists = event_target:sm_deal_fleet_cur  check_variable = { which = sm_my_deal_type value = 2 } }
+		event_target:sm_deal_fleet_cur = { save_global_event_target_as = sm_lease_offer_fleet  owner = { save_global_event_target_as = sm_lease_offer_lessor } }
+		event_target:sm_deal_buyer_cur = { save_global_event_target_as = sm_lease_offer_lessee }
+	}
+}
+
+# Release THIS recipient's slot + clear its "O" row.
+sm_free_deal_slot = {
+	if      = { limit = { check_variable = { which = sm_my_deal_slot value = 1 } } remove_global_flag = sm_deal_slot_1 }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 2 } } remove_global_flag = sm_deal_slot_2 }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 3 } } remove_global_flag = sm_deal_slot_3 }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 4 } } remove_global_flag = sm_deal_slot_4 }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 5 } } remove_global_flag = sm_deal_slot_5 }
+	else_if = { limit = { check_variable = { which = sm_my_deal_slot value = 6 } } remove_global_flag = sm_deal_slot_6 }
+	set_variable = { which = sm_my_deal_slot value = 0 }
+	set_variable = { which = sm_my_deal_type value = 0 }
+	remove_country_flag = sm_pending_player_offer
+}
+
+# Clear EVERY slot + every recipient's "O" row (used by withdraw-all).
+sm_free_all_deal_slots = {
+	remove_global_flag = sm_deal_slot_1
+	remove_global_flag = sm_deal_slot_2
+	remove_global_flag = sm_deal_slot_3
+	remove_global_flag = sm_deal_slot_4
+	remove_global_flag = sm_deal_slot_5
+	remove_global_flag = sm_deal_slot_6
+	every_country = {
+		limit = { has_country_flag = sm_pending_player_offer }
+		remove_country_flag = sm_pending_player_offer
+		set_variable = { which = sm_my_deal_slot value = 0 }
+		set_variable = { which = sm_my_deal_type value = 0 }
+	}
+}

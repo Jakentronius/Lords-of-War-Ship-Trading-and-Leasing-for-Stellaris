@@ -1,0 +1,138 @@
+################################################################################
+# Ship Market - Custom GUI window (DORMANT as of v0.9.24). Stellaris 4.4.3.
+#
+# IN-GAME FINDING (2026-07-06): custom_gui on a PLAIN country_event is silently
+# ignored - the standard event window renders instead (no error.log signal).
+# Every vanilla custom_gui user (enclave curator, caravaneers) is a DIPLOMACY-
+# presented event (diplomatic = yes + picture_event_data, or opened from an
+# enclave contact). So this window has never actually rendered for the menus.
+# custom_gui was stripped from the menu events; the debug probe
+# (sm_market_debug.10) keeps it as a test hook — if `event sm_market_debug.10`
+# DOES open in this window, custom_gui works on plain events after all and
+# should be re-added to the menu events. KEPT also for a possible future
+# "storefront" window on the DIPLOMATIC offer events (sm_offer.100 /
+# sm_lease.50, which are diplomatic = yes and thus eligible).
+# Built only from base-game sprites (no DLC). The event TITLE is not rendered here
+# (only desc -> alien_message and options -> option_list), so each event folds its
+# title into the top of its desc; the heading below is generic.
+# Modelled on the enclave event window (interface/diplomacy_trader_event_view.gui)
+# but stripped to base-game sprites and re-laid-out for a text dashboard.
+#
+# How a custom_gui event window works (verified from vanilla):
+#   * The window is attached to a country_event via:  custom_gui = "sm_inv_window"
+#     and the per-option template via:                custom_gui_option = "sm_inv_option"
+#   * CLICKABLE BUTTONS ARE THE EVENT'S OPTIONS. The engine renders each event
+#     option into one "sm_inv_option" instance inside the listbox named "option_list".
+#     There is no way to add free-floating buttons that run arbitrary scripted
+#     effects — the options ARE the buttons.
+#   * The engine fills the textbox named "alien_message" with the event's desc, so
+#     DYNAMIC VALUES are shown by putting scripted_loc tokens in the event desc loc.
+#
+# ENGINE-BOUND NAMES (do not rename): window "sm_inv_window"; textbox "alien_message"
+# (desc); listbox "option_list" (options); option template "sm_inv_option" with a
+# buttonType "option_button" whose text = "OPTION_TEXT". Everything else below is
+# decorative and free to change.
+#
+# v0.9.23 layout pass: descs are now short icon rows, so the reading panel shrank
+# (296 -> 240) and the option list grew (252 -> 342, ~8 rows visible); the redundant
+# "Actions" label + rule were removed (button styling already signals actions).
+# GUI cannot be validated by tools — load in-game and check it renders; if
+# blank/misplaced, tweak positions/sprites (no error.log signal).
+################################################################################
+
+guiTypes = {
+
+	# ---- Per-option template: one of these per event option, in option_list -----
+	containerWindowType = {
+		name = "sm_inv_option"
+		position = { x = 0 y = 0 }
+		size = { width = 916 height = 34 }
+		moveable = no
+
+		buttonType = {
+			name = "option_button"		# engine binds this to the event option
+			quadTextureSprite = "GFX_event_button_452"	# base-game (eventwindow.gfx)
+			position = { x = 0 y = 0 }
+			size = { x = 912 y = 34 }			# v0.9.19: stretch to the wider row
+			font = "cg_16b"
+			text = "OPTION_TEXT"			# engine substitutes the option name
+			clicksound = "select_click"
+		}
+	}
+
+	# ---- The window ------------------------------------------------------------
+	containerWindowType = {
+		name = "sm_inv_window"
+		orientation = center
+		origo = center
+		moveable = yes
+		size = { width = 960 height = 720 }
+
+		background = {
+			name = "background"
+			quadTextureSprite = "GFX_tile_large_bg"	# base-game (planet_view.gfx)
+		}
+
+		# --- Title bar --------------------------------------------------------
+		instantTextBoxType = {
+			name = "heading"
+			font = "malgun_goth_24"
+			text = "sm_inv_window_heading"
+			position = { x = 24 y = 16 }
+			maxWidth = 700
+			maxHeight = 26
+			fixedSize = yes
+			alwaysTransparent = yes
+		}
+
+		buttonType = {
+			name = "close"
+			quadTextureSprite = "GFX_main_close_button"	# base-game (general_stuff.gfx)
+			position = { x = -44 y = 14 }
+			Orientation = "UPPER_RIGHT"
+			clicksound = "back_click"
+		}
+
+		# Header rule under the title (base-game divider sprite).
+		iconType = {
+			name = "header_rule"
+			spriteType = "GFX_line_long"			# base-game (diplomacy_view.gfx)
+			position = { x = 20 y = 52 }
+			alwaysTransparent = yes
+		}
+
+		# --- Reading panel: dark backing behind the desc text for legibility --
+		# (vanilla puts GFX_tiles_dark_area_cut_8 behind alien_message too).
+		buttonType = {
+			name = "message_backing"
+			spriteType = "GFX_tiles_dark_area_cut_8"	# base-game (eventwindow.gfx)
+			size = { x = 912 y = 240 }				# v0.9.23: shorter (descs are icon rows now)
+			position = { x = 20 y = 104 }
+			alwaysTransparent = yes
+		}
+
+		# Engine fills this with the event's desc (which can contain [Get...] tokens).
+		instantTextBoxType = {
+			name = "alien_message"
+			font = "cg_16b"
+			position = { x = 34 y = 116 }
+			maxWidth = 890
+			maxHeight = 224					# matches the shorter panel
+			format = left
+			scrollbartype = "standardtext_slider"
+		}
+
+		# Engine renders each event option here as an sm_inv_option instance.
+		# (v0.9.23: the "Actions" label + rule above the list were removed.)
+		listboxType = {
+			name = "option_list"
+			position = { x = 24 y = 356 }
+			backGround = ""
+			size = { x = 912 y = 342 }
+			spacing = 5
+			scrollbartype = "standardlistbox_slider"
+			borderSize = { x = 0 y = 0 }
+			Orientation = "UPPER_LEFT"
+		}
+	}
+}

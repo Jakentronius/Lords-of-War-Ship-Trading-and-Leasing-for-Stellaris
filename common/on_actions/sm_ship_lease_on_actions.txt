@@ -1,0 +1,20 @@
+########################################################################
+# Ship Lease - On-actions (v0.9.26)
+# Additive: appends our events to the vanilla hooks.
+########################################################################
+
+on_monthly_pulse_country = {
+	events = {
+		sm_lease.900
+	}
+}
+
+# Destroyed mid-contract settlement (v0.9.26): root = owner of the destroyed
+# ship (the lessor for a leased-out fleet). sm_lease.910 self-gates on the dying
+# ship being the LAST of a leased-out fleet; the lessee then settles the
+# remaining contract as a lump sum.
+on_ship_destroyed_victim = {
+	events = {
+		sm_lease.910
+	}
+}

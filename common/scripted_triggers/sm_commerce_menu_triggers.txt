@@ -1,0 +1,13 @@
+########################################################################
+# Ship Commerce Menu - Scripted Triggers (v0.9.4). Stellaris 4.4.3 "Pegasus".
+########################################################################
+
+# COUNTRY SCOPE = a candidate empire; root = the player viewing the menu.
+# Should this empire appear in the diplomacy-lite list? Every real empire the
+# player has communications with (rivals and empires at war included - the view
+# is informational). has_communications is evaluated FROM the candidate's scope.
+sm_diplo_listable = {
+	is_country_type = default
+	NOT = { is_same_value = root }
+	has_communications = root
+}

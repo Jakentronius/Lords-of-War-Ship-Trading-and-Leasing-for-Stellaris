@@ -1,0 +1,410 @@
+########################################################################
+# Ship Lease - Scripted Effects (EXPERIMENTAL framework, v0.8-wip)
+# Target: Stellaris 4.4.3 "Pegasus".
+# Native lease via give_fleet { controller days } — owner keeps ownership; the
+# controller gets the fleet for the term; the engine auto-returns survivors at
+# expiry. sm_leased_out is our own bookkeeping flag (cleared on return/recall).
+# Scripted-effect call depth kept <= 5.
+########################################################################
+
+# ----- Snapshots -------------------------------------------------------------
+# COUNTRY SCOPE (root = lessor). Up to 6 fleets eligible to lease -> sm_lcand_1..6
+sm_build_lease_candidates = {
+	# Clear stale slots first (globals persist -> ghost rows/options when the list shrinks).
+	clear_global_event_target = sm_lcand_1  clear_global_event_target = sm_lcand_2  clear_global_event_target = sm_lcand_3
+	clear_global_event_target = sm_lcand_4  clear_global_event_target = sm_lcand_5  clear_global_event_target = sm_lcand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_lcand_tmp } remove_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_1 set_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_2 set_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_3 set_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_4 set_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_5 set_fleet_flag = sm_lcand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_leased = yes NOT = { has_fleet_flag = sm_lcand_tmp } } save_global_event_target_as = sm_lcand_6 set_fleet_flag = sm_lcand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_lcand_tmp } remove_fleet_flag = sm_lcand_tmp }
+}
+
+# COUNTRY SCOPE (root = lessor). Up to 40 valid lessee empires -> sm_ltarget_1..40
+# (40 covers any vanilla galaxy's empire count with margin; the option_list scrolls.
+# Static slots are required - event options can't be generated dynamically in 4.4.)
+sm_build_lease_target_candidates = {
+	clear_global_event_target = sm_ltarget_1  clear_global_event_target = sm_ltarget_2  clear_global_event_target = sm_ltarget_3  clear_global_event_target = sm_ltarget_4  clear_global_event_target = sm_ltarget_5
+	clear_global_event_target = sm_ltarget_6  clear_global_event_target = sm_ltarget_7  clear_global_event_target = sm_ltarget_8  clear_global_event_target = sm_ltarget_9  clear_global_event_target = sm_ltarget_10
+	clear_global_event_target = sm_ltarget_11 clear_global_event_target = sm_ltarget_12 clear_global_event_target = sm_ltarget_13 clear_global_event_target = sm_ltarget_14 clear_global_event_target = sm_ltarget_15
+	clear_global_event_target = sm_ltarget_16 clear_global_event_target = sm_ltarget_17 clear_global_event_target = sm_ltarget_18 clear_global_event_target = sm_ltarget_19 clear_global_event_target = sm_ltarget_20
+	clear_global_event_target = sm_ltarget_21  clear_global_event_target = sm_ltarget_22  clear_global_event_target = sm_ltarget_23  clear_global_event_target = sm_ltarget_24  clear_global_event_target = sm_ltarget_25
+	clear_global_event_target = sm_ltarget_26  clear_global_event_target = sm_ltarget_27  clear_global_event_target = sm_ltarget_28  clear_global_event_target = sm_ltarget_29  clear_global_event_target = sm_ltarget_30
+	clear_global_event_target = sm_ltarget_31  clear_global_event_target = sm_ltarget_32  clear_global_event_target = sm_ltarget_33  clear_global_event_target = sm_ltarget_34  clear_global_event_target = sm_ltarget_35
+	clear_global_event_target = sm_ltarget_36  clear_global_event_target = sm_ltarget_37  clear_global_event_target = sm_ltarget_38  clear_global_event_target = sm_ltarget_39  clear_global_event_target = sm_ltarget_40
+	every_country = { limit = { has_country_flag = sm_ltarget_tmp } remove_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_1  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_2  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_3  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_4  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_5  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_6  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_7  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_8  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_9  set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_10 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_11 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_12 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_13 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_14 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_15 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_16 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_17 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_18 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_19 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_20 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_21 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_22 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_23 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_24 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_25 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_26 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_27 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_28 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_29 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_30 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_31 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_32 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_33 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_34 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_35 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_36 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_37 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_38 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_39 set_country_flag = sm_ltarget_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_ltarget_tmp } } save_global_event_target_as = sm_ltarget_40 set_country_flag = sm_ltarget_tmp }
+	every_country = { limit = { has_country_flag = sm_ltarget_tmp } remove_country_flag = sm_ltarget_tmp }
+}
+
+# COUNTRY SCOPE (root = lessor). Up to 6 of MY currently leased-out fleets -> sm_lactive_1..6
+sm_build_active_lease_candidates = {
+	clear_global_event_target = sm_lactive_1  clear_global_event_target = sm_lactive_2  clear_global_event_target = sm_lactive_3
+	clear_global_event_target = sm_lactive_4  clear_global_event_target = sm_lactive_5  clear_global_event_target = sm_lactive_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_lactive_tmp } remove_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_1 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_2 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_3 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_4 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_5 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_6 set_fleet_flag = sm_lactive_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_lactive_tmp } remove_fleet_flag = sm_lactive_tmp }
+}
+
+# COUNTRY SCOPE (root = lessee). v0.9.27: one INBOUND lease pick - a fleet owned
+# by another empire, leased out, currently commanded by root. Same repeated-pick
+# pattern as the buyer-candidate snapshots (tmp flag makes each pick distinct).
+sm_pick_inbound_lease = {
+	random_country = {
+		limit = {
+			NOT = { is_same_value = root }
+			any_owned_fleet = {
+				has_fleet_flag = sm_leased_out
+				NOT = { has_fleet_flag = sm_lin_tmp }
+				exists = controller
+				controller = { is_same_value = root }
+			}
+		}
+		random_owned_fleet = {
+			limit = {
+				has_fleet_flag = sm_leased_out
+				NOT = { has_fleet_flag = sm_lin_tmp }
+				exists = controller
+				controller = { is_same_value = root }
+			}
+			save_global_event_target_as = $TARGET$
+			set_fleet_flag = sm_lin_tmp
+		}
+	}
+}
+
+# COUNTRY SCOPE (root = lessee). Up to 6 fleets root leases IN -> sm_lin_1..6.
+# v0.9.27: the Outstanding Contracts screen tracks BOTH directions (needed since
+# AI empires now lease fleets TO the player).
+sm_build_inbound_lease_candidates = {
+	clear_global_event_target = sm_lin_1  clear_global_event_target = sm_lin_2  clear_global_event_target = sm_lin_3
+	clear_global_event_target = sm_lin_4  clear_global_event_target = sm_lin_5  clear_global_event_target = sm_lin_6
+	every_country = { every_owned_fleet = { limit = { has_fleet_flag = sm_lin_tmp } remove_fleet_flag = sm_lin_tmp } }
+	sm_pick_inbound_lease = { TARGET = sm_lin_1 }
+	sm_pick_inbound_lease = { TARGET = sm_lin_2 }
+	sm_pick_inbound_lease = { TARGET = sm_lin_3 }
+	sm_pick_inbound_lease = { TARGET = sm_lin_4 }
+	sm_pick_inbound_lease = { TARGET = sm_lin_5 }
+	sm_pick_inbound_lease = { TARGET = sm_lin_6 }
+	every_country = { every_owned_fleet = { limit = { has_fleet_flag = sm_lin_tmp } remove_fleet_flag = sm_lin_tmp } }
+}
+
+# ----- Seller-chosen fee (lessor) --------------------------------------------
+# COUNTRY SCOPE (root = lessor). Keep the working monthly fee within [0, 10,000]
+# (trade scale: even a titan doomstack's 1y-term suggested fee is ~2-3k/mo).
+sm_clamp_lease_fee = {
+	if = { limit = { check_variable = { which = sm_lease_working_fee value < 0 } }     set_variable = { which = sm_lease_working_fee value = 0 } }
+	if = { limit = { check_variable = { which = sm_lease_working_fee value > 10000 } } set_variable = { which = sm_lease_working_fee value = 10000 } }
+}
+
+# COUNTRY SCOPE (root = lessor). v0.9.29 REBALANCE: term-aware monthly fee,
+# anchored to the SALE price (build value x1.5) so leasing no longer dominates
+# selling (v0.9.26 anchored to build value: a 1y lease paid 1.25x build EVERY
+# YEAR while keeping the fleet - and the destroyed-mid-contract settlement
+# guarantees term income, so short leases must total well under a sale):
+#   term  total fees        monthly (of build value)   break-even vs build
+#   1y    25% of sale       x0.0313 (~ sale/48)        never in-term
+#   3y    60% of sale       x0.025  (~ sale/60)        ~never (0.9x build)
+#   5y    85% of sale       x0.0213 (~ sale/71)        ~78% through the term
+#   10y   140% of sale      x0.0175 (~ sale/86)        ~48% through the term
+# Short leases are clearly cheaper than buying; only decade contracts out-earn
+# a sale (the lessee has financed the fleet). Longer terms still pay the lessor
+# more in total and less per month for the lessee. The term MUST already be on
+# the fleet as sm_lease_offer_days (both flows set it before calling this).
+# Result stored on the lessor as sm_lease_reco_fee (read by loc via
+# sm_lease_reco_monthly and by sm_prepare_offer for the fairness ratio).
+sm_compute_lease_reco = {
+	# v0.9.30: re-appraise the fleet first (splits after mothball would stale it).
+	event_target:sm_lease_fleet = {
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		sm_apply_build_quality = yes
+	}
+	# Value basis: estimated build cost; fallback fleet-power x3 (the sale-price
+	# proxy); floor 25 so a fee is never trivially 0 (trade scale, was 100).
+	set_variable = { which = sm_lease_reco_fee value = event_target:sm_lease_fleet.sm_build_value }
+	if = {
+		limit = { check_variable = { which = sm_lease_reco_fee value < 1 } }
+		set_variable = { which = sm_lease_reco_fee value = event_target:sm_lease_fleet.sm_fp }
+	}
+	if = {
+		limit = { check_variable = { which = sm_lease_reco_fee value < 25 } }
+		set_variable = { which = sm_lease_reco_fee value = 25 }
+	}
+	# Term divisor (see table above). Unset/unknown terms fall to the 10y rate.
+	if = {
+		limit = { event_target:sm_lease_fleet = { check_variable = { which = sm_lease_offer_days value = 360 } } }
+		multiply_variable = { which = sm_lease_reco_fee value = 0.0313 }	# 1y: total 25% of sale
+	}
+	else_if = {
+		limit = { event_target:sm_lease_fleet = { check_variable = { which = sm_lease_offer_days value = 1080 } } }
+		multiply_variable = { which = sm_lease_reco_fee value = 0.025 }	# 3y: total 60% of sale
+	}
+	else_if = {
+		limit = { event_target:sm_lease_fleet = { check_variable = { which = sm_lease_offer_days value = 1800 } } }
+		multiply_variable = { which = sm_lease_reco_fee value = 0.0213 }	# 5y: total 85% of sale
+	}
+	else = {
+		multiply_variable = { which = sm_lease_reco_fee value = 0.0175 }	# 10y: total 140% of sale
+	}
+	if = {
+		limit = { check_variable = { which = sm_lease_reco_fee value < 1 } }
+		set_variable = { which = sm_lease_reco_fee value = 1 }
+	}
+}
+
+# COUNTRY SCOPE (root = lessor). Pre-fill the working fee with the term-aware
+# recommendation (see sm_compute_lease_reco).
+sm_set_reco_lease_fee = {
+	sm_compute_lease_reco = yes
+	set_variable = { which = sm_lease_working_fee value = sm_lease_reco_fee }
+	sm_clamp_lease_fee = yes
+}
+
+# COUNTRY SCOPE (root = lessor). After a fleet is picked in sm_lease.10, branch on
+# how we got here: if the diplomacy button preselected the recipient (lock flag +
+# sm_lease_target already saved), skip the recipient picker and go straight to the
+# term screen; otherwise build the recipient list and show the picker as usual.
+sm_lease_after_fleet_pick = {
+	if = {
+		limit = { has_country_flag = sm_offer_recipient_locked }
+		remove_country_flag = sm_offer_recipient_locked
+		country_event = { id = sm_lease.30 }
+	}
+	else = {
+		sm_build_lease_target_candidates = yes
+		country_event = { id = sm_lease.20 }
+	}
+}
+
+# ----- Offer / consent / finalize --------------------------------------------
+# COUNTRY SCOPE (root = lessor). Stamp the SELLER-CHOSEN monthly fee (sm_lease_working_fee)
+# onto the chosen fleet (the term was stored in sm_lease.30), publish the offer via global
+# event targets, and send the offer event to the lessee, who decides in sm_lease.50 (AI by
+# ai_chance heuristic; human picks). Up to 6 offers can be pending at once (one per
+# recipient empire); each owns a slot in sm_deal_slots.txt so they never clobber.
+sm_prepare_offer = {
+	event_target:sm_lease_fleet = {
+		# v0.9.30: re-appraise before pricing fairness (see sm_list_fleet).
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		sm_apply_build_quality = yes
+		set_variable = { which = sm_lease_monthly_fee value = root.sm_lease_working_fee }
+		# Asking price as a PERCENT of the fair (recommended) fee, for the AI's
+		# price sensitivity. fair clamped to >=1 to avoid divide-by-zero.
+		# v0.9.26: reads the lessor's stored term-aware recommendation directly
+		# (value:sm_lease_reco_monthly would read the FLEET scope here).
+		set_variable = { which = sm_lease_fair value = root.sm_lease_reco_fee }
+		if = { limit = { check_variable = { which = sm_lease_fair value < 1 } } set_variable = { which = sm_lease_fair value = 1 } }
+		set_variable = { which = sm_lease_ratio value = root.sm_lease_working_fee }
+		divide_variable = { which = sm_lease_ratio value = sm_lease_fair }
+		multiply_variable = { which = sm_lease_ratio value = 100 }
+		# v0.9.29 Export Subsidies: the fee READS ~15% cheaper (perception only).
+		if = {
+			limit = { root = { has_edict = sm_export_subsidies } }
+			multiply_variable = { which = sm_lease_ratio value = 0.7 }	# v0.9.39: was 0.85
+		}
+		save_global_event_target_as = sm_deal_new_fleet		# hand to the slot allocator
+	}
+	# Claim a concurrent slot (type 2 = lease), show an "O" row, and fire the lessee's
+	# decision after a short pending window. Slots let offers to multiple empires
+	# coexist without clobbering (sm_deal_slots.txt) - up to 6, one per recipient.
+	if = {
+		limit = {
+			sm_deal_slot_free = yes
+			NOT = { event_target:sm_lease_target = { has_country_flag = sm_pending_player_offer } }
+		}
+		event_target:sm_lease_target = {
+			set_country_flag = sm_pending_player_offer
+			set_variable = { which = sm_my_deal_type value = 2 }
+			set_variable = { which = sm_offer_ttl value = 30 }		# auto-decline after ~30 days if unanswered (sm_offer.900)
+			sm_alloc_deal_slot = yes
+			country_event = { id = sm_lease.50  days = 3 }
+		}
+	}
+}
+
+# FLEET SCOPE (root = lessee). give_fleet with the stored term as a LITERAL (days
+# is only ever literal in vanilla). controller = root = the accepting lessee.
+sm_give_fleet_for_stored_term = {
+	if =      { limit = { check_variable = { which = sm_lease_offer_days value = 360 } }  give_fleet = { controller = root  days = 360 } }
+	else_if = { limit = { check_variable = { which = sm_lease_offer_days value = 1080 } } give_fleet = { controller = root  days = 1080 } }
+	else_if = { limit = { check_variable = { which = sm_lease_offer_days value = 1800 } } give_fleet = { controller = root  days = 1800 } }
+	else =    { give_fleet = { controller = root  days = 3600 } }
+}
+
+# COUNTRY SCOPE (root = lessee). Execute an accepted lease: charge the lessee the
+# first month, pay the lessor, hand over control for the term, flag the fleet.
+# Re-validates the fleet first (it may have changed since the offer was sent).
+sm_finalize_lease = {
+	sm_load_deal_slot = yes		# reconstruct THIS offer's globals from the lessee's slot
+	if = {
+		limit = {
+			exists = event_target:sm_lease_offer_fleet
+			exists = event_target:sm_lease_offer_lessor
+			event_target:sm_lease_offer_fleet = {
+				is_leased = no
+				exists = owner
+				has_fleet_flag = sm_mothballed
+				NOT = { has_fleet_flag = sm_leased_out }
+				NOT = { has_fleet_flag = sm_market_listing }
+			}
+		}
+		add_resource = { trade = -1  mult = value:sm_offer_fee }
+		event_target:sm_lease_offer_lessor = { add_resource = { trade = 1  mult = value:sm_offer_fee } }
+		event_target:sm_lease_offer_fleet = {
+			# Preserve the fleet's power for the "power leased" total BEFORE waking it:
+			# sm_clear_mothball drops the cached stats (incl. sm_fp), so copy it into a
+			# variable that survives (sm_count_inventory reads sm_leased_fp for leased fleets).
+			set_variable = { which = sm_leased_fp value = sm_fp }
+			# v0.9.30: preserve the build value too - it caps the destroyed-mid-
+			# contract settlement (sm_lease.910); cleared with the other lease vars.
+			set_variable = { which = sm_leased_value value = sm_build_value }
+			# Wake the fleet from mothball so the lessee gets an operational fleet,
+			# then hand over control for the term. (sm_clear_mothball keeps the lease
+			# variables — only the inert modifier + cached stats are dropped.)
+			sm_clear_mothball = yes
+			set_fleet_flag = sm_leased_out
+			clear_orders = yes
+			# v0.9.29: ship stats follow the OWNER's empire, so a Shipwright
+			# lessor's -20% fire rate would gimp the leased product. Compensate
+			# for the term (+25% mult cancels it); removed on recall/cleanup.
+			if = {
+				limit = {
+					exists = owner
+					owner = { has_valid_civic = civic_sm_assembly_line_shipwrights }
+				}
+				add_modifier = { modifier = sm_lease_shipwright_tune days = -1 }
+			}
+			sm_give_fleet_for_stored_term = yes
+			# Track remaining term ourselves (native contract days aren't readable):
+			# seed from the chosen term, then tick down monthly in sm_lease_bill_monthly.
+			# Coarse, monthly-updated estimate - like the recommissioning countdown.
+			set_variable = { which = sm_lease_days_left value = sm_lease_offer_days }
+		}
+		# Trust/opinion payoff for a completed lease (same goodwill as a sale —
+		# arming an ally builds the relationship; scales with existing regard).
+		# v0.9.30 EXPLOIT FIX: only leases with a fee >= 10/mo build goodwill -
+		# spamming token 1-trade-credit leases was a trust/opinion farm.
+		if = {
+			limit = { event_target:sm_lease_offer_fleet = { check_variable = { which = sm_lease_monthly_fee value >= 10 } } }
+			sm_apply_trade_goodwill = { BUYER = sm_lease_offer_lessee  SELLER = sm_lease_offer_lessor }
+		}
+		log = "SM_DEAL,lease_start,lessee=[Root.GetName],lessor=[sm_lease_offer_lessor.GetName],fee=[GetLeaseMonthlyOffer],days=[GetLeaseOfferDays]"
+	}
+	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)
+}
+
+# ----- Monthly billing -------------------------------------------------------
+# COUNTRY SCOPE (root = lessor). Bill each leased-out fleet's monthly fee from the
+# lessee (controller) to the lessor (owner). If the lessee cannot pay, end the
+# contract early (recall) and notify the lessor.
+sm_lease_bill_monthly = {
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_leased_out  is_leased = yes  exists = controller }
+		save_event_target_as = sm_bill_fleet
+		# Time passes regardless of payment: tick the displayed term down one month.
+		change_variable = { which = sm_lease_days_left value = -30 }
+		if = { limit = { check_variable = { which = sm_lease_days_left value < 0 } } set_variable = { which = sm_lease_days_left value = 0 } }
+		if = {
+			limit = { controller = { resource_stockpile_compare = { resource = trade  value >= value:sm_billed_fee } } }
+			controller = { add_resource = { trade = -1  mult = value:sm_billed_fee } }
+			owner = { add_resource = { trade = 1  mult = value:sm_billed_fee } }
+		}
+		else = {
+			owner = { country_event = { id = sm_lease.60 } }
+			sm_recall_lease = yes
+		}
+	}
+}
+
+# FLEET SCOPE (root = owner). End a lease early and recall the fleet (native).
+# NOTE: no refund here - this is also the DEFAULT path (lessee failed to pay).
+# UI termination goes through sm_terminate_contract below.
+sm_recall_lease = {
+	if = { limit = { is_leased = yes } end_fleet_contract = { initiator = owner  reason = cancelled } }
+	remove_fleet_flag = sm_leased_out
+	remove_modifier = sm_lease_shipwright_tune		# v0.9.29 (safe no-op if absent)
+}
+
+# FLEET SCOPE (root = owner terminating from the Contracts screen). v0.9.30
+# EXPLOIT FIX: voluntary early termination REFUNDS the lessee one month's fee.
+# Without it, "lease at a fat fee -> collect the upfront month -> terminate the
+# next day -> re-mothball -> repeat" was a zero-risk fee farm (the first month
+# is charged on accept). With the refund the farm nets zero.
+sm_terminate_contract = {
+	if = {
+		limit = {
+			is_leased = yes
+			exists = owner
+			exists = controller
+			NOT = { controller = { is_same_value = owner } }
+		}
+		save_event_target_as = sm_bill_fleet
+		owner = { add_resource = { trade = -1  mult = value:sm_billed_fee } }
+		controller = { add_resource = { trade = 1  mult = value:sm_billed_fee } }
+		log = "SM_DEAL,lease_terminated,lessor=[This.Owner.GetName],lessee=[This.Controller.GetName]"
+	}
+	sm_recall_lease = yes
+}
+
+# COUNTRY SCOPE. Monthly: clear sm_leased_out on fleets whose contract has ended
+# (engine returned control), so the active-lease list stays accurate.
+sm_lease_cleanup = {
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_leased_out  is_leased = no }
+		remove_fleet_flag = sm_leased_out
+		remove_modifier = sm_lease_shipwright_tune	# v0.9.29 (safe no-op if absent)
+		clear_variable = sm_lease_days_left
+		clear_variable = sm_lease_monthly_fee
+		clear_variable = sm_leased_fp
+		clear_variable = sm_leased_value
+	}
+}

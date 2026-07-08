@@ -1,0 +1,944 @@
+########################################################################
+# Ship Market - Scripted Effects (v0.7)
+# Target: Stellaris 4.4.3 "Pegasus".
+# MOTHBALL and LISTING are now SEPARATE:
+#   * A fleet is MOTHBALLED (inert) via the sm_mothballed flag + sm_mothballed_fleet
+#     modifier. Stats (power, ship counts) are cached on the fleet AT MOTHBALL TIME,
+#     while it still has real fleet_power.
+#   * A fleet is LISTED for sale via the sm_market_listing flag + price variable.
+#     Listing requires the fleet already be mothballed.
+# Recommission timings: leaving the MARKET (retract or sale) = 10 days; waking a
+# stored fleet from mothball (un-mothball) = 360 days.
+# UNLIMITED listings/mothballs: no fixed global slots. Menus snapshot up to 10 at
+# a time (sm_bcand_* / sm_rcand_* / sm_cand_* / sm_mocand_* / sm_ucand_*).
+# Scripted-effect call depth is kept <= 5 (engine limit).
+########################################################################
+
+# ----- Mothball-count + seller modifier (country scope, root/this = seller) --
+# Recompute the count of MOTHBALLED fleets (listed or not) from flags (no drift)
+# and (re)apply the upkeep discount scaled by it. Called whenever a seller's
+# mothballed/listed fleets change. (Variable name kept for compatibility; it now
+# counts all mothballed fleets, not just listed ones.)
+sm_refresh_seller_mothball_modifier = {
+	set_variable = { which = sm_active_ship_market_listings value = 0 }
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_mothballed }
+		prev = { change_variable = { which = sm_active_ship_market_listings value = 1 } }
+	}
+	# v0.9.30 EXPLOIT FIX: cap the stack at 10 fleets (-20%, civic -30%). The
+	# count is per FLEET, so unbounded stacking let 1-corvette splits zero out
+	# the whole navy's upkeep (34 mothballed corvettes = -68%).
+	if = {
+		limit = { check_variable = { which = sm_active_ship_market_listings value > 10 } }
+		set_variable = { which = sm_active_ship_market_listings value = 10 }
+	}
+	remove_modifier = sm_mothball_upkeep_discount
+	# v0.9.29: dealer civics get a x1.5 stronger inventory-holding discount.
+	if = {
+		limit = {
+			check_variable = { which = sm_active_ship_market_listings value > 0 }
+			OR = {
+				has_valid_civic = civic_sm_arms_consortium
+				has_valid_civic = civic_sm_fleet_chandlers
+			}
+		}
+		add_modifier = {
+			modifier = sm_mothball_upkeep_discount
+			multiplier = value:sm_seller_listing_count_value_civic
+			days = -1
+		}
+	}
+	else_if = {
+		limit = { check_variable = { which = sm_active_ship_market_listings value > 0 } }
+		add_modifier = {
+			modifier = sm_mothball_upkeep_discount
+			multiplier = value:sm_seller_listing_count_value
+			days = -1
+		}
+	}
+}
+
+# ----- Mothball (fleet scope, root = owner) ----------------------------------
+# Cache stats FIRST (while the fleet still has real power), then flag + apply the
+# pure stat modifier. Reverses cleanly. No set_disabled / set_fleet_settings.
+sm_mothball_fleet = {
+	clear_orders = yes
+	sm_capture_fleet_stats = yes
+	set_fleet_flag = sm_mothballed
+	add_modifier = { modifier = sm_mothballed_fleet days = -1 }
+}
+
+# FLEET SCOPE. Drop the cached stat variables (shared by clear-mothball paths).
+sm_clear_fleet_stats = {
+	clear_variable = sm_fp
+	clear_variable = sm_nships
+	clear_variable = sm_n_corv
+	clear_variable = sm_n_frig
+	clear_variable = sm_n_dest
+	clear_variable = sm_n_cru
+	clear_variable = sm_n_bb
+	clear_variable = sm_n_tit
+	clear_variable = sm_cost_alloys
+	clear_variable = sm_build_value
+	clear_variable = sm_quality
+}
+
+# FLEET SCOPE. Remove the MOTHBALL layer (flag + modifier + cached stats). No
+# recommission timer of its own — callers add sm_reactivating_fleet as needed.
+sm_clear_mothball = {
+	remove_fleet_flag = sm_mothballed
+	remove_modifier = sm_mothballed_fleet
+	sm_clear_fleet_stats = yes
+}
+
+# FLEET SCOPE (root = owner). Wake a stored, UNLISTED fleet back to operational:
+# drop the mothball layer, then begin a 360-day recommission (timed
+# sm_reactivating_fleet auto-expires -> normal fleet). Caller refreshes the modifier.
+# sm_react_total/left drive the in-menu "~N days left" estimate (see sm_tick_reactivating).
+sm_unmothball_fleet = {
+	sm_clear_mothball = yes
+	# v0.9.29: dealer civics run leaner yards - recommission 360 -> 270 days.
+	if = {
+		limit = {
+			root = {
+				OR = {
+					has_valid_civic = civic_sm_arms_consortium
+					has_valid_civic = civic_sm_fleet_chandlers
+				}
+			}
+		}
+		add_modifier = { modifier = sm_reactivating_fleet days = 270 }
+		set_variable = { which = sm_react_total value = 270 }
+		set_variable = { which = sm_react_left  value = 270 }
+	}
+	else = {
+		add_modifier = { modifier = sm_reactivating_fleet days = 360 }
+		set_variable = { which = sm_react_total value = 360 }
+		set_variable = { which = sm_react_left  value = 360 }
+	}
+}
+
+# COUNTRY SCOPE (owner). Monthly: tick down the displayed recommission estimate on
+# each fleet still recommissioning. The sm_reactivating_fleet modifier is the exact,
+# engine-managed countdown (visible in its tooltip); sm_react_left is only a coarse
+# ~monthly estimate shown in the Recommissioning Status menu.
+sm_tick_reactivating = {
+	every_owned_fleet = {
+		limit = { has_modifier = sm_reactivating_fleet }
+		change_variable = { which = sm_react_left value = -30 }
+		if = {
+			limit = { check_variable = { which = sm_react_left value < 0 } }
+			set_variable = { which = sm_react_left value = 0 }
+		}
+	}
+}
+
+# FLEET SCOPE. Store fleet power / ship counts on the fleet for the inspect UI.
+sm_capture_fleet_stats = {
+	save_event_target_as = sm_stat_fleet
+	set_variable = { which = sm_fp value = trigger:fleet_power }
+	set_variable = { which = sm_nships value = trigger:num_ships }
+	set_variable = { which = sm_n_corv value = 0 }
+	set_variable = { which = sm_n_frig value = 0 }
+	set_variable = { which = sm_n_dest value = 0 }
+	set_variable = { which = sm_n_cru value = 0 }
+	set_variable = { which = sm_n_bb value = 0 }
+	set_variable = { which = sm_n_tit value = 0 }
+	every_owned_ship = { limit = { is_ship_size = corvette }   event_target:sm_stat_fleet = { change_variable = { which = sm_n_corv value = 1 } } }
+	every_owned_ship = { limit = { is_ship_size = frigate }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_frig value = 1 } } }
+	every_owned_ship = { limit = { is_ship_size = destroyer }  event_target:sm_stat_fleet = { change_variable = { which = sm_n_dest value = 1 } } }
+	every_owned_ship = { limit = { is_ship_size = cruiser }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_cru value = 1 } } }
+	every_owned_ship = { limit = { is_ship_size = battleship } event_target:sm_stat_fleet = { change_variable = { which = sm_n_bb value = 1 } } }
+	every_owned_ship = { limit = { is_ship_size = titan }      event_target:sm_stat_fleet = { change_variable = { which = sm_n_tit value = 1 } } }
+	# Store the alloy build-cost estimate now (counts above are live in sm_stat_fleet),
+	# so the live-market price recommendation can read it at listing time.
+	set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+	# Estimated TRADE build cost, counted via count_owned_ship restricted to this fleet
+	# (sm_stat_fleet). Captured AT MOTHBALL and stored; pricing reads sm_build_value.
+	set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+	sm_apply_market_value = yes
+	# v0.9.31 QUALITY appraisal: absolute per-ship costs are NOT readable in 4.4
+	# (ship_size_cost_resource_percent returns composition fractions only), so we
+	# proxy "what it actually took to build" with the fleet's POWER at mothball
+	# vs a tier-1 reference power for the same hull mix, clamped 0.5..3.0. A
+	# fully-teched battleship line appraises ~2-3x a starter one. Captured HERE
+	# (power is real pre-modifier) and reapplied at every re-appraisal.
+	set_variable = { which = sm_ref_power value = 0 }
+	set_variable = { which = sm_qtmp value = sm_n_corv }  multiply_variable = { which = sm_qtmp value = 40 }   change_variable = { which = sm_ref_power value = sm_qtmp }
+	set_variable = { which = sm_qtmp value = sm_n_frig }  multiply_variable = { which = sm_qtmp value = 60 }   change_variable = { which = sm_ref_power value = sm_qtmp }
+	set_variable = { which = sm_qtmp value = sm_n_dest }  multiply_variable = { which = sm_qtmp value = 100 }  change_variable = { which = sm_ref_power value = sm_qtmp }
+	set_variable = { which = sm_qtmp value = sm_n_cru }   multiply_variable = { which = sm_qtmp value = 250 }  change_variable = { which = sm_ref_power value = sm_qtmp }
+	set_variable = { which = sm_qtmp value = sm_n_bb }    multiply_variable = { which = sm_qtmp value = 650 }  change_variable = { which = sm_ref_power value = sm_qtmp }
+	set_variable = { which = sm_qtmp value = sm_n_tit }   multiply_variable = { which = sm_qtmp value = 3000 } change_variable = { which = sm_ref_power value = sm_qtmp }
+	clear_variable = sm_qtmp
+	set_variable = { which = sm_quality value = 1 }
+	if = {
+		limit = {
+			check_variable = { which = sm_ref_power value > 0 }
+			check_variable = { which = sm_fp value > 0 }
+		}
+		set_variable = { which = sm_quality value = sm_fp }
+		divide_variable = { which = sm_quality value = sm_ref_power }
+		if = { limit = { check_variable = { which = sm_quality value < 0.5 } } set_variable = { which = sm_quality value = 0.5 } }
+		if = { limit = { check_variable = { which = sm_quality value > 3 } }   set_variable = { which = sm_quality value = 3 } }
+	}
+	clear_variable = sm_ref_power
+	sm_apply_build_quality = yes
+}
+
+# FLEET SCOPE. Scale a freshly recomputed sm_build_value by the mothball-time
+# QUALITY multiplier (v0.9.31). Safe no-op when quality was never captured.
+sm_apply_build_quality = {
+	if = {
+		limit = { check_variable = { which = sm_quality value > 0 } }
+		multiply_variable = { which = sm_build_value value = sm_quality }
+	}
+	# v0.9.39 Shipwright appraisal: hulls from Assembly-Line yards are catalogue
+	# products and appraise +20% (order-book pricing - the civic's seller-side
+	# upside; the -20% fire-rate malus is unchanged).
+	if = {
+		limit = { exists = owner  owner = { has_valid_civic = civic_sm_assembly_line_shipwrights } }
+		multiply_variable = { which = sm_build_value value = 1.2 }
+	}
+}
+
+# FLEET SCOPE. v0.9.39 LIVE-MARKET APPRAISAL: replace the static-table
+# sm_build_value with the trade cost of buying this fleet's alloys on the
+# market right now (sm_fleet_market_value). Falls back silently to the static
+# value already in sm_build_value when the market read returns 0. Call AFTER
+# the static recompute and BEFORE sm_apply_build_quality.
+sm_apply_market_value = {
+	save_event_target_as = sm_stat_fleet
+	sm_ensure_cost_alloys = yes
+	if = {
+		limit = { exists = owner }
+		# Evaluate in the owner's (market) scope; copy back via event targets only
+		# (proven constructs: value = event_target:X.var - see setup notes).
+		owner = {
+			save_event_target_as = sm_mkt_owner
+			set_variable = { which = sm_mkt_tmp value = value:sm_fleet_market_value }
+		}
+		if = {
+			limit = { event_target:sm_mkt_owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
+			set_variable = { which = sm_build_value value = event_target:sm_mkt_owner.sm_mkt_tmp }
+		}
+		event_target:sm_mkt_owner = { clear_variable = sm_mkt_tmp }
+	}
+}
+
+# FLEET SCOPE. Backfill the alloy estimate for a fleet that lacks it (legacy/desynced
+# fleets mothballed before sm_cost_alloys existed). Recomputes from a fresh ship count
+# only when missing; does NOT touch sm_fp (a mothballed fleet reports 0 power, and we
+# want to keep the power captured while it was active). Safe to call any time.
+sm_ensure_cost_alloys = {
+	if = {
+		limit = { NOT = { check_variable = { which = sm_cost_alloys value > 0 } } }
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_n_corv value = 0 }
+		set_variable = { which = sm_n_frig value = 0 }
+		set_variable = { which = sm_n_dest value = 0 }
+		set_variable = { which = sm_n_cru value = 0 }
+		set_variable = { which = sm_n_bb value = 0 }
+		set_variable = { which = sm_n_tit value = 0 }
+		every_owned_ship = { limit = { is_ship_size = corvette }   event_target:sm_stat_fleet = { change_variable = { which = sm_n_corv value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = frigate }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_frig value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = destroyer }  event_target:sm_stat_fleet = { change_variable = { which = sm_n_dest value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = cruiser }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_cru value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = battleship } event_target:sm_stat_fleet = { change_variable = { which = sm_n_bb value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = titan }      event_target:sm_stat_fleet = { change_variable = { which = sm_n_tit value = 1 } } }
+		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+	}
+}
+
+# COUNTRY SCOPE. Self-heal the mothball state on every owned fleet: the sm_mothballed
+# flag and the sm_mothballed_fleet modifier must travel together, but save/load or a
+# legacy data model can desync them (e.g. flag kept, modifier dropped on load — the
+# fleet can still be reactivated but isn't shown/treated as mothballed). Also backfills
+# the alloy estimate so the price recommendation is never 0. Runs on the monthly pulse
+# and whenever a management menu opens.
+sm_reconcile_mothball_state = {
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_mothballed  NOT = { has_modifier = sm_reactivating_fleet } }
+		if = {
+			limit = { NOT = { has_modifier = sm_mothballed_fleet } }
+			add_modifier = { modifier = sm_mothballed_fleet days = -1 }
+		}
+		sm_ensure_cost_alloys = yes
+	}
+	every_owned_fleet = {
+		limit = { has_modifier = sm_mothballed_fleet  NOT = { has_fleet_flag = sm_mothballed } }
+		set_fleet_flag = sm_mothballed
+	}
+}
+
+# COUNTRY SCOPE (seller, root). Set the working price to the LIVE-MARKET recommended
+# value for event_target:sm_pending_fleet (the trade-credit cost to buy the fleet's alloy
+# value at the current market price). Evaluated in the seller's market scope.
+sm_set_recommended_price = {
+	# v0.9.30: re-appraise the fleet first (see sm_list_fleet).
+	if = {
+		limit = { exists = event_target:sm_pending_fleet }
+		event_target:sm_pending_fleet = {
+			save_event_target_as = sm_stat_fleet
+			set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+			sm_apply_market_value = yes
+			sm_apply_build_quality = yes
+		}
+	}
+	# Primary: estimated build cost x1.5 (sm_recommended_price reads stored sm_build_value).
+	set_variable = { which = sm_working_price value = value:sm_recommended_price }
+	# Fallback: fleet-power valuation if the build estimate is unavailable/zero
+	# (trade scale: ~1 credit per point of fleet power).
+	if = {
+		limit = { check_variable = { which = sm_working_price value < 1 } }
+		set_variable = { which = sm_working_price value = event_target:sm_pending_fleet.sm_fp }
+	}
+	# Floor so a sale price is never 0.
+	if = {
+		limit = { check_variable = { which = sm_working_price value < 50 } }
+		set_variable = { which = sm_working_price value = 50 }
+	}
+	sm_clamp_working_price = yes
+}
+
+# COUNTRY SCOPE (seller). Keep the working price within [0, 50,000] - the vanilla
+# trade STOCKPILE CAP: no buyer can ever hold more, so a higher ask is unbuyable.
+sm_clamp_working_price = {
+	if = { limit = { check_variable = { which = sm_working_price value < 0 } }      set_variable = { which = sm_working_price value = 0 } }
+	if = { limit = { check_variable = { which = sm_working_price value > 50000 } } set_variable = { which = sm_working_price value = 50000 } }
+}
+
+# ----- List / unlist (fleet scope) -------------------------------------------
+# FLEET SCOPE. root = seller. Mark this ALREADY-MOTHBALLED fleet as a listing at
+# the working price. Stats were cached at mothball time, so we only add the market
+# flag + price here.
+sm_list_fleet = {
+	# v0.9.30 EXPLOIT FIX: re-appraise NOW. Ship COUNTS stay readable under the
+	# mothball modifier, and the cached sm_build_value could be gamed by splitting
+	# ships out after mothballing (sell a husk at full-fleet "fair" price).
+	save_event_target_as = sm_stat_fleet
+	set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+	sm_apply_market_value = yes
+	sm_apply_build_quality = yes
+	set_fleet_flag = sm_market_listing
+	set_fleet_flag = sm_market_locked
+	set_variable = { which = sm_price_trade value = root.sm_working_price }
+	# Deal quality for AI buyers: asking price as a PERCENT of the estimated build
+	# value (sm_build_value). <=100 is a bargain; >150 is steep. 999 if value unknown.
+	if = {
+		limit = { check_variable = { which = sm_build_value value >= 1 } }
+		set_variable = { which = sm_deal_pct value = sm_price_trade }
+		divide_variable = { which = sm_deal_pct value = sm_build_value }
+		multiply_variable = { which = sm_deal_pct value = 100 }
+	}
+	else = { set_variable = { which = sm_deal_pct value = 999 } }
+	# Export Subsidies: the listing READS ~30% cheaper to AI evaluators (perception
+	# only - the price paid is unchanged). Baked at listing time. v0.9.39: 0.85 ->
+	# 0.7 so a fair ask (~105%) actually crosses the <75 bargain band.
+	if = {
+		limit = { exists = owner  owner = { has_edict = sm_export_subsidies } }
+		multiply_variable = { which = sm_deal_pct value = 0.7 }
+	}
+	owner = {
+		set_country_flag = sm_just_listed
+		sm_refresh_seller_mothball_modifier = yes
+	}
+}
+
+# FLEET SCOPE. Remove ONLY the MARKET layer (flags + price). The fleet stays
+# MOTHBALLED — retracting a listing returns it to plain mothball storage, NOT to
+# active service. To make it operational the owner must un-mothball it afterward
+# (360-day recommission). Used by retract. Does NOT refresh the seller's modifier
+# — callers do that (so bulk cancel doesn't refresh per-fleet). The fleet remains
+# counted as mothballed, so the upkeep discount is unchanged by a retract.
+sm_unlist_fleet = {
+	remove_fleet_flag = sm_market_listing
+	remove_fleet_flag = sm_market_locked
+	clear_variable = sm_price_trade
+	clear_variable = sm_deal_pct
+}
+
+# FLEET SCOPE. Force a fleet fully off the market AND out of mothball, then begin a
+# 10-day recommission to operational. Used by a SALE (the buyer receives a fleet
+# that commissions in 10 days) and by debug recovery. NOT used by a seller's
+# retract — that intentionally leaves the fleet mothballed.
+sm_force_reactivate_fleet = {
+	sm_unlist_fleet = yes
+	sm_clear_mothball = yes
+	add_modifier = { modifier = sm_reactivating_fleet days = 10 }
+	set_variable = { which = sm_react_total value = 10 }
+	set_variable = { which = sm_react_left  value = 10 }
+}
+
+# COUNTRY SCOPE (seller, root). List the picked pending fleet, if still eligible.
+sm_list_pending_fleet = {
+	if = {
+		limit = {
+			exists = event_target:sm_pending_fleet
+			event_target:sm_pending_fleet = { sm_fleet_can_be_listed = yes }
+		}
+		event_target:sm_pending_fleet = { sm_list_fleet = yes }
+	}
+}
+
+# COUNTRY SCOPE (seller, root). Retract every fleet I currently have listed.
+sm_retract_all_my_listings = {
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_market_listing }
+		sm_unlist_fleet = yes
+	}
+	sm_refresh_seller_mothball_modifier = yes
+}
+
+# COUNTRY SCOPE (root = owner). Mothball EVERY eligible active fleet at once.
+# Designed for "build a fleet of fleets, mothball them all, list later".
+sm_mothball_all_eligible = {
+	every_owned_fleet = {
+		limit = { sm_fleet_can_be_mothballed = yes }
+		sm_mothball_fleet = yes
+	}
+	sm_refresh_seller_mothball_modifier = yes
+}
+
+# COUNTRY SCOPE (root = owner). Wake EVERY mothballed, unlisted fleet (360-day
+# recommission each). Does not touch fleets currently listed for sale.
+sm_unmothball_all = {
+	every_owned_fleet = {
+		limit = { sm_fleet_can_be_unmothballed = yes }
+		sm_unmothball_fleet = yes
+	}
+	sm_refresh_seller_mothball_modifier = yes
+}
+
+# COUNTRY SCOPE. root = buyer. Buy the inspected fleet (event_target:sm_inspect_fleet).
+# Self-guarding: re-validates the listing at execution time and fires the result.
+sm_buy_fleet = {
+	if = {
+		limit = {
+			exists = event_target:sm_inspect_fleet
+			event_target:sm_inspect_fleet = { sm_fleet_is_buyable = yes }
+			resource_stockpile_compare = { resource = trade value >= value:sm_inspect_price }
+		}
+		set_variable = { which = sm_last_market_value value = value:sm_inspect_price }
+		add_resource = { trade = -1 mult = value:sm_inspect_price }
+		# Pay + notify the seller (the fleet's current owner).
+		event_target:sm_inspect_fleet = {
+			owner = {
+				save_event_target_as = sm_sale_seller
+				set_variable = { which = sm_last_market_value value = value:sm_inspect_price }
+				add_resource = { trade = 1 mult = value:sm_inspect_price }
+				country_event = { id = sm_market.230 }
+			}
+			# Off-market + out of mothball + 10-day recommission, then transfer
+			# ownership AND control (buyer gets an operational fleet in 10 days).
+			# v0.9.25: also strip AI-deal bookkeeping so it can't follow the fleet
+			# to its new owner (AI board listings carry sm_ai_offered + a shelf life).
+			remove_fleet_flag = sm_ai_offered
+			remove_fleet_flag = sm_ai_wait
+			clear_variable = sm_ai_list_ttl
+			sm_force_reactivate_fleet = yes
+			set_owner = root
+			set_controller = root
+			clear_orders = yes
+			# Deliver instantly: teleport the fleet to the buyer's capital system.
+			if = {
+				limit = { exists = root.capital_scope }
+				set_location = { target = root.capital_scope  distance = 0 }
+			}
+		}
+		# Refresh the (former) seller's listing modifier now their count dropped.
+		event_target:sm_sale_seller = { sm_refresh_seller_mothball_modifier = yes }
+		log = "SM_DEAL,board_sale,buyer=[Root.GetName],seller=[sm_sale_seller.GetName],price=[GetShipMarketLastValue]"
+		country_event = { id = sm_market.231 }
+	}
+	else = {
+		country_event = { id = sm_market.242 }
+	}
+}
+
+# ----- Candidate snapshots ---------------------------------------------------
+# COUNTRY SCOPE (seller, root). Up to 6 MOTHBALLED-but-unlisted fleets, for the
+# "list a fleet for sale" picker.
+sm_build_candidate_list = {
+	# Clear stale slots first: globals persist, so a shorter list this time would leave
+	# old targets in the trailing slots (rows/options gate on `exists`) -> ghost entries.
+	clear_global_event_target = sm_cand_1  clear_global_event_target = sm_cand_2  clear_global_event_target = sm_cand_3
+	clear_global_event_target = sm_cand_4  clear_global_event_target = sm_cand_5  clear_global_event_target = sm_cand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_cand_tmp } remove_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_1 set_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_2 set_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_3 set_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_4 set_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_5 set_fleet_flag = sm_cand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_listed = yes NOT = { has_fleet_flag = sm_cand_tmp } } save_global_event_target_as = sm_cand_6 set_fleet_flag = sm_cand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_cand_tmp } remove_fleet_flag = sm_cand_tmp }
+}
+
+# COUNTRY SCOPE (root = owner). Up to 6 ACTIVE fleets eligible to mothball, for
+# the "mothball a specific fleet" picker.
+sm_build_mothball_candidates = {
+	clear_global_event_target = sm_mocand_1  clear_global_event_target = sm_mocand_2  clear_global_event_target = sm_mocand_3
+	clear_global_event_target = sm_mocand_4  clear_global_event_target = sm_mocand_5  clear_global_event_target = sm_mocand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_mocand_tmp } remove_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_1 set_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_2 set_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_3 set_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_4 set_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_5 set_fleet_flag = sm_mocand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_mothballed = yes NOT = { has_fleet_flag = sm_mocand_tmp } } save_global_event_target_as = sm_mocand_6 set_fleet_flag = sm_mocand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_mocand_tmp } remove_fleet_flag = sm_mocand_tmp }
+}
+
+# COUNTRY SCOPE (root = owner). Up to 6 MOTHBALLED, unlisted fleets eligible to
+# wake, for the "un-mothball a specific fleet" picker.
+sm_build_unmothball_candidates = {
+	clear_global_event_target = sm_ucand_1  clear_global_event_target = sm_ucand_2  clear_global_event_target = sm_ucand_3
+	clear_global_event_target = sm_ucand_4  clear_global_event_target = sm_ucand_5  clear_global_event_target = sm_ucand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_ucand_tmp } remove_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_1 set_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_2 set_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_3 set_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_4 set_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_5 set_fleet_flag = sm_ucand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_can_be_unmothballed = yes NOT = { has_fleet_flag = sm_ucand_tmp } } save_global_event_target_as = sm_ucand_6 set_fleet_flag = sm_ucand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_ucand_tmp } remove_fleet_flag = sm_ucand_tmp }
+}
+
+# COUNTRY SCOPE (owner, root). Up to 6 fleets currently recommissioning, for the
+# Recommissioning Status view (sm_recand_1..6).
+sm_build_reactivating_candidates = {
+	clear_global_event_target = sm_recand_1  clear_global_event_target = sm_recand_2  clear_global_event_target = sm_recand_3
+	clear_global_event_target = sm_recand_4  clear_global_event_target = sm_recand_5  clear_global_event_target = sm_recand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_recand_tmp } remove_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_1 set_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_2 set_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_3 set_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_4 set_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_5 set_fleet_flag = sm_recand_tmp }
+	random_owned_fleet = { limit = { has_modifier = sm_reactivating_fleet NOT = { has_fleet_flag = sm_recand_tmp } } save_global_event_target_as = sm_recand_6 set_fleet_flag = sm_recand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_recand_tmp } remove_fleet_flag = sm_recand_tmp }
+}
+
+# COUNTRY SCOPE (seller, root). Up to 10 of MY current listings, for retracting.
+sm_build_seller_candidates = {
+	clear_global_event_target = sm_rcand_1  clear_global_event_target = sm_rcand_2  clear_global_event_target = sm_rcand_3  clear_global_event_target = sm_rcand_4  clear_global_event_target = sm_rcand_5
+	clear_global_event_target = sm_rcand_6  clear_global_event_target = sm_rcand_7  clear_global_event_target = sm_rcand_8  clear_global_event_target = sm_rcand_9  clear_global_event_target = sm_rcand_10
+	every_owned_fleet = { limit = { has_fleet_flag = sm_rcand_tmp } remove_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_1  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_2  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_3  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_4  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_5  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_6  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_7  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_8  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_9  set_fleet_flag = sm_rcand_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_rcand_tmp } } save_global_event_target_as = sm_rcand_10 set_fleet_flag = sm_rcand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_rcand_tmp } remove_fleet_flag = sm_rcand_tmp }
+}
+
+# COUNTRY SCOPE (buyer, root). Up to 10 listings from OTHER empires, galaxy-wide.
+# Each pick flags the chosen fleet (sm_bcand_tmp) so the next pick differs.
+sm_pick_buyer_candidate = {
+	random_country = {
+		limit = {
+			NOT = { is_same_value = root }
+			any_owned_fleet = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_bcand_tmp } }
+		}
+		random_owned_fleet = {
+			limit = { has_fleet_flag = sm_market_listing NOT = { has_fleet_flag = sm_bcand_tmp } }
+			save_global_event_target_as = $TARGET$
+			set_fleet_flag = sm_bcand_tmp
+		}
+	}
+}
+sm_build_buyer_candidates = {
+	clear_global_event_target = sm_bcand_1  clear_global_event_target = sm_bcand_2  clear_global_event_target = sm_bcand_3  clear_global_event_target = sm_bcand_4  clear_global_event_target = sm_bcand_5
+	clear_global_event_target = sm_bcand_6  clear_global_event_target = sm_bcand_7  clear_global_event_target = sm_bcand_8  clear_global_event_target = sm_bcand_9  clear_global_event_target = sm_bcand_10
+	every_country = { every_owned_fleet = { limit = { has_fleet_flag = sm_bcand_tmp } remove_fleet_flag = sm_bcand_tmp } }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_1 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_2 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_3 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_4 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_5 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_6 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_7 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_8 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_9 }
+	sm_pick_buyer_candidate = { TARGET = sm_bcand_10 }
+	every_country = { every_owned_fleet = { limit = { has_fleet_flag = sm_bcand_tmp } remove_fleet_flag = sm_bcand_tmp } }
+}
+
+# ----- AI: list a surplus fleet for sale -------------------------------------
+# COUNTRY SCOPE (root = AI seller). Pick one surplus military fleet, unassign its
+# admiral, mothball it, and list it at a modest price (alloy market value x2).
+# Guarded so the AI keeps at least one fleet and holds at most 3 listings at once.
+# Called from sm_market.910 (monthly, at peace).
+sm_ai_list_surplus_fleet = {
+	# Count current listings (cap a few per empire) and spare sellable fleets.
+	set_variable = { which = sm_ai_listing_count value = 0 }
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_market_listing }
+		prev = { change_variable = { which = sm_ai_listing_count value = 1 } }
+	}
+	set_variable = { which = sm_ai_eligible_count value = 0 }
+	every_owned_fleet = {
+		limit = { sm_fleet_ai_sellable = yes }
+		prev = { change_variable = { which = sm_ai_eligible_count value = 1 } }
+	}
+	if = {
+		# Up to 3 listings at once, and only while keeping at least one spare fleet.
+		limit = {
+			check_variable = { which = sm_ai_listing_count value < 3 }
+			check_variable = { which = sm_ai_eligible_count value >= 2 }
+		}
+		random_owned_fleet = {
+			limit = { sm_fleet_ai_sellable = yes }
+			save_event_target_as = sm_ai_sell_fleet
+		}
+		if = {
+			limit = { exists = event_target:sm_ai_sell_fleet }
+			event_target:sm_ai_sell_fleet = {
+				if = { limit = { exists = leader } leader = { unassign_leader = this } }
+				sm_mothball_fleet = yes
+				save_event_target_as = sm_pending_fleet
+			}
+			# Price via the SAME robust path as the player's suggestion
+			# (sm_set_recommended_price: ensures the alloy estimate, prices at market
+			# x3 with a guaranteed non-zero fallback), then trim to a modest ~x2 for
+			# AI sellers. Reusing it guarantees the AI is never priced at 0.
+			sm_set_recommended_price = yes
+			multiply_variable = { which = sm_working_price value = 0.67 }
+			sm_clamp_working_price = yes
+			event_target:sm_ai_sell_fleet = { sm_list_fleet = yes }
+			remove_country_flag = sm_just_listed
+		}
+	}
+}
+
+# ----- AI: buy a listing -----------------------------------------------------
+# COUNTRY SCOPE (root = AI buyer). Pick a fairly-priced listing from another empire
+# into event_target:sm_inspect_fleet and flag sm_ai_found_listing if one was found.
+# Affordability + buyability are re-checked by the caller / sm_buy_fleet. Kept free of
+# scripted-effect sub-calls so the caller can invoke sm_buy_fleet at a shallow depth.
+sm_ai_pick_listing = {
+	remove_country_flag = sm_ai_found_listing
+	random_country = {
+		limit = {
+			NOT = { is_same_value = root }
+			any_owned_fleet = {
+				has_fleet_flag = sm_market_listing
+				check_variable = { which = sm_deal_pct value <= 175 }
+			}
+		}
+		random_owned_fleet = {
+			limit = {
+				has_fleet_flag = sm_market_listing
+				check_variable = { which = sm_deal_pct value <= 175 }
+			}
+			save_event_target_as = sm_inspect_fleet
+			root = { set_country_flag = sm_ai_found_listing }
+		}
+	}
+}
+
+# COUNTRY SCOPE (root = the buyer that just purchased). Debug "trade watch": if the
+# global flag is set and the purchase succeeded, notify every human player of the
+# trade. Shallow (no scripted-effect sub-calls).
+sm_trade_watch_notify = {
+	if = {
+		limit = {
+			has_global_flag = sm_trade_watch
+			event_target:sm_inspect_fleet = { owner = { is_same_value = root } }
+		}
+		save_global_event_target_as = sm_trade_buyer
+		event_target:sm_inspect_fleet = { save_global_event_target_as = sm_trade_fleet }
+		if = {
+			limit = { exists = event_target:sm_sale_seller }
+			event_target:sm_sale_seller = { save_global_event_target_as = sm_trade_seller }
+		}
+		every_country = { limit = { is_ai = no } country_event = { id = sm_market.235 } }
+	}
+}
+
+# ===== Direct SALE offers (diplomacy-screen) =================================
+# A sale offer = a MOTHBALLED fleet reserved with the sm_offer_pending flag + a
+# price, sent to ONE specific empire who accepts/declines (sm_offer.100). Mirrors
+# the lease-offer consent pattern (sm_prepare_offer / sm_finalize_lease). Globals
+# (sm_sale_offer_*) carry the offer across the async accept; one offer resolves
+# before the globals are reused by the next.
+
+# COUNTRY SCOPE (seller, root). Up to 6 MOTHBALLED-but-unreserved fleets eligible
+# to offer for sale -> sm_socand_1..6 (separate from the board's sm_cand_*).
+sm_build_sale_offer_candidates = {
+	clear_global_event_target = sm_socand_1  clear_global_event_target = sm_socand_2  clear_global_event_target = sm_socand_3
+	clear_global_event_target = sm_socand_4  clear_global_event_target = sm_socand_5  clear_global_event_target = sm_socand_6
+	every_owned_fleet = { limit = { has_fleet_flag = sm_socand_tmp } remove_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_1 set_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_2 set_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_3 set_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_4 set_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_5 set_fleet_flag = sm_socand_tmp }
+	random_owned_fleet = { limit = { sm_fleet_offerable_sale = yes NOT = { has_fleet_flag = sm_socand_tmp } } save_global_event_target_as = sm_socand_6 set_fleet_flag = sm_socand_tmp }
+	every_owned_fleet = { limit = { has_fleet_flag = sm_socand_tmp } remove_fleet_flag = sm_socand_tmp }
+}
+
+# COUNTRY SCOPE (seller, root). Up to 40 valid recipient empires -> sm_orecip_1..40
+# (contacted, normal, not self — same validity as a lease target). A button on the
+# diplomacy screen is not moddable (action names are engine-hardcoded), so the
+# seller picks the recipient from this list, exactly as the lease flow does.
+sm_build_offer_recipients = {
+	clear_global_event_target = sm_orecip_1  clear_global_event_target = sm_orecip_2  clear_global_event_target = sm_orecip_3  clear_global_event_target = sm_orecip_4  clear_global_event_target = sm_orecip_5
+	clear_global_event_target = sm_orecip_6  clear_global_event_target = sm_orecip_7  clear_global_event_target = sm_orecip_8  clear_global_event_target = sm_orecip_9  clear_global_event_target = sm_orecip_10
+	clear_global_event_target = sm_orecip_11  clear_global_event_target = sm_orecip_12  clear_global_event_target = sm_orecip_13  clear_global_event_target = sm_orecip_14  clear_global_event_target = sm_orecip_15
+	clear_global_event_target = sm_orecip_16  clear_global_event_target = sm_orecip_17  clear_global_event_target = sm_orecip_18  clear_global_event_target = sm_orecip_19  clear_global_event_target = sm_orecip_20
+	clear_global_event_target = sm_orecip_21  clear_global_event_target = sm_orecip_22  clear_global_event_target = sm_orecip_23  clear_global_event_target = sm_orecip_24  clear_global_event_target = sm_orecip_25
+	clear_global_event_target = sm_orecip_26  clear_global_event_target = sm_orecip_27  clear_global_event_target = sm_orecip_28  clear_global_event_target = sm_orecip_29  clear_global_event_target = sm_orecip_30
+	clear_global_event_target = sm_orecip_31  clear_global_event_target = sm_orecip_32  clear_global_event_target = sm_orecip_33  clear_global_event_target = sm_orecip_34  clear_global_event_target = sm_orecip_35
+	clear_global_event_target = sm_orecip_36  clear_global_event_target = sm_orecip_37  clear_global_event_target = sm_orecip_38  clear_global_event_target = sm_orecip_39  clear_global_event_target = sm_orecip_40
+	every_country = { limit = { has_country_flag = sm_orecip_tmp } remove_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_1  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_2  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_3  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_4  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_5  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_6  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_7  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_8  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_9  set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_10 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_11 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_12 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_13 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_14 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_15 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_16 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_17 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_18 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_19 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_20 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_21 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_22 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_23 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_24 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_25 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_26 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_27 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_28 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_29 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_30 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_31 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_32 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_33 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_34 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_35 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_36 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_37 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_38 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_39 set_country_flag = sm_orecip_tmp }
+	random_country = { limit = { sm_lease_target_valid = yes NOT = { has_country_flag = sm_orecip_tmp } } save_global_event_target_as = sm_orecip_40 set_country_flag = sm_orecip_tmp }
+	every_country = { limit = { has_country_flag = sm_orecip_tmp } remove_country_flag = sm_orecip_tmp }
+}
+
+# FLEET SCOPE. Drop the sale-offer reservation (flag + price/deal vars). The fleet
+# stays MOTHBALLED. Shared by accept/decline/withdraw paths.
+sm_clear_sale_offer_fleet = {
+	remove_fleet_flag = sm_offer_pending
+	clear_variable = sm_price_trade
+	clear_variable = sm_deal_pct
+}
+
+# COUNTRY SCOPE (seller, root). Send a sale offer for event_target:sm_pending_fleet
+# at root.sm_working_price to event_target:sm_offer_recipient. Reserves the fleet,
+# publishes the offer globals, and fires the recipient's decision event. Sets the
+# sm_sale_offer_sent flag so the caller can confirm it went out.
+sm_send_sale_offer = {
+	remove_country_flag = sm_sale_offer_sent
+	if = {
+		limit = {
+			exists = event_target:sm_pending_fleet
+			exists = event_target:sm_offer_recipient
+			event_target:sm_pending_fleet = { sm_fleet_offerable_sale = yes }
+			sm_deal_slot_free = yes								# a concurrent slot is free
+			NOT = { event_target:sm_offer_recipient = { has_country_flag = sm_pending_player_offer } }	# one offer per empire
+		}
+		event_target:sm_pending_fleet = {
+		# v0.9.30 EXPLOIT FIX: re-appraise NOW. Ship COUNTS stay readable under the
+		# mothball modifier, and the cached sm_build_value could be gamed by splitting
+		# ships out after mothballing (sell a husk at full-fleet "fair" price).
+		save_event_target_as = sm_stat_fleet
+		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		set_fleet_flag = sm_offer_pending
+			set_variable = { which = sm_price_trade value = root.sm_working_price }
+			# Deal quality for the AI recipient: asking price as a PERCENT of the
+			# estimated build value. <=100 bargain, >150 steep, 999 if value unknown.
+			if = {
+				limit = { check_variable = { which = sm_build_value value >= 1 } }
+				set_variable = { which = sm_deal_pct value = sm_price_trade }
+				divide_variable = { which = sm_deal_pct value = sm_build_value }
+				multiply_variable = { which = sm_deal_pct value = 100 }
+			}
+			else = { set_variable = { which = sm_deal_pct value = 999 } }
+			# v0.9.29 Export Subsidies: offer READS ~15% cheaper (perception only).
+			if = {
+				limit = { root = { has_edict = sm_export_subsidies } }
+				multiply_variable = { which = sm_deal_pct value = 0.7 }	# v0.9.39: was 0.85
+			}
+			save_global_event_target_as = sm_deal_new_fleet		# hand to the slot allocator
+		}
+		event_target:sm_offer_recipient = {
+			# Claim a concurrent slot (type 1 = sale), show an "O" row, and fire the
+			# recipient's decision after a visible pending window. Slots let offers to
+			# multiple empires coexist without clobbering (sm_deal_slots.txt).
+			set_country_flag = sm_pending_player_offer
+			set_variable = { which = sm_my_deal_type value = 1 }
+			set_variable = { which = sm_offer_ttl value = 30 }		# auto-decline after ~30 days if unanswered (sm_offer.900)
+			sm_alloc_deal_slot = yes
+			country_event = { id = sm_offer.100  days = 3 }
+		}
+		set_country_flag = sm_sale_offer_sent
+	}
+}
+
+# COUNTRY SCOPE (buyer, root). Fulfil an accepted sale offer: re-validate, pay the
+# seller, transfer ownership AND control, deliver to the buyer's capital, and start
+# a 10-day recommission. Sets sm_sale_bought on success so the caller can branch.
+sm_accept_sale_offer = {
+	remove_country_flag = sm_sale_bought
+	sm_load_deal_slot = yes		# reconstruct THIS offer's globals from the buyer's slot
+	if = {
+		limit = {
+			exists = event_target:sm_sale_offer_fleet
+			exists = event_target:sm_sale_offer_seller
+			event_target:sm_sale_offer_fleet = {
+				has_fleet_flag = sm_offer_pending
+				exists = owner
+				NOT = { owner = { is_same_value = root } }
+			}
+			resource_stockpile_compare = { resource = trade value >= value:sm_sale_offer_price }
+		}
+		set_variable = { which = sm_last_market_value value = value:sm_sale_offer_price }
+		add_resource = { trade = -1 mult = value:sm_sale_offer_price }
+		event_target:sm_sale_offer_seller = {
+			set_variable = { which = sm_last_market_value value = value:sm_sale_offer_price }
+			add_resource = { trade = 1 mult = value:sm_sale_offer_price }
+		}
+		event_target:sm_sale_offer_fleet = {
+			# Drop the reservation, then force off-mothball + 10-day recommission,
+			# then transfer ownership and command to the buyer.
+			sm_clear_sale_offer_fleet = yes
+			sm_force_reactivate_fleet = yes
+			set_owner = root
+			set_controller = root
+			clear_orders = yes
+			if = {
+				limit = { exists = root.capital_scope }
+				set_location = { target = root.capital_scope distance = 0 }
+			}
+		}
+		event_target:sm_sale_offer_seller = { sm_refresh_seller_mothball_modifier = yes }
+		# Trust/opinion payoff for a completed sale (scales with existing relations).
+		# v0.9.30 EXPLOIT FIX: only deals worth >= 300 trade credits build goodwill -
+		# spamming corvette micro-sales was a trust/opinion farm. (was 1000 at
+		# energy scale; rescaled x1/3 in v0.9.38)
+		if = {
+			limit = { check_variable = { which = sm_last_market_value value >= 300 } }
+			sm_apply_trade_goodwill = { BUYER = sm_sale_offer_buyer  SELLER = sm_sale_offer_seller }
+		}
+		log = "SM_DEAL,direct_sale,buyer=[Root.GetName],seller=[sm_sale_offer_seller.GetName],price=[GetShipMarketLastValue]"
+		set_country_flag = sm_sale_bought
+	}
+	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)
+}
+
+# COUNTRY SCOPE (buyer, root). Decline: release the seller's reserved fleet (back to
+# plain mothball) and let the caller notify the seller.
+sm_decline_sale_offer = {
+	sm_load_deal_slot = yes		# reconstruct this offer's globals from the buyer's slot
+	if = {
+		limit = { exists = event_target:sm_sale_offer_fleet }
+		event_target:sm_sale_offer_fleet = { sm_clear_sale_offer_fleet = yes }
+	}
+	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)
+}
+
+# COUNTRY SCOPE (root = the RECIPIENT holding a pending offer). Monthly TTL tick:
+# an offer left unanswered for ~30 days (sm_offer_ttl, ticked -30/month) is auto-
+# declined - the fleet reservation is released, the sender is notified (declined),
+# and the slot is freed. Fired by sm_offer.900 from on_monthly_pulse_country. This
+# also reclaims slots from offers that never resolved (keeps the 6 slots from leaking).
+# Type: sm_my_deal_type 1 = sale, 2 = lease. Depth-safe (shallow sub-calls).
+sm_expire_stale_offers = {
+	if = {
+		limit = { has_country_flag = sm_pending_player_offer }
+		change_variable = { which = sm_offer_ttl value = -30 }
+		if = {
+			limit = { check_variable = { which = sm_offer_ttl value < 0 } }
+			sm_load_deal_slot = yes		# reconstruct THIS offer's globals from the recipient's slot
+			if = {
+				limit = { check_variable = { which = sm_my_deal_type value = 1 } }		# SALE
+				if = { limit = { exists = event_target:sm_sale_offer_fleet } event_target:sm_sale_offer_fleet = { sm_clear_sale_offer_fleet = yes } }
+				if = { limit = { exists = event_target:sm_sale_offer_seller } event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } } }
+			}
+			else_if = {
+				limit = { check_variable = { which = sm_my_deal_type value = 2 } }		# LEASE
+				if = { limit = { exists = event_target:sm_lease_offer_lessor } event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } }
+			}
+			clear_variable = sm_offer_ttl
+			sm_free_deal_slot = yes		# release the slot + drop the "O" row
+		}
+	}
+}
+
+# COUNTRY SCOPE (seller, root). Withdraw every pending sale offer I have out — clears
+# the reservation on each (fleets stay mothballed). For the manage menu.
+sm_withdraw_my_sale_offers = {
+	every_owned_fleet = {
+		limit = { has_fleet_flag = sm_offer_pending }
+		sm_clear_sale_offer_fleet = yes
+	}
+	# Release every concurrent deal slot + clear all "O" rows (sale AND lease pending).
+	sm_free_all_deal_slots = yes
+}
+
+# ----- Trust / goodwill on a completed deal ----------------------------------
+# ANY SCOPE. $BUYER$ / $SELLER$ = global event-target names for the two parties of a
+# completed fleet deal (sale or lease). Builds MUTUAL trust + opinion. The buyer's
+# gain is keyed on how much they ALREADY regard the seller ("based upon what they
+# think of your empire"): a buyer who already likes you (opinion >= 40) deepens the
+# partnership more (the _trusted modifier + more trust); otherwise the baseline.
+# add_trust/add_opinion_modifier are engine effects (no scripted-effect depth added).
+sm_apply_trade_goodwill = {
+	event_target:$BUYER$ = {
+		if = {
+			limit = {
+				exists = event_target:$SELLER$
+				opinion = { who = event_target:$SELLER$  value >= 40 }
+			}
+			add_opinion_modifier = { who = event_target:$SELLER$  modifier = opinion_sm_arms_supplier_trusted }
+			add_trust = { who = event_target:$SELLER$  amount = 15 }
+		}
+		else_if = {
+			limit = { exists = event_target:$SELLER$ }
+			add_opinion_modifier = { who = event_target:$SELLER$  modifier = opinion_sm_arms_supplier }
+			add_trust = { who = event_target:$SELLER$  amount = 8 }
+		}
+	}
+	event_target:$SELLER$ = {
+		if = {
+			limit = { exists = event_target:$BUYER$ }
+			add_opinion_modifier = { who = event_target:$BUYER$  modifier = opinion_sm_arms_customer }
+			add_trust = { who = event_target:$BUYER$  amount = 8 }
+		}
+	}
+}
+
+# ----- Debug -----------------------------------------------------------------
+# ANY SCOPE. Force every listed fleet in the galaxy fully off-market, out of
+# mothball, and into a 10-day recommission (debug recovery -> operational).
+sm_clear_all_listings = {
+	every_country = {
+		every_owned_fleet = { limit = { has_fleet_flag = sm_market_listing } sm_force_reactivate_fleet = yes }
+		sm_refresh_seller_mothball_modifier = yes
+	}
+}

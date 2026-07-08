@@ -1,0 +1,148 @@
+########################################################################
+# Ship Market - Scripted Triggers (v0.6)
+# Target: Stellaris 4.4.3 "Pegasus".
+# UNLIMITED listings: a listing is just a fleet carrying the sm_market_listing
+# flag (+ price/stat variables + mothball modifier). No fixed global slots.
+########################################################################
+
+# COUNTRY SCOPE. Can this country use the Ship Market UI at all?
+sm_country_can_open_ship_market = {
+	is_country_type = default
+}
+
+# COUNTRY SCOPE. Can this country list fleets? (unlimited — any normal empire)
+sm_country_can_sell_on_ship_market = {
+	sm_country_can_open_ship_market = yes
+}
+
+# COUNTRY SCOPE (root = buyer). Are there any listings owned by OTHER empires?
+sm_buyer_listings_exist = {
+	any_country = {
+		NOT = { is_same_value = root }
+		any_owned_fleet = { has_fleet_flag = sm_market_listing }
+	}
+}
+
+# Is there any listing anywhere in the galaxy? (maintenance gate)
+sm_any_listing_active = {
+	any_country = { any_owned_fleet = { has_fleet_flag = sm_market_listing } }
+}
+
+# FLEET SCOPE. Is this ACTIVE fleet eligible to be mothballed? root = owner.
+# is_ship_class = shipclass_military excludes Colossi & Star-Eaters, includes
+# Titans (per vanilla fleet_can_be_scrapped). The admiral must be removed first
+# so the owner's leader is never dragged along on a later ownership transfer.
+sm_fleet_can_be_mothballed = {
+	exists = owner
+	owner = { is_same_value = root }
+	is_ship_class = shipclass_military
+	is_in_combat = no
+	exists = solar_system		# NOT Missing in Action (MIA fleets are off-map; no is_mia trigger in 4.4)
+	fleet_power > 0
+	NOT = { has_fleet_flag = sm_mothballed }
+	NOT = { has_fleet_flag = sm_market_listing }
+	# Not already leased out to another empire (still owned, but operational and
+	# commanded by the lessee - it must NOT show up as a mothball candidate).
+	NOT = { has_fleet_flag = sm_leased_out }
+	is_leased = no
+	# Not currently recommissioning from a previous mothball/listing.
+	NOT = { has_modifier = sm_reactivating_fleet }
+	NOT = { exists = leader }
+}
+
+# FLEET SCOPE. Is this MOTHBALLED fleet eligible to be listed for sale? root = owner.
+# Listing now requires the fleet already be mothballed (stats were cached at
+# mothball time, while the fleet still had real fleet_power). Note: we do NOT
+# check fleet_power here — a mothballed fleet reports ~0 power due to its modifier.
+sm_fleet_can_be_listed = {
+	exists = owner
+	owner = { is_same_value = root }
+	# v0.9.28: NO MIA/combat guards here - a mothballed fleet is immobilised and
+	# cannot go MIA; the guard lives at MOTHBALL time (sm_fleet_can_be_mothballed).
+	# The v0.9.26 guards on mothballed-fleet triggers emptied the pickers in-game.
+	has_fleet_flag = sm_mothballed
+	NOT = { has_fleet_flag = sm_market_listing }
+	# A fleet can't be both for-sale and leased out.
+	NOT = { has_fleet_flag = sm_leased_out }
+	is_leased = no
+}
+
+# FLEET SCOPE. Is this MOTHBALLED fleet eligible to be reactivated (un-mothballed)?
+# Must be off the market first (retract before un-mothballing). root = owner.
+sm_fleet_can_be_unmothballed = {
+	exists = owner
+	owner = { is_same_value = root }
+	has_fleet_flag = sm_mothballed
+	NOT = { has_fleet_flag = sm_market_listing }
+	# v0.9.30 EXPLOIT FIX: a fleet reserved by a pending sale offer can't be woken
+	# (the seller could otherwise field it while the buyer's decision is pending).
+	NOT = { has_fleet_flag = sm_offer_pending }
+	NOT = { has_modifier = sm_reactivating_fleet }
+}
+
+# FLEET SCOPE (root = owner). Is this fleet one the AI could auto-list as surplus?
+# Like sm_fleet_can_be_mothballed but WITHOUT the no-admiral rule — the AI lister
+# unassigns the admiral first (AI fleets nearly always have one).
+sm_fleet_ai_sellable = {
+	exists = owner
+	owner = { is_same_value = root }
+	is_ship_class = shipclass_military
+	is_in_combat = no
+	exists = solar_system		# NOT Missing in Action
+	fleet_power > 0
+	NOT = { has_fleet_flag = sm_mothballed }
+	NOT = { has_fleet_flag = sm_market_listing }
+	NOT = { has_fleet_flag = sm_leased_out }
+	is_leased = no
+	NOT = { has_modifier = sm_reactivating_fleet }
+}
+
+# FLEET SCOPE. Is this fleet a listing root (the buyer) could purchase?
+sm_fleet_is_buyable = {
+	has_fleet_flag = sm_market_listing
+	exists = owner
+	NOT = { owner = { is_same_value = root } }
+}
+
+# FLEET SCOPE (root = owner). Is this MOTHBALLED fleet eligible to be put up as a
+# DIRECT SALE OFFER to a specific empire? Like sm_fleet_can_be_listed (mothballed,
+# not on the open board, not leased) plus: not already out as a pending offer.
+sm_fleet_offerable_sale = {
+	exists = owner
+	owner = { is_same_value = root }
+	# v0.9.28: no MIA/combat guards on mothballed fleets (see sm_fleet_can_be_listed).
+	has_fleet_flag = sm_mothballed
+	NOT = { has_fleet_flag = sm_market_listing }
+	NOT = { has_fleet_flag = sm_leased_out }
+	NOT = { has_fleet_flag = sm_offer_pending }
+	is_leased = no
+	NOT = { has_modifier = sm_reactivating_fleet }
+}
+
+# COUNTRY SCOPE (this = a recipient holding a pending offer; root = the viewer).
+# Was the offer THIS country is holding sent by root? Reads the recipient's deal
+# slot and checks the slot fleet's owner. Needed since v0.9.25: AI empires also
+# send offers, so "has sm_pending_player_offer" alone no longer means "my offer" -
+# without this the player's Outstanding Contracts table would show AI-to-AI deals.
+sm_offer_sent_by_root = {
+	OR = {
+		AND = { check_variable = { which = sm_my_deal_slot value = 1 }  exists = event_target:sm_deal_fleet_1  event_target:sm_deal_fleet_1 = { exists = owner  owner = { is_same_value = root } } }
+		AND = { check_variable = { which = sm_my_deal_slot value = 2 }  exists = event_target:sm_deal_fleet_2  event_target:sm_deal_fleet_2 = { exists = owner  owner = { is_same_value = root } } }
+		AND = { check_variable = { which = sm_my_deal_slot value = 3 }  exists = event_target:sm_deal_fleet_3  event_target:sm_deal_fleet_3 = { exists = owner  owner = { is_same_value = root } } }
+		AND = { check_variable = { which = sm_my_deal_slot value = 4 }  exists = event_target:sm_deal_fleet_4  event_target:sm_deal_fleet_4 = { exists = owner  owner = { is_same_value = root } } }
+		AND = { check_variable = { which = sm_my_deal_slot value = 5 }  exists = event_target:sm_deal_fleet_5  event_target:sm_deal_fleet_5 = { exists = owner  owner = { is_same_value = root } } }
+		AND = { check_variable = { which = sm_my_deal_slot value = 6 }  exists = event_target:sm_deal_fleet_6  event_target:sm_deal_fleet_6 = { exists = owner  owner = { is_same_value = root } } }
+	}
+}
+
+# ANY SCOPE. Is at least one concurrent-offer slot free? (v0.9.13 - deal slots)
+sm_deal_slot_free = {
+	OR = {
+		NOT = { has_global_flag = sm_deal_slot_1 }
+		NOT = { has_global_flag = sm_deal_slot_2 }
+		NOT = { has_global_flag = sm_deal_slot_3 }
+		NOT = { has_global_flag = sm_deal_slot_4 }
+		NOT = { has_global_flag = sm_deal_slot_5 }
+		NOT = { has_global_flag = sm_deal_slot_6 }
+	}
+}

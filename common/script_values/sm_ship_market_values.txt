@@ -1,0 +1,128 @@
+########################################################################
+# Ship Market - Script Values (v0.6)
+# Target: Stellaris 4.4.3 "Pegasus".
+# Flat math only (this engine rejects if/limit inside script values).
+# Reads of a missing event_target return 0 with a benign log warning.
+########################################################################
+
+# Seller's working price while setting up a listing (current scope = seller).
+sm_working_price_display = { base = 0  add = sm_working_price }
+
+# DEBUG/probe: owned-fleet count captured in sm_market_debug.10, for the custom-GUI test.
+sm_dbg_count_display = { base = 0  add = sm_dbg_count }
+
+# (AI auto-listing now reuses sm_set_recommended_price x0.67 — see sm_ai_list_surplus_fleet.)
+
+# Value of the most recent sale/purchase (current scope = the country shown).
+sm_last_market_value_display = { base = 0  add = sm_last_market_value }
+
+# Trade-watch (debug): price of the trade just made by event_target:sm_trade_buyer.
+sm_trade_price = { base = 0  add = event_target:sm_trade_buyer.sm_last_market_value }
+
+# Number of fleets the seller currently has MOTHBALLED (listed or not; current
+# scope = seller); multiplier for the upkeep discount modifier.
+sm_seller_listing_count_value = { base = 0  add = sm_active_ship_market_listings }
+# v0.9.29: x1.5 variant for the dealer civics (Arms Consortium / Fleet Chandlers).
+sm_seller_listing_count_value_civic = { base = 0  add = sm_active_ship_market_listings  mult = 1.5 }
+
+# Direct sale offer (recipient side): the asking price stored on the offered fleet.
+sm_sale_offer_price = { base = 0  add = event_target:sm_sale_offer_fleet.sm_price_trade }
+
+# Inspect / buy: read the currently-inspected listing fleet's stored values.
+sm_inspect_price = { base = 0  add = event_target:sm_inspect_fleet.sm_price_trade }
+sm_inspect_power = { base = 0  add = event_target:sm_inspect_fleet.sm_fp }
+sm_inspect_ships = { base = 0  add = event_target:sm_inspect_fleet.sm_nships }
+sm_inspect_corv  = { base = 0  add = event_target:sm_inspect_fleet.sm_n_corv }
+sm_inspect_frig  = { base = 0  add = event_target:sm_inspect_fleet.sm_n_frig }
+sm_inspect_dest  = { base = 0  add = event_target:sm_inspect_fleet.sm_n_dest }
+sm_inspect_cru   = { base = 0  add = event_target:sm_inspect_fleet.sm_n_cru }
+sm_inspect_bb    = { base = 0  add = event_target:sm_inspect_fleet.sm_n_bb }
+sm_inspect_tit   = { base = 0  add = event_target:sm_inspect_fleet.sm_n_tit }
+
+# ----- Alloy build-cost estimate (RETAINED, not used for pricing) ------------
+# Kept for possible future use / the captured sm_cost_alloys variable. Pricing now
+# uses fleet power instead (see sm_recommended_price below) because this ship-count
+# -> alloy -> market chain produced 0 in testing. Safe to revisit later.
+# NOTE: top-level script-value multiply operator is `mult`, NOT `multiply`.
+sm_alloys_corv = { base = 0  add = event_target:sm_stat_fleet.sm_n_corv  mult = 60 }
+sm_alloys_frig = { base = 0  add = event_target:sm_stat_fleet.sm_n_frig  mult = 90 }
+sm_alloys_dest = { base = 0  add = event_target:sm_stat_fleet.sm_n_dest  mult = 120 }
+sm_alloys_cru  = { base = 0  add = event_target:sm_stat_fleet.sm_n_cru   mult = 240 }
+sm_alloys_bb   = { base = 0  add = event_target:sm_stat_fleet.sm_n_bb    mult = 480 }
+sm_alloys_tit  = { base = 0  add = event_target:sm_stat_fleet.sm_n_tit   mult = 2000 }
+sm_fleet_alloys = {
+	base = 0
+	# value: prefix required - a bare name here is read as a VARIABLE on the scope
+	# (not set -> 0), which silently zeroed the whole alloy cost. (fixed v0.9.9)
+	add = value:sm_alloys_corv
+	add = value:sm_alloys_frig
+	add = value:sm_alloys_dest
+	add = value:sm_alloys_cru
+	add = value:sm_alloys_bb
+	add = value:sm_alloys_tit
+}
+
+# LIVE-MARKET APPRAISAL (v0.9.39): the trade cost of buying this fleet's alloy
+# content on the market RIGHT NOW (amount = the fleet's stored sm_cost_alloys,
+# trade_type = market_buy - vanilla sell_resource_at_market_value pattern).
+# Evaluate in the owner's (country/market) scope with sm_stat_fleet saved.
+# Returns 0 when unavailable -> callers fall back to the static table below.
+sm_fleet_market_value = {
+	base = 0
+	complex_trigger_modifier = {
+		trigger = market_resource_price
+		parameters = { resource = alloys  amount = event_target:sm_stat_fleet.sm_cost_alloys  trade_type = market_buy }
+		mode = add
+	}
+}
+
+# Estimated TRADE build cost of the fleet, counted at mothball time. Uses the engine
+# counter count_owned_ship (a complex_trigger_modifier — NOT the manual every_owned_ship
+# loop that produced 0) weighted per ship size by a tunable trade-credit-equivalent of its
+# build resources. The count is restricted to THIS fleet via fleet=event_target:sm_stat_fleet,
+# so it is correct regardless of count_owned_ship's default scope. Evaluate in FLEET scope
+# at mothball and store as sm_build_value (see sm_capture_fleet_stats).
+# TRADE SCALE (v0.9.39, x2 from v0.9.38): FALLBACK table only - the primary
+# appraisal is now the LIVE MARKET (sm_apply_market_value: alloy content at the
+# current market_buy price, ~4 trade/alloy base). This static table sits ~2x
+# below the market anchor; a 30-battleship doomstack ~= 30000 (sells ~45000,
+# right under the 50k trade stockpile cap).
+sm_fleet_build_value = {
+	base = 0
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 80   parameters = { limit = { is_ship_size = corvette   fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 120  parameters = { limit = { is_ship_size = frigate    fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 170  parameters = { limit = { is_ship_size = destroyer  fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 400  parameters = { limit = { is_ship_size = cruiser    fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 1000 parameters = { limit = { is_ship_size = battleship fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 3300 parameters = { limit = { is_ship_size = titan      fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+}
+
+# Suggested TRADE sale price = estimated build cost x1.5 (a markup over cost). Reads the
+# stored sm_build_value. If that is 0 (count unavailable), sm_set_recommended_price falls
+# back to the robust fleet-power valuation, so a price is never 0.
+sm_recommended_price = { base = 0  add = event_target:sm_pending_fleet.sm_build_value  mult = 1.5 }
+
+# Recommissioning status: approximate days left on each recommissioning fleet.
+sm_recand_1_left = { base = 0  add = event_target:sm_recand_1.sm_react_left }
+sm_recand_2_left = { base = 0  add = event_target:sm_recand_2.sm_react_left }
+sm_recand_3_left = { base = 0  add = event_target:sm_recand_3.sm_react_left }
+sm_recand_4_left = { base = 0  add = event_target:sm_recand_4.sm_react_left }
+sm_recand_5_left = { base = 0  add = event_target:sm_recand_5.sm_react_left }
+sm_recand_6_left = { base = 0  add = event_target:sm_recand_6.sm_react_left }
+
+# ---- v0.9.28 Mothball State Report (sm_market_debug.8) displays -------------
+# All read root's sm_dbgm_* counters, set in the debug event's immediate.
+sm_dbgm_mil_display     = { base = 0  add = sm_dbgm_mil }
+sm_dbgm_flag_display    = { base = 0  add = sm_dbgm_flag }
+sm_dbgm_mod_display     = { base = 0  add = sm_dbgm_mod }
+sm_dbgm_desync_display  = { base = 0  add = sm_dbgm_desync }
+sm_dbgm_listed_display  = { base = 0  add = sm_dbgm_listed }
+sm_dbgm_pending_display = { base = 0  add = sm_dbgm_pending }
+sm_dbgm_lout_display    = { base = 0  add = sm_dbgm_lout }
+sm_dbgm_react_display   = { base = 0  add = sm_dbgm_react }
+sm_dbgm_offmap_display  = { base = 0  add = sm_dbgm_offmap }
+sm_dbgm_mothoff_display = { base = 0  add = sm_dbgm_mothoff }
+sm_dbgm_combat_display  = { base = 0  add = sm_dbgm_combat }
+
+# v0.9.32 telemetry: per-empire run-year ordinal (game.log has no game date).
+sm_telem_year_display = { base = 0  add = sm_telem_year }

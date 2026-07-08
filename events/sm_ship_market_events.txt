@@ -1,0 +1,670 @@
+########################################################################
+# Ship Market - Events (v0.6). Target: Stellaris 4.4.3 "Pegasus".
+# UNLIMITED listings (a listing = a fleet with the sm_market_listing flag).
+# Menus show a snapshot of up to 10 at a time.
+#
+#   sm_market.1   - Buyer: browse (up to 10 listings) & open inspect (root=buyer)
+#   sm_market.2   - Seller: admin / designate / retract            (root = seller)
+#   sm_market.110 - Seller: set asking price & confirm             (root = seller)
+#   sm_market.140 - Listing confirmed                              (root = seller)
+#   sm_market.141 - Could not list                                 (root = seller)
+#   sm_market.210 - Buyer: inspect a listing, then buy             (root = buyer)
+#   sm_market.230 - Seller: your fleet sold                        (root = seller)
+#   sm_market.231 - Buyer: purchase complete                       (root = buyer)
+#   sm_market.242 - Buyer: purchase failed / unavailable           (root = buyer)
+#   sm_market.300 - Seller: pick a fleet to designate              (root = seller)
+#   sm_market.900 - Monthly: refresh seller listing modifiers      (root = any)
+########################################################################
+
+namespace = sm_market
+
+# ----------------------------------------------------------------------
+# RETIRED terminal (v0.9.17). The big "Ship Commerce" hub is gone - the HUD dashboard
+# (interface/sm_hud_button.gui) is the entry point, and each section's live figures +
+# actions live on its own screen. This is kept as a hidden NO-OP so the legacy
+# "back/close" options that still target sm_market.5 simply close the window cleanly.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.5
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		sm_reconcile_mothball_state = yes
+	}
+}
+
+# ----------------------------------------------------------------------
+# Buyer: browse the market. Snapshots up to 10 other-empire listings.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.1
+	title = "sm_market.1.name"
+	desc = {
+		trigger = { sm_buyer_listings_exist = yes }
+		text = "sm_market.1.desc_listing"
+	}
+	desc = {
+		trigger = { NOT = { sm_buyer_listings_exist = yes } }
+		text = "sm_market.1.desc_empty"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = { sm_count_inventory = yes  sm_build_buyer_candidates = yes }
+
+	option = {
+		name = "sm_market.1.buy_1"
+		trigger = { exists = event_target:sm_bcand_1  event_target:sm_bcand_1 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_1 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_2"
+		trigger = { exists = event_target:sm_bcand_2  event_target:sm_bcand_2 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_2 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_3"
+		trigger = { exists = event_target:sm_bcand_3  event_target:sm_bcand_3 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_3 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_4"
+		trigger = { exists = event_target:sm_bcand_4  event_target:sm_bcand_4 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_4 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_5"
+		trigger = { exists = event_target:sm_bcand_5  event_target:sm_bcand_5 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_5 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_6"
+		trigger = { exists = event_target:sm_bcand_6  event_target:sm_bcand_6 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_6 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_7"
+		trigger = { exists = event_target:sm_bcand_7  event_target:sm_bcand_7 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_7 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_8"
+		trigger = { exists = event_target:sm_bcand_8  event_target:sm_bcand_8 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_8 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_9"
+		trigger = { exists = event_target:sm_bcand_9  event_target:sm_bcand_9 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_9 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+	option = {
+		name = "sm_market.1.buy_10"
+		trigger = { exists = event_target:sm_bcand_10  event_target:sm_bcand_10 = { sm_fleet_is_buyable = yes } }
+		event_target:sm_bcand_10 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
+		country_event = { id = sm_market.210 }
+	}
+
+	# (v0.9.23: dropped the "Back" option that routed to the retired no-op hub;
+	# sm_market.exit is the single close.)
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Seller: admin menu - designate a fleet, or retract listings.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.2
+	title = "sm_market.2.name"
+	desc = {
+		trigger = { exists = event_target:sm_rcand_1 }
+		text = "sm_market.2.desc_active"
+	}
+	desc = {
+		trigger = { NOT = { exists = event_target:sm_rcand_1 } }
+		text = "sm_market.2.desc_idle"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = {
+		sm_reconcile_mothball_state = yes
+		sm_build_seller_candidates = yes
+	}
+
+	# List a mothballed fleet for sale -> snapshot candidates, open the picker.
+	option = {
+		name = "sm_market.2.list"
+		trigger = { sm_country_can_sell_on_ship_market = yes }
+		hidden_effect = { sm_build_candidate_list = yes }
+		country_event = { id = sm_market.300 }
+	}
+
+	# Retract all of my listings.
+	option = {
+		name = "sm_market.2.cancel"
+		trigger = { exists = event_target:sm_rcand_1 }
+		hidden_effect = { sm_retract_all_my_listings = yes }
+		country_event = { id = sm_market.2 }
+	}
+
+	# Retract a specific listing (one option per listing you own, up to 10).
+	option = {
+		name = "sm_market.2.retract_1"
+		trigger = { exists = event_target:sm_rcand_1  event_target:sm_rcand_1 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_1 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_2"
+		trigger = { exists = event_target:sm_rcand_2  event_target:sm_rcand_2 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_2 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_3"
+		trigger = { exists = event_target:sm_rcand_3  event_target:sm_rcand_3 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_3 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_4"
+		trigger = { exists = event_target:sm_rcand_4  event_target:sm_rcand_4 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_4 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_5"
+		trigger = { exists = event_target:sm_rcand_5  event_target:sm_rcand_5 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_5 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_6"
+		trigger = { exists = event_target:sm_rcand_6  event_target:sm_rcand_6 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_6 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_7"
+		trigger = { exists = event_target:sm_rcand_7  event_target:sm_rcand_7 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_7 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_8"
+		trigger = { exists = event_target:sm_rcand_8  event_target:sm_rcand_8 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_8 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_9"
+		trigger = { exists = event_target:sm_rcand_9  event_target:sm_rcand_9 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_9 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+	option = {
+		name = "sm_market.2.retract_10"
+		trigger = { exists = event_target:sm_rcand_10  event_target:sm_rcand_10 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		event_target:sm_rcand_10 = { sm_unlist_fleet = yes }
+		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
+		country_event = { id = sm_market.2 }
+	}
+
+	option = { name = "sm_market.2.close"  country_event = { id = sm_market.5 } }
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Seller: set the asking price, then confirm the listing.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.110
+	title = "sm_market.110.name"
+	desc = "sm_market.110.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = { name = "sm_market.110.add_1k"   change_variable = { which = sm_working_price value = 100 }   sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.add_5k"   change_variable = { which = sm_working_price value = 500 }   sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.add_25k"  change_variable = { which = sm_working_price value = 2500 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.add_100k" change_variable = { which = sm_working_price value = 10000 } sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.sub_5k"   change_variable = { which = sm_working_price value = -500 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.sub_1k"   change_variable = { which = sm_working_price value = -100 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.reset"    sm_set_recommended_price = yes                               country_event = { id = sm_market.110 } }
+
+	# Confirm: list the chosen fleet at this price.
+	option = {
+		name = "sm_market.110.confirm"
+		sm_list_pending_fleet = yes
+		if = {
+			limit = { has_country_flag = sm_just_listed }
+			remove_country_flag = sm_just_listed
+			country_event = { id = sm_market.140 }
+		}
+		else = { country_event = { id = sm_market.141 } }
+	}
+
+	option = { name = "sm_market.110.cancel" }
+}
+
+# ----------------------------------------------------------------------
+# Seller: pick which fleet to designate (up to 6 eligible).
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.300
+	title = "sm_market.300.name"
+	desc = {
+		trigger = {
+			OR = {
+				exists = event_target:sm_cand_1
+				exists = event_target:sm_cand_2
+				exists = event_target:sm_cand_3
+				exists = event_target:sm_cand_4
+				exists = event_target:sm_cand_5
+				exists = event_target:sm_cand_6
+			}
+		}
+		text = "sm_market.300.desc_list"
+	}
+	desc = {
+		trigger = {
+			NOR = {
+				exists = event_target:sm_cand_1
+				exists = event_target:sm_cand_2
+				exists = event_target:sm_cand_3
+				exists = event_target:sm_cand_4
+				exists = event_target:sm_cand_5
+				exists = event_target:sm_cand_6
+			}
+		}
+		text = "sm_market.300.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	option = {
+		name = "sm_market.300.pick_1"
+		trigger = { exists = event_target:sm_cand_1  event_target:sm_cand_1 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_1 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+	option = {
+		name = "sm_market.300.pick_2"
+		trigger = { exists = event_target:sm_cand_2  event_target:sm_cand_2 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_2 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+	option = {
+		name = "sm_market.300.pick_3"
+		trigger = { exists = event_target:sm_cand_3  event_target:sm_cand_3 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_3 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+	option = {
+		name = "sm_market.300.pick_4"
+		trigger = { exists = event_target:sm_cand_4  event_target:sm_cand_4 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_4 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+	option = {
+		name = "sm_market.300.pick_5"
+		trigger = { exists = event_target:sm_cand_5  event_target:sm_cand_5 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_5 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+	option = {
+		name = "sm_market.300.pick_6"
+		trigger = { exists = event_target:sm_cand_6  event_target:sm_cand_6 = { sm_fleet_can_be_listed = yes } }
+		event_target:sm_cand_6 = { save_event_target_as = sm_pending_fleet }
+		sm_set_recommended_price = yes
+		country_event = { id = sm_market.110 }
+	}
+
+	option = { name = "sm_market.300.back"  country_event = { id = sm_market.2 } }
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Seller: mothball manager - mothball active fleets, or wake stored ones.
+# Mothballing is SEPARATE from listing: store fleets cheaply now, list later.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.400
+	title = "sm_market.400.name"
+	desc = {
+		trigger = { OR = { exists = event_target:sm_mocand_1  exists = event_target:sm_ucand_1 } }
+		text = "sm_market.400.desc_some"
+	}
+	desc = {
+		trigger = { NOR = { exists = event_target:sm_mocand_1  exists = event_target:sm_ucand_1 } }
+		text = "sm_market.400.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = {
+		sm_reconcile_mothball_state = yes
+		sm_count_inventory = yes
+		sm_build_mothball_candidates = yes
+		sm_build_unmothball_candidates = yes
+	}
+
+	# Bulk mothball every eligible active fleet.
+	option = {
+		name = "sm_market.400.mothball_all"
+		trigger = { exists = event_target:sm_mocand_1 }
+		hidden_effect = { sm_mothball_all_eligible = yes }
+		country_event = { id = sm_market.400 }
+	}
+
+	# Mothball a specific active fleet (up to 6 shown).
+	option = { name = "sm_market.400.moth_1" trigger = { exists = event_target:sm_mocand_1  event_target:sm_mocand_1 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_1 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_2" trigger = { exists = event_target:sm_mocand_2  event_target:sm_mocand_2 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_2 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_3" trigger = { exists = event_target:sm_mocand_3  event_target:sm_mocand_3 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_3 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_4" trigger = { exists = event_target:sm_mocand_4  event_target:sm_mocand_4 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_4 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_5" trigger = { exists = event_target:sm_mocand_5  event_target:sm_mocand_5 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_5 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_6" trigger = { exists = event_target:sm_mocand_6  event_target:sm_mocand_6 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_6 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+
+	# Bulk wake every mothballed, unlisted fleet (360-day recommission each).
+	option = {
+		name = "sm_market.400.unmothball_all"
+		trigger = { exists = event_target:sm_ucand_1 }
+		hidden_effect = { sm_unmothball_all = yes }
+		country_event = { id = sm_market.400 }
+	}
+
+	# Wake a specific mothballed fleet (up to 6 shown).
+	option = { name = "sm_market.400.wake_1" trigger = { exists = event_target:sm_ucand_1  event_target:sm_ucand_1 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_1 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_2" trigger = { exists = event_target:sm_ucand_2  event_target:sm_ucand_2 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_2 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_3" trigger = { exists = event_target:sm_ucand_3  event_target:sm_ucand_3 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_3 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_4" trigger = { exists = event_target:sm_ucand_4  event_target:sm_ucand_4 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_4 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_5" trigger = { exists = event_target:sm_ucand_5  event_target:sm_ucand_5 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_5 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_6" trigger = { exists = event_target:sm_ucand_6  event_target:sm_ucand_6 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_6 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+
+	# View the recommissioning countdown for fleets returning to service.
+	option = {
+		name = "sm_market.400.status"
+		trigger = { any_owned_fleet = { has_modifier = sm_reactivating_fleet } }
+		hidden_effect = { sm_build_reactivating_candidates = yes }
+		country_event = { id = sm_market.410 }
+	}
+
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Recommissioning status - approximate days left for each fleet returning
+# to service. The exact countdown lives on each fleet's "Recommissioning"
+# modifier tooltip; these are coarse, monthly-updated estimates.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.410
+	title = "sm_market.410.name"
+	desc = {
+		trigger = { exists = event_target:sm_recand_1 }
+		text = "sm_market.410.desc_some"
+	}
+	desc = {
+		trigger = { NOT = { exists = event_target:sm_recand_1 } }
+		text = "sm_market.410.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = { sm_build_reactivating_candidates = yes }
+
+	# Info-only rows (clicking just refreshes the view).
+	option = { name = "sm_market.410.row_1" trigger = { exists = event_target:sm_recand_1 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+	option = { name = "sm_market.410.row_2" trigger = { exists = event_target:sm_recand_2 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+	option = { name = "sm_market.410.row_3" trigger = { exists = event_target:sm_recand_3 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+	option = { name = "sm_market.410.row_4" trigger = { exists = event_target:sm_recand_4 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+	option = { name = "sm_market.410.row_5" trigger = { exists = event_target:sm_recand_5 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+	option = { name = "sm_market.410.row_6" trigger = { exists = event_target:sm_recand_6 } hidden_effect = { sm_build_reactivating_candidates = yes } country_event = { id = sm_market.410 } }
+
+	option = { name = "sm_market.410.back"  country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Notifications
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.140
+	title = "sm_market.140.name"
+	desc = "sm_market.140.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}
+country_event = {
+	id = sm_market.141
+	title = "sm_market.141.name"
+	desc = "sm_market.141.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}
+country_event = {
+	id = sm_market.230
+	title = "sm_market.230.name"
+	desc = "sm_market.230.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}
+country_event = {
+	id = sm_market.231
+	title = "sm_market.231.name"
+	desc = "sm_market.231.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}
+country_event = {
+	id = sm_market.242
+	title = "sm_market.242.name"
+	desc = "sm_market.242.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}
+
+# ----------------------------------------------------------------------
+# Buyer: inspect a listing (power + ship composition), then buy.
+# Operates on event_target:sm_inspect_fleet (set by the sm_market.1 option).
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.210
+	title = "sm_market.210.name"
+	desc = "sm_market.210.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	# Buy (someone else's listing and affordable). sm_buy_fleet self-validates
+	# and fires the result notification (231 success / 242 failure).
+	option = {
+		name = "sm_market.210.buy"
+		custom_tooltip = "sm_market.210.buy"		# hide the per-ship transfer tooltip
+		trigger = {
+			exists = event_target:sm_inspect_fleet
+			event_target:sm_inspect_fleet = { sm_fleet_is_buyable = yes }
+			resource_stockpile_compare = { resource = trade value >= value:sm_inspect_price }
+		}
+		hidden_effect = { sm_buy_fleet = yes }
+	}
+	# Your own listing (info only).
+	option = {
+		name = "sm_market.210.own"
+		trigger = {
+			exists = event_target:sm_inspect_fleet
+			event_target:sm_inspect_fleet = { owner = { is_same_value = root } }
+		}
+		country_event = { id = sm_market.1 }
+	}
+	# Cannot afford (info only).
+	option = {
+		name = "sm_market.210.poor"
+		trigger = {
+			exists = event_target:sm_inspect_fleet
+			event_target:sm_inspect_fleet = { sm_fleet_is_buyable = yes }
+			NOT = { resource_stockpile_compare = { resource = trade value >= value:sm_inspect_price } }
+		}
+		country_event = { id = sm_market.1 }
+	}
+	option = {
+		name = "sm_market.210.back"
+		country_event = { id = sm_market.1 }
+	}
+	option = { name = "sm_market.exit" }
+}
+
+# ----------------------------------------------------------------------
+# Monthly: keep each seller's listing-count modifier accurate (e.g. after a
+# listed fleet is lost). Fires per country; trigger keeps it cheap.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.900
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		OR = {
+			has_modifier = sm_mothball_upkeep_discount
+			any_owned_fleet = { has_fleet_flag = sm_mothballed }
+			any_owned_fleet = { has_modifier = sm_mothballed_fleet }
+			any_owned_fleet = { has_modifier = sm_reactivating_fleet }
+		}
+	}
+
+	immediate = {
+		sm_reconcile_mothball_state = yes
+		sm_refresh_seller_mothball_modifier = yes
+		sm_tick_reactivating = yes
+		# v0.9.30: re-appraise standing listings monthly - deal_pct is recomputed
+		# from LIVE ship counts and the CURRENT Export Subsidies state, so the
+		# edict discount is no longer permanently baked (activate -> list ->
+		# cancel the edict kept the discount forever), and post-listing ship
+		# splits can't preserve a stale fat appraisal.
+		every_owned_fleet = {
+			limit = { has_fleet_flag = sm_market_listing }
+			save_event_target_as = sm_stat_fleet
+			set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+			sm_apply_build_quality = yes
+			if = {
+				limit = { check_variable = { which = sm_build_value value >= 1 } }
+				set_variable = { which = sm_deal_pct value = sm_price_trade }
+				divide_variable = { which = sm_deal_pct value = sm_build_value }
+				multiply_variable = { which = sm_deal_pct value = 100 }
+			}
+			else = { set_variable = { which = sm_deal_pct value = 999 } }
+			if = {
+				limit = { exists = owner  owner = { has_edict = sm_export_subsidies } }
+				multiply_variable = { which = sm_deal_pct value = 0.85 }
+			}
+		}
+	}
+}
+
+# ----------------------------------------------------------------------
+# Monthly: AI empires (at peace) build up surplus-fleet listings, up to 3 each.
+# A 50%/month chance keeps the market populating steadily; the effect itself
+# caps listings per empire and keeps at least one spare fleet. These listings
+# show up in the player's market like any other.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.910
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		is_ai = yes
+		sm_country_can_sell_on_ship_market = yes
+		is_at_war = no
+		any_owned_fleet = { sm_fleet_ai_sellable = yes }
+	}
+
+	immediate = {
+		random_list = {
+			50 = { sm_ai_list_surplus_fleet = yes }
+			50 = { }
+		}
+	}
+}
+
+# ----------------------------------------------------------------------
+# Monthly: an AI empire occasionally BUYS a fairly-priced listing from another
+# empire. More likely when at war (needs ships). Affordability + buyability are
+# re-validated by sm_buy_fleet. The buy + watch are kept at a shallow call depth.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.920
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		is_ai = yes
+		sm_country_can_open_ship_market = yes
+		any_country = {
+			NOT = { is_same_value = root }
+			any_owned_fleet = {
+				has_fleet_flag = sm_market_listing
+				check_variable = { which = sm_deal_pct value <= 175 }
+			}
+		}
+	}
+
+	immediate = {
+		random_list = {
+			100 = { }
+			8 = {
+				modifier = { add = 20  is_at_war = yes }   # likelier to buy when at war
+				sm_ai_pick_listing = yes
+				if = {
+					limit = {
+						has_country_flag = sm_ai_found_listing
+						resource_stockpile_compare = { resource = trade  value >= value:sm_inspect_price }
+					}
+					sm_buy_fleet = yes
+					sm_trade_watch_notify = yes
+				}
+				remove_country_flag = sm_ai_found_listing
+			}
+		}
+	}
+}
+
+# ----------------------------------------------------------------------
+# Trade-watch (debug): shown to human players when the global flag is on, each
+# time an AI completes a purchase. Toggle via sm_market_debug.5.
+# ----------------------------------------------------------------------
+country_event = {
+	id = sm_market.235
+	title = "sm_market.235.name"
+	desc = "sm_market.235.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_market.ok" }
+}

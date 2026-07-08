@@ -1,0 +1,75 @@
+########################################################################
+# Ship Market - Opinion Modifiers (v0.9). Target: Stellaris 4.4.3 "Pegasus".
+# Additive: this folder is merged across files (vanilla splits it many ways), so
+# no core override. Applied on a COMPLETED fleet deal (sale or lease) by
+# sm_apply_trade_goodwill. monthly = yes makes decay tick per month (longevity);
+# accumulative = yes lets repeat business stack (bounded by decay + max).
+########################################################################
+
+# Buyer -> Seller, baseline: "they supplied us with a fleet." ~20 months to fade.
+opinion_sm_arms_supplier = {
+	opinion = {
+		base = 10
+	}
+	accumulative = yes
+	monthly = yes
+	max = 30
+	decay = {
+		base = 0.5
+	}
+}
+
+# Buyer -> Seller, when the buyer ALREADY regarded the seller well (opinion >= 40):
+# a trusted supplier relationship compounds into a bigger, longer goodwill bump.
+opinion_sm_arms_supplier_trusted = {
+	opinion = {
+		base = 20
+	}
+	accumulative = yes
+	monthly = yes
+	max = 40
+	decay = {
+		base = 0.5
+	}
+}
+
+# Seller -> Buyer: "a valued customer for our shipyards."
+opinion_sm_arms_customer = {
+	opinion = {
+		base = 8
+	}
+	accumulative = yes
+	monthly = yes
+	max = 24
+	decay = {
+		base = 0.5
+	}
+}
+
+# v0.9.29 standing malus: pacifist and xenophile empires disapprove of dedicated
+# arms dealers (the civics' balance cost). Auto-applied by the engine while the
+# trigger holds (vanilla triggered_* pattern, cf. barbaric despoilers).
+# THIS = the judging empire, FROM = the arms dealer.
+triggered_opinion_sm_merchants_of_death = {
+	trigger = {
+		is_country_type = default
+		OR = {
+			is_pacifist = yes
+			has_ethic = ethic_xenophile
+			has_ethic = ethic_fanatic_xenophile
+		}
+		NOR = {
+			has_valid_civic = civic_sm_arms_consortium
+			has_valid_civic = civic_sm_fleet_chandlers
+		}
+		FROM = {
+			OR = {
+				has_valid_civic = civic_sm_arms_consortium
+				has_valid_civic = civic_sm_fleet_chandlers
+			}
+		}
+	}
+	opinion = {
+		base = -20
+	}
+}

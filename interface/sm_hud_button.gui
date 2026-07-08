@@ -1,0 +1,54 @@
+################################################################################
+# Ship Market - flat pop-up HUD dashboard (v0.9.25). Vanilla-only.
+#
+# v0.9.25 FLATTENED: the tab layer is gone. The launcher toggles ONE action panel
+# holding all five actions (Buy / Sell / Lease Out / Mothball Bay / Contracts) -
+# every screen is now 2 clicks from anywhere instead of 3. Every element is an
+# effectButtonType gated by a flag via its effect's `potential`
+# (sm_hud_button_effects.txt).
+#
+# The mod cluster sits +48px right of the vanilla flag content (v0.9.17); vanilla
+# content below is verbatim and unmoved.
+################################################################################
+
+guiTypes = {
+
+	containerWindowType = {
+		name = "maingui_flag"
+		position = { x=0 y=0 }
+		size = { width=100% height=100% }
+
+		# --- vanilla content (verbatim, unmoved) --------------------------------
+		iconType = {
+			name = "topbar_shield_decoration"
+			spriteType = "GFX_topbar_shield_decoration"
+			position = { x= 0 y = 0 } Orientation = "UPPER_LEFT" alwaysTransparent = yes
+		}
+		buttonType ={
+			name ="button_topbar_government"
+			quadTextureSprite = "GFX_empire_flag_64"
+			position = { x= -3 y = 0 } Orientation = "UPPER_LEFT"
+			pdx_tooltip = "topbar_button_government_instant"
+			pdx_tooltip_delayed = "topbar_button_government_delayed"
+			clicksound = interface  oversound = no_sound
+		}
+
+		# --- LAUNCHER (always visible) ------------------------------------------
+		# (v0.9.26: dark shading backings removed - the GFX_dark_area_cut boxes
+		# registered slightly off the buttons; the button textures stand alone.)
+		effectButtonType = {
+			name = "sm_launch"
+			quadTextureSprite = "GFX_standard_button_180_34_button"
+			position = { x = 56 y = 54 } size = { x = 190 y = 38 } Orientation = "UPPER_LEFT"
+			font = "cg_16b" text = "sm_tile_market_label" pdx_tooltip = "sm_tile_market_tt"
+			clicksound = "select_click" effect = "sm_dashboard_toggle_effect"
+		}
+
+		# --- ACTION PANEL (gated: dashboard open) - flat, no tabs, no backing ----
+		effectButtonType = { name = "sm_act_buy"       quadTextureSprite = "GFX_standard_button_180_34_button" position = { x = 56 y = 104 } size = { x = 190 y = 40 } Orientation = "UPPER_LEFT" font = "cg_16b" text = "sm_tile_buy_label"       pdx_tooltip = "sm_tile_buy_tt"       clicksound = "select_click" effect = "sm_open_buy_effect" }
+		effectButtonType = { name = "sm_act_sell"      quadTextureSprite = "GFX_standard_button_180_34_button" position = { x = 56 y = 148 } size = { x = 190 y = 40 } Orientation = "UPPER_LEFT" font = "cg_16b" text = "sm_tile_sell_label"      pdx_tooltip = "sm_tile_sell_tt"      clicksound = "select_click" effect = "sm_open_sell_effect" }
+		effectButtonType = { name = "sm_act_lease"     quadTextureSprite = "GFX_standard_button_180_34_button" position = { x = 56 y = 192 } size = { x = 190 y = 40 } Orientation = "UPPER_LEFT" font = "cg_16b" text = "sm_hud_lease_label"      pdx_tooltip = "sm_hud_lease_tt"      clicksound = "select_click" effect = "sm_open_lease_effect" }
+		effectButtonType = { name = "sm_act_moth"      quadTextureSprite = "GFX_standard_button_180_34_button" position = { x = 56 y = 236 } size = { x = 190 y = 40 } Orientation = "UPPER_LEFT" font = "cg_16b" text = "sm_tile_moth_label"      pdx_tooltip = "sm_tile_moth_tt"      clicksound = "select_click" effect = "sm_open_mothball_effect" }
+		effectButtonType = { name = "sm_act_contracts" quadTextureSprite = "GFX_standard_button_180_34_button" position = { x = 56 y = 280 } size = { x = 190 y = 40 } Orientation = "UPPER_LEFT" font = "cg_16b" text = "sm_dash_contracts_label" pdx_tooltip = "sm_dash_contracts_tt" clicksound = "select_click" effect = "sm_contracts_view_effect" }
+	}
+}

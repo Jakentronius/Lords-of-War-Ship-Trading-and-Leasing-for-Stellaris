@@ -1,0 +1,33 @@
+########################################################################
+# Ship Market - On-actions (v0.9.25)
+# Target: Stellaris 4.4.3 "Pegasus".
+# on_actions are ADDITIVE across mods/files: declaring an existing
+# on_action here APPENDS our events; it does not overwrite vanilla.
+########################################################################
+
+# Monthly maintenance + AI market activity. Each event has its own trigger so
+# the pulse stays cheap.
+#   sm_market.900 - reconcile mothball state, refresh modifiers, tick recommission
+#   sm_offer.900  - auto-decline offers unanswered ~30 days (+ reclaim leaked slots)
+#   sm_offer.950  - v0.9.25: AI-initiated deals - targeted sale/lease offers to any
+#                   contacted empire (human or AI) + open-board listings, one
+#                   outbound deal per AI at a time; also wakes fleets whose offers
+#                   were rejected/expired ("un-mothball at the end of the month").
+#                   This SUPERSEDES the old board-churn pair: sm_market.910 stays
+#                   dormant (sm_ai_board_list_fleet covers listing, with a shelf
+#                   life + one-at-a-time cap); sm_market.920 (AI auto-BUYS board
+#                   listings) remains dormant/debug-only (sm_market_debug.4).
+on_monthly_pulse_country = {
+	events = {
+		sm_market.900
+		sm_offer.900		# auto-decline offers unanswered for ~30 days (+ reclaim leaked deal slots)
+		sm_offer.950		# AI-initiated deals + end-of-month un-mothball reconcile
+	}
+}
+
+# v0.9.32: opt-in yearly telemetry census (gated on the sm_telemetry global flag).
+on_yearly_pulse_country = {
+	events = {
+		sm_telem.1
+	}
+}

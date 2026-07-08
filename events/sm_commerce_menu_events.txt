@@ -1,0 +1,39 @@
+########################################################################
+# Ship Commerce Menu - Events (v0.9.4). Stellaris 4.4.3 "Pegasus".
+# Same namespace as the market hub so it routes back to sm_market.5.
+#   sm_market.600 - Diplomacy & Relations (read-only): opinion of you, diplomatic
+#                   status, and relative fleet strength for every empire you've met.
+# Opens in the shared custom window (sm_inv_window); the title is folded into the
+# top of the desc (the window renders only desc + options), per the three custom-
+# window rules. The empire list is built in immediate and re-snapshot on Refresh.
+########################################################################
+
+namespace = sm_market
+
+country_event = {
+	id = sm_market.600
+	title = "sm_market.600.name"
+	desc = {
+		trigger = { exists = event_target:sm_dipl_1 }
+		text = "sm_market.600.desc_list"
+	}
+	desc = {
+		trigger = { NOT = { exists = event_target:sm_dipl_1 } }
+		text = "sm_market.600.desc_none"
+	}
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = { sm_build_diplo_candidates = yes }
+
+	# Re-snapshot (opinions / relations drift over time).
+	option = {
+		name = "sm_market.600.refresh"
+		hidden_effect = {
+			sm_build_diplo_candidates = yes
+			country_event = { id = sm_market.600 }
+		}
+	}
+	option = { name = "sm_market.600.back"  country_event = { id = sm_market.5 } }
+	option = { name = "sm_market.exit" }
+}

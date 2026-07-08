@@ -1,0 +1,9 @@
+########################################################################
+# Ship Lease - Edict (RETIRED in v0.8)
+# Target: Stellaris 4.4.3 "Pegasus".
+# The standalone "Lease Out a Fleet" edict was removed when the system was
+# consolidated into the single Ship Market hub (sm_open_ship_market -> sm_market.5).
+# Leasing is now reached via the hub's "Lease out a fleet" option (-> sm_lease.1).
+# All leasing triggers/effects/events/values remain; only this entry point moved.
+# File kept (empty of edicts) for history; safe to delete.
+########################################################################

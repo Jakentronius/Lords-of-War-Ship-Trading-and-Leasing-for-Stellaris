@@ -1,0 +1,412 @@
+########################################################################
+# Ship Commerce Menu - Scripted Localisation (v0.9.4). Stellaris 4.4.3.
+# defined_text tokens for the consolidated hub status dashboard and the
+# diplomacy-lite view. Trigger-branched entries MUST be mutually exclusive
+# (scripted_loc picks by weight among ALL matching entries, not first-match).
+########################################################################
+
+# ---- Hub inventory dashboard --------------------------------------------------
+defined_text = { name = GetInvActive   value = value:sm_inv_active_display }
+defined_text = { name = GetInvStorage  value = value:sm_inv_storage_display }
+defined_text = { name = GetInvListed   value = value:sm_inv_listed_display }
+defined_text = { name = GetInvPending  value = value:sm_inv_pending_display }
+defined_text = { name = GetInvLeased   value = value:sm_inv_leased_display }
+defined_text = { name = GetInvReact    value = value:sm_inv_react_display }
+
+# ---- Diplomacy-lite: one row per contacted empire (blank when slot empty) ------
+defined_text = { name = GetDipl1Opinion  value = value:sm_dipl_1_op }
+defined_text = { name = GetDipl2Opinion  value = value:sm_dipl_2_op }
+defined_text = { name = GetDipl3Opinion  value = value:sm_dipl_3_op }
+defined_text = { name = GetDipl4Opinion  value = value:sm_dipl_4_op }
+defined_text = { name = GetDipl5Opinion  value = value:sm_dipl_5_op }
+defined_text = { name = GetDipl6Opinion  value = value:sm_dipl_6_op }
+defined_text = { name = GetDipl7Opinion  value = value:sm_dipl_7_op }
+defined_text = { name = GetDipl8Opinion  value = value:sm_dipl_8_op }
+defined_text = { name = GetDipl9Opinion  value = value:sm_dipl_9_op }
+defined_text = { name = GetDipl10Opinion  value = value:sm_dipl_10_op }
+
+defined_text = {
+	name = GetDiplRow1
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_1 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_1 }             localization_key = sm_dipl_row_1 }
+}
+defined_text = {
+	name = GetDiplRow2
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_2 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_2 }             localization_key = sm_dipl_row_2 }
+}
+defined_text = {
+	name = GetDiplRow3
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_3 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_3 }             localization_key = sm_dipl_row_3 }
+}
+defined_text = {
+	name = GetDiplRow4
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_4 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_4 }             localization_key = sm_dipl_row_4 }
+}
+defined_text = {
+	name = GetDiplRow5
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_5 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_5 }             localization_key = sm_dipl_row_5 }
+}
+defined_text = {
+	name = GetDiplRow6
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_6 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_6 }             localization_key = sm_dipl_row_6 }
+}
+defined_text = {
+	name = GetDiplRow7
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_7 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_7 }             localization_key = sm_dipl_row_7 }
+}
+defined_text = {
+	name = GetDiplRow8
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_8 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_8 }             localization_key = sm_dipl_row_8 }
+}
+defined_text = {
+	name = GetDiplRow9
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_9 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_9 }             localization_key = sm_dipl_row_9 }
+}
+defined_text = {
+	name = GetDiplRow10
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_10 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_dipl_10 }             localization_key = sm_dipl_row_10 }
+}
+
+defined_text = {
+	name = GetDipl1Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_1 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_1 }  has_defensive_pact = event_target:sm_dipl_1 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_1 }  NOT = { has_defensive_pact = event_target:sm_dipl_1 }  is_rival = event_target:sm_dipl_1 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_1 }  NOT = { has_defensive_pact = event_target:sm_dipl_1 }  NOT = { is_rival = event_target:sm_dipl_1 }  has_non_aggression_pact = event_target:sm_dipl_1 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_1  has_defensive_pact = event_target:sm_dipl_1  is_rival = event_target:sm_dipl_1  has_non_aggression_pact = event_target:sm_dipl_1 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl2Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_2 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_2 }  has_defensive_pact = event_target:sm_dipl_2 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_2 }  NOT = { has_defensive_pact = event_target:sm_dipl_2 }  is_rival = event_target:sm_dipl_2 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_2 }  NOT = { has_defensive_pact = event_target:sm_dipl_2 }  NOT = { is_rival = event_target:sm_dipl_2 }  has_non_aggression_pact = event_target:sm_dipl_2 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_2  has_defensive_pact = event_target:sm_dipl_2  is_rival = event_target:sm_dipl_2  has_non_aggression_pact = event_target:sm_dipl_2 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl3Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_3 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_3 }  has_defensive_pact = event_target:sm_dipl_3 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_3 }  NOT = { has_defensive_pact = event_target:sm_dipl_3 }  is_rival = event_target:sm_dipl_3 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_3 }  NOT = { has_defensive_pact = event_target:sm_dipl_3 }  NOT = { is_rival = event_target:sm_dipl_3 }  has_non_aggression_pact = event_target:sm_dipl_3 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_3  has_defensive_pact = event_target:sm_dipl_3  is_rival = event_target:sm_dipl_3  has_non_aggression_pact = event_target:sm_dipl_3 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl4Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_4 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_4 }  has_defensive_pact = event_target:sm_dipl_4 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_4 }  NOT = { has_defensive_pact = event_target:sm_dipl_4 }  is_rival = event_target:sm_dipl_4 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_4 }  NOT = { has_defensive_pact = event_target:sm_dipl_4 }  NOT = { is_rival = event_target:sm_dipl_4 }  has_non_aggression_pact = event_target:sm_dipl_4 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_4  has_defensive_pact = event_target:sm_dipl_4  is_rival = event_target:sm_dipl_4  has_non_aggression_pact = event_target:sm_dipl_4 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl5Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_5 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_5 }  has_defensive_pact = event_target:sm_dipl_5 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_5 }  NOT = { has_defensive_pact = event_target:sm_dipl_5 }  is_rival = event_target:sm_dipl_5 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_5 }  NOT = { has_defensive_pact = event_target:sm_dipl_5 }  NOT = { is_rival = event_target:sm_dipl_5 }  has_non_aggression_pact = event_target:sm_dipl_5 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_5  has_defensive_pact = event_target:sm_dipl_5  is_rival = event_target:sm_dipl_5  has_non_aggression_pact = event_target:sm_dipl_5 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl6Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_6 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_6 }  has_defensive_pact = event_target:sm_dipl_6 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_6 }  NOT = { has_defensive_pact = event_target:sm_dipl_6 }  is_rival = event_target:sm_dipl_6 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_6 }  NOT = { has_defensive_pact = event_target:sm_dipl_6 }  NOT = { is_rival = event_target:sm_dipl_6 }  has_non_aggression_pact = event_target:sm_dipl_6 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_6  has_defensive_pact = event_target:sm_dipl_6  is_rival = event_target:sm_dipl_6  has_non_aggression_pact = event_target:sm_dipl_6 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl7Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_7 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_7 }  has_defensive_pact = event_target:sm_dipl_7 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_7 }  NOT = { has_defensive_pact = event_target:sm_dipl_7 }  is_rival = event_target:sm_dipl_7 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_7 }  NOT = { has_defensive_pact = event_target:sm_dipl_7 }  NOT = { is_rival = event_target:sm_dipl_7 }  has_non_aggression_pact = event_target:sm_dipl_7 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_7  has_defensive_pact = event_target:sm_dipl_7  is_rival = event_target:sm_dipl_7  has_non_aggression_pact = event_target:sm_dipl_7 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl8Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_8 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_8 }  has_defensive_pact = event_target:sm_dipl_8 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_8 }  NOT = { has_defensive_pact = event_target:sm_dipl_8 }  is_rival = event_target:sm_dipl_8 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_8 }  NOT = { has_defensive_pact = event_target:sm_dipl_8 }  NOT = { is_rival = event_target:sm_dipl_8 }  has_non_aggression_pact = event_target:sm_dipl_8 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_8  has_defensive_pact = event_target:sm_dipl_8  is_rival = event_target:sm_dipl_8  has_non_aggression_pact = event_target:sm_dipl_8 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl9Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_9 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_9 }  has_defensive_pact = event_target:sm_dipl_9 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_9 }  NOT = { has_defensive_pact = event_target:sm_dipl_9 }  is_rival = event_target:sm_dipl_9 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_9 }  NOT = { has_defensive_pact = event_target:sm_dipl_9 }  NOT = { is_rival = event_target:sm_dipl_9 }  has_non_aggression_pact = event_target:sm_dipl_9 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_9  has_defensive_pact = event_target:sm_dipl_9  is_rival = event_target:sm_dipl_9  has_non_aggression_pact = event_target:sm_dipl_9 } }  localization_key = sm_dipl_status_neutral }
+}
+defined_text = {
+	name = GetDipl10Status
+	text = { trigger = { is_at_war_with = event_target:sm_dipl_10 }  localization_key = sm_dipl_status_war }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_10 }  has_defensive_pact = event_target:sm_dipl_10 }  localization_key = sm_dipl_status_ally }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_10 }  NOT = { has_defensive_pact = event_target:sm_dipl_10 }  is_rival = event_target:sm_dipl_10 }  localization_key = sm_dipl_status_rival }
+	text = { trigger = { NOT = { is_at_war_with = event_target:sm_dipl_10 }  NOT = { has_defensive_pact = event_target:sm_dipl_10 }  NOT = { is_rival = event_target:sm_dipl_10 }  has_non_aggression_pact = event_target:sm_dipl_10 }  localization_key = sm_dipl_status_nap }
+	text = { trigger = { NOR = { is_at_war_with = event_target:sm_dipl_10  has_defensive_pact = event_target:sm_dipl_10  is_rival = event_target:sm_dipl_10  has_non_aggression_pact = event_target:sm_dipl_10 } }  localization_key = sm_dipl_status_neutral }
+}
+
+defined_text = {
+	name = GetDipl1Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_1  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_1  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_1  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl2Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_2  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_2  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_2  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl3Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_3  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_3  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_3  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl4Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_4  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_4  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_4  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl5Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_5  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_5  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_5  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl6Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_6  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_6  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_6  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl7Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_7  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_7  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_7  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl8Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_8  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_8  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_8  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl9Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_9  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_9  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_9  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+defined_text = {
+	name = GetDipl10Power
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_10  category = fleet  value > equivalent } }  localization_key = sm_dipl_pw_you }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_10  category = fleet  value = equivalent } }  localization_key = sm_dipl_pw_even }
+	text = { trigger = { relative_power = { who = event_target:sm_dipl_10  category = fleet  value < equivalent } }  localization_key = sm_dipl_pw_them }
+}
+
+# ============ 'Everything at once' dashboard rows ============
+# Lease fee / days-left value tokens.
+defined_text = { name = GetLease1Fee   value = value:sm_lactive_1_fee }
+defined_text = { name = GetLease2Fee   value = value:sm_lactive_2_fee }
+defined_text = { name = GetLease3Fee   value = value:sm_lactive_3_fee }
+defined_text = { name = GetLease4Fee   value = value:sm_lactive_4_fee }
+defined_text = { name = GetLease5Fee   value = value:sm_lactive_5_fee }
+defined_text = { name = GetLease6Fee   value = value:sm_lactive_6_fee }
+defined_text = { name = GetLease1Days  value = value:sm_lactive_1_days }
+defined_text = { name = GetLease2Days  value = value:sm_lactive_2_days }
+defined_text = { name = GetLease3Days  value = value:sm_lactive_3_days }
+defined_text = { name = GetLease4Days  value = value:sm_lactive_4_days }
+defined_text = { name = GetLease5Days  value = value:sm_lactive_5_days }
+defined_text = { name = GetLease6Days  value = value:sm_lactive_6_days }
+
+# Terminal dashboard KPIs (v0.9.9): aggregate totals + per-stored-slot alloy cost.
+defined_text = { name = GetLeaseIncomeTotal   value = value:sm_total_lease_income_display }
+defined_text = { name = GetMothballValueTotal value = value:sm_total_mothball_alloys_display }
+defined_text = { name = GetFPLeased  value = value:sm_fp_leased_display }
+defined_text = { name = GetFPStored  value = value:sm_fp_stored_display }
+defined_text = { name = GetFPListed  value = value:sm_fp_listed_display }
+defined_text = { name = GetValListed value = value:sm_val_listed_display }
+defined_text = { name = GetWake1Value  value = value:sm_ucand_1_alloys }
+defined_text = { name = GetWake2Value  value = value:sm_ucand_2_alloys }
+defined_text = { name = GetWake3Value  value = value:sm_ucand_3_alloys }
+defined_text = { name = GetWake4Value  value = value:sm_ucand_4_alloys }
+defined_text = { name = GetWake5Value  value = value:sm_ucand_5_alloys }
+defined_text = { name = GetWake6Value  value = value:sm_ucand_6_alloys }
+
+# Mothball-eligible (active) fleet rows; blank when the slot is empty.
+defined_text = {
+	name = GetMothRow1
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_1 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_1 }             localization_key = sm_moth_row_1 }
+}
+defined_text = {
+	name = GetMothRow2
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_2 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_2 }             localization_key = sm_moth_row_2 }
+}
+defined_text = {
+	name = GetMothRow3
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_3 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_3 }             localization_key = sm_moth_row_3 }
+}
+defined_text = {
+	name = GetMothRow4
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_4 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_4 }             localization_key = sm_moth_row_4 }
+}
+defined_text = {
+	name = GetMothRow5
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_5 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_5 }             localization_key = sm_moth_row_5 }
+}
+defined_text = {
+	name = GetMothRow6
+	text = { trigger = { NOT = { exists = event_target:sm_mocand_6 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_mocand_6 }             localization_key = sm_moth_row_6 }
+}
+
+# Reactivate-eligible (mothballed) fleet rows.
+defined_text = {
+	name = GetWakeRow1
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_1 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_1 }             localization_key = sm_wake_row_1 }
+}
+defined_text = {
+	name = GetWakeRow2
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_2 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_2 }             localization_key = sm_wake_row_2 }
+}
+defined_text = {
+	name = GetWakeRow3
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_3 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_3 }             localization_key = sm_wake_row_3 }
+}
+defined_text = {
+	name = GetWakeRow4
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_4 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_4 }             localization_key = sm_wake_row_4 }
+}
+defined_text = {
+	name = GetWakeRow5
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_5 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_5 }             localization_key = sm_wake_row_5 }
+}
+defined_text = {
+	name = GetWakeRow6
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_6 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_ucand_6 }             localization_key = sm_wake_row_6 }
+}
+
+# Active-lease rows (fleet name + monthly income + days left).
+defined_text = {
+	name = GetLeaseRow1
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_1 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_1 }             localization_key = sm_lease_row_1 }
+}
+defined_text = {
+	name = GetLeaseRow2
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_2 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_2 }             localization_key = sm_lease_row_2 }
+}
+defined_text = {
+	name = GetLeaseRow3
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_3 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_3 }             localization_key = sm_lease_row_3 }
+}
+defined_text = {
+	name = GetLeaseRow4
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_4 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_4 }             localization_key = sm_lease_row_4 }
+}
+defined_text = {
+	name = GetLeaseRow5
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_5 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_5 }             localization_key = sm_lease_row_5 }
+}
+defined_text = {
+	name = GetLeaseRow6
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_6 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_6 }             localization_key = sm_lease_row_6 }
+}
+
+# Per-section 'empty' fallbacks (mutually exclusive branches).
+defined_text = {
+	name = GetFleetsEmpty
+	text = { trigger = { NOR = { exists = event_target:sm_mocand_1  exists = event_target:sm_ucand_1 } }  localization_key = sm_fleets_empty }
+	text = { trigger = { OR  = { exists = event_target:sm_mocand_1  exists = event_target:sm_ucand_1 } }  localization_key = sm_dipl_blank }
+}
+defined_text = {
+	name = GetLeaseEmpty
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_1 } }  localization_key = sm_lease_empty }
+	text = { trigger = { exists = event_target:sm_lactive_1 }           localization_key = sm_dipl_blank }
+}
+
+# Mothball-inventory (storage) empty line - keys only on stored fleets (v0.9.9).
+defined_text = {
+	name = GetStorageEmpty
+	text = { trigger = { NOT = { exists = event_target:sm_ucand_1 } }  localization_key = sm_storage_empty }
+	text = { trigger = { exists = event_target:sm_ucand_1 }            localization_key = sm_dipl_blank }
+}
+
+# Inbound-lease rows (v0.9.27): fleets root leases FROM other empires.
+defined_text = { name = GetLin1Fee   value = value:sm_lin_1_fee }
+defined_text = { name = GetLin2Fee   value = value:sm_lin_2_fee }
+defined_text = { name = GetLin3Fee   value = value:sm_lin_3_fee }
+defined_text = { name = GetLin4Fee   value = value:sm_lin_4_fee }
+defined_text = { name = GetLin5Fee   value = value:sm_lin_5_fee }
+defined_text = { name = GetLin6Fee   value = value:sm_lin_6_fee }
+defined_text = { name = GetLin1Days  value = value:sm_lin_1_days }
+defined_text = { name = GetLin2Days  value = value:sm_lin_2_days }
+defined_text = { name = GetLin3Days  value = value:sm_lin_3_days }
+defined_text = { name = GetLin4Days  value = value:sm_lin_4_days }
+defined_text = { name = GetLin5Days  value = value:sm_lin_5_days }
+defined_text = { name = GetLin6Days  value = value:sm_lin_6_days }
+defined_text = { name = GetLinRow1  text = { trigger = { NOT = { exists = event_target:sm_lin_1 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_1 } localization_key = sm_lin_row_1 } }
+defined_text = { name = GetLinRow2  text = { trigger = { NOT = { exists = event_target:sm_lin_2 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_2 } localization_key = sm_lin_row_2 } }
+defined_text = { name = GetLinRow3  text = { trigger = { NOT = { exists = event_target:sm_lin_3 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_3 } localization_key = sm_lin_row_3 } }
+defined_text = { name = GetLinRow4  text = { trigger = { NOT = { exists = event_target:sm_lin_4 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_4 } localization_key = sm_lin_row_4 } }
+defined_text = { name = GetLinRow5  text = { trigger = { NOT = { exists = event_target:sm_lin_5 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_5 } localization_key = sm_lin_row_5 } }
+defined_text = { name = GetLinRow6  text = { trigger = { NOT = { exists = event_target:sm_lin_6 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_lin_6 } localization_key = sm_lin_row_6 } }
+
+# Outstanding Contracts - pending-offer "O" rows (v0.9.12): one per flagged empire.
+defined_text = { name = GetOfferRow1  text = { trigger = { NOT = { exists = event_target:sm_ocand_1 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_1 } localization_key = sm_offer_row_1 } }
+defined_text = { name = GetOfferRow2  text = { trigger = { NOT = { exists = event_target:sm_ocand_2 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_2 } localization_key = sm_offer_row_2 } }
+defined_text = { name = GetOfferRow3  text = { trigger = { NOT = { exists = event_target:sm_ocand_3 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_3 } localization_key = sm_offer_row_3 } }
+defined_text = { name = GetOfferRow4  text = { trigger = { NOT = { exists = event_target:sm_ocand_4 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_4 } localization_key = sm_offer_row_4 } }
+defined_text = { name = GetOfferRow5  text = { trigger = { NOT = { exists = event_target:sm_ocand_5 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_5 } localization_key = sm_offer_row_5 } }
+defined_text = { name = GetOfferRow6  text = { trigger = { NOT = { exists = event_target:sm_ocand_6 } } localization_key = sm_dipl_blank }  text = { trigger = { exists = event_target:sm_ocand_6 } localization_key = sm_offer_row_6 } }
+
+# Pending-offer type label per slot (sale vs lease), read from the recipient's sm_my_deal_type.
+defined_text = { name = GetOffer1Type  text = { trigger = { event_target:sm_ocand_1 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_1 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+defined_text = { name = GetOffer2Type  text = { trigger = { event_target:sm_ocand_2 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_2 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+defined_text = { name = GetOffer3Type  text = { trigger = { event_target:sm_ocand_3 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_3 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+defined_text = { name = GetOffer4Type  text = { trigger = { event_target:sm_ocand_4 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_4 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+defined_text = { name = GetOffer5Type  text = { trigger = { event_target:sm_ocand_5 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_5 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+defined_text = { name = GetOffer6Type  text = { trigger = { event_target:sm_ocand_6 = { check_variable = { which = sm_my_deal_type value = 2 } } } localization_key = sm_deal_type_lease }  text = { trigger = { event_target:sm_ocand_6 = { check_variable = { which = sm_my_deal_type value = 1 } } } localization_key = sm_deal_type_sale } }
+
+# Contracts empty line - only when there are NO leases (either direction) AND NO
+# pending offers.
+defined_text = {
+	name = GetContractsEmpty
+	text = { trigger = { NOR = { exists = event_target:sm_lactive_1  exists = event_target:sm_lin_1  exists = event_target:sm_ocand_1 } } localization_key = sm_contracts_empty }
+	text = { trigger = { OR  = { exists = event_target:sm_lactive_1  exists = event_target:sm_lin_1  exists = event_target:sm_ocand_1 } } localization_key = sm_dipl_blank }
+}
+defined_text = {
+	name = GetDiplEmpty
+	text = { trigger = { NOT = { exists = event_target:sm_dipl_1 } }  localization_key = sm_dipl_empty_line }
+	text = { trigger = { exists = event_target:sm_dipl_1 }           localization_key = sm_dipl_blank }
+}

@@ -1,0 +1,58 @@
+########################################################################
+# Ship Market - Static Modifiers (v0.4)
+# Target: Stellaris 4.4.3 "Pegasus".
+# Fleet-scope key mod_ship_naval_cap_usage_mult mirrors vanilla
+# "no_naval_capacity" (common/static_modifiers/02_static_modifiers.txt).
+# Country-scope ship_military_*_upkeep_mult are valid country modifier keys.
+########################################################################
+
+# FLEET-scope modifier on a mothballed fleet. Pure stat modifier (like vanilla
+# lf_weapon_stun_effect) so it reverses cleanly on remove_modifier — unlike
+# set_disabled / set_fleet_settings, which leave the fleet stuck.
+#  - immobilised (speed floored to 0) so it cannot be repositioned/used
+#  - deals no weapon damage, so it is useless in combat
+# FLEET-scope modifier on a mothballed fleet. Pure stat modifier; reverses
+# cleanly on remove_modifier. Mirrors how the mercenary system reduces a fleet's
+# naval-cap usage (mod_ship_naval_cap_usage_mult at fleet scope, e.g. -0.40).
+# IMPORTANT: use -0.95, NOT -1.0 — exactly -100% is an engine edge case that
+# is ignored at fleet scope and inverts (increases usage) at ship scope.
+sm_mothballed_fleet = {
+	ship_speed_mult = -100
+	ship_weapon_damage = -100
+	mod_ship_naval_cap_usage_mult = -0.95
+}
+
+# Applied (timed) when a fleet RECOMMISSIONS back to normal service. Same stats
+# as sm_mothballed_fleet — the fleet is inert/disarmed/low-cap until this timed
+# modifier auto-expires, then it becomes a normal fleet again. Two durations are
+# used (set via the add_modifier `days` in scripted effects, not here):
+#   * 10 days  — a PURCHASED fleet (the buyer's commissioning of a fleet they bought).
+#   * 360 days — UN-MOTHBALLING a stored fleet.
+# Note: a seller RETRACTING a listing does NOT get this modifier — the fleet simply
+# returns to mothball storage and must be un-mothballed (360 days) to reactivate.
+sm_reactivating_fleet = {
+	ship_speed_mult = -100
+	ship_weapon_damage = -100
+	mod_ship_naval_cap_usage_mult = -0.95
+}
+
+# Applied to the SELLER country, scaled (multiplier) by how many fleets they
+# currently have mothballed for sale. Showroom inventory drives commerce: a
+# small empire-wide trade-value production bonus per mothballed fleet, plus an
+# alloy upkeep discount ("cheaper to hold inventory"). Naval-cap relief is
+# handled directly on the mothballed fleet (sm_mothballed_fleet above), not here.
+# (v-trade refactor: was ship_military_energy_upkeep_mult = -0.02; the mod now
+# produces and deals in trade credits, not energy.)
+sm_mothball_upkeep_discount = {
+	country_trade_produces_mult = 0.02
+	ship_military_alloys_upkeep_mult = -0.02
+}
+
+# v0.9.29 FLEET-scope compensator applied at lease signing when the LESSOR has
+# the Assembly-Line Shipwrights civic. Ship stats follow the OWNER's empire, so
+# the civic's -20% fire rate would otherwise gimp the leased product for the
+# lessee; +0.25 mult cancels it (0.8 x 1.25 = 1.0). Added in sm_finalize_lease,
+# removed in sm_recall_lease / sm_lease_cleanup.
+sm_lease_shipwright_tune = {
+	ship_fire_rate_mult = 0.25
+}

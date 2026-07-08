@@ -1,0 +1,95 @@
+########################################################################
+# Ship Market - Edict / entry point (v0.8: single hub)
+# Target: Stellaris 4.4.3 "Pegasus".
+# ONE perpetual toggle edict opens the Ship Market hub (sm_market.5), from which
+# the player browses the galactic market, sells/mothballs fleets, and leases fleets.
+# (Replaces the former separate buyer / seller-admin / lease edicts — see the hub
+# event for routing. UX: activating opens the hub; to re-open, toggle off then on.)
+########################################################################
+
+sm_open_ship_market = {
+	length = -1	# perpetual toggle (known-good). Re-open via toggle off/on.
+	icon = "GFX_edict_type_policy"
+
+	resources = {
+		category = edicts
+		cost = {
+			trade = 0
+		}
+	}
+
+	potential = {
+		sm_country_can_open_ship_market = yes
+	}
+
+	allow = {
+		always = yes
+	}
+
+	effect = {
+		# Terminal retired (v0.9.17): open the HUD dashboard instead.
+		set_global_flag = sm_dashboard_open
+	}
+
+	ai_weight = {
+		weight = 0
+	}
+}
+
+# ---- v0.9.29 arms-trade edicts ----------------------------------------------
+# Export Subsidies: your asking prices READ ~15% cheaper to AI evaluators
+# (sm_deal_pct / sm_lease_ratio x0.85, applied at listing/offer time - see
+# sm_list_fleet / sm_send_sale_offer / sm_prepare_offer) without lowering what
+# you are actually paid. Trade-credit upkeep, vanilla subsidies-style.
+sm_export_subsidies = {
+	length = -1
+	icon = "GFX_edict_type_policy"
+
+	resources = {
+		category = edicts
+		cost = {
+			unity = 10
+			multiplier = value:edict_size_effect
+		}
+		upkeep = {
+			trade = 5
+			multiplier = value:edict_size_effect
+		}
+	}
+
+	potential = {
+		sm_country_can_open_ship_market = yes
+	}
+
+	allow = { always = yes }
+
+	ai_weight = { weight = 0 }
+}
+
+# Wartime Brokerage: empires AT WAR are x1.5 more receptive to your offers
+# (stacks with their own need - see the ai_chance blocks in sm_offer.100 /
+# sm_lease.50). Unity upkeep; profiteering has running costs.
+sm_wartime_brokerage = {
+	length = -1
+	icon = "GFX_edict_type_policy"
+
+	resources = {
+		category = edicts
+		cost = {
+			unity = 10
+			multiplier = value:edict_size_effect
+		}
+		upkeep = {
+			unity = 10
+			multiplier = value:edict_size_effect
+		}
+	}
+
+	potential = {
+		sm_country_can_open_ship_market = yes
+	}
+
+	allow = { always = yes }
+
+	ai_weight = { weight = 0 }
+}

@@ -1,0 +1,39 @@
+########################################################################
+# Ship Lease - Scripted Triggers (EXPERIMENTAL framework, v0.8-wip)
+# Target: Stellaris 4.4.3 "Pegasus".
+# Leasing = native give_fleet (controller transfer for a term; owner keeps the
+# fleet; engine auto-returns survivors at expiry). Verified effects in 4.4.3:
+# give_fleet / is_leased / lease_days / end_fleet_contract / prolong_fleet_contract.
+# A fleet must NEVER be both market-listed/mothballed AND leased.
+########################################################################
+
+# COUNTRY SCOPE. Can this country use the leasing UI at all?
+sm_country_can_lease = {
+	is_country_type = default
+}
+
+# COUNTRY SCOPE (root = the empire we might lease TO). A valid lessee: a different
+# normal empire we have comms with.
+sm_lease_target_valid = {
+	NOT = { is_same_value = root }
+	is_country_type = default
+	has_communications = root
+}
+
+# FLEET SCOPE (root = owner). Is this MOTHBALLED fleet eligible to be leased out?
+# Like selling, leasing operates on already-mothballed fleets (mothball via the
+# Mothball Bay first). Stats were cached at mothball time. The fleet is un-mothballed
+# (made operational) for the lessee when the lease is accepted. Mutually exclusive
+# with being listed for sale or already leased.
+sm_fleet_can_be_leased = {
+	exists = owner
+	owner = { is_same_value = root }
+	# v0.9.28: no MIA/combat guards on mothballed fleets - immobilised fleets can't
+	# go MIA, and the v0.9.26 guards emptied the pickers in-game. MIA is gated at
+	# MOTHBALL time (sm_fleet_can_be_mothballed / sm_fleet_ai_sellable).
+	has_fleet_flag = sm_mothballed
+	NOT = { has_fleet_flag = sm_market_listing }
+	NOT = { has_fleet_flag = sm_leased_out }
+	is_leased = no
+	NOT = { has_modifier = sm_reactivating_fleet }
+}

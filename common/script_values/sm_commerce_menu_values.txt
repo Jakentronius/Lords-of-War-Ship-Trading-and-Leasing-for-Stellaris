@@ -1,0 +1,90 @@
+########################################################################
+# Ship Commerce Menu - Script Values (v0.9.4). Stellaris 4.4.3 "Pegasus".
+# Flat math only (engine rejects if/limit in script values). Reads of a missing
+# event_target return 0 with a benign log warning.
+#   Inventory dashboard counts (root = player) + per-empire opinion-of-me for the
+#   diplomacy-lite view. Counts are written by sm_count_inventory; opinion is
+#   written onto each empire by sm_build_diplo_candidates (export opinion who=root).
+########################################################################
+
+# Inventory dashboard (read root's own variables, set by sm_count_inventory).
+sm_inv_active_display  = { base = 0  add = sm_inv_active }
+sm_inv_storage_display = { base = 0  add = sm_inv_storage }
+sm_inv_listed_display  = { base = 0  add = sm_inv_listed }
+sm_inv_pending_display = { base = 0  add = sm_inv_pending }
+sm_inv_leased_display  = { base = 0  add = sm_inv_leased }
+sm_inv_react_display   = { base = 0  add = sm_inv_react }
+
+# Diplomacy-lite: each contacted empire's opinion of me (stored on that empire as
+# sm_dipl_op by sm_build_diplo_candidates).
+#
+# THE empire-scope opinion read: evaluated in a contacted empire's scope, this is
+# THAT empire's opinion of root (the player). Mirrors vanilla opinion_with_root
+# (07_script_values_shroud.txt) exactly. who=root is resolved by complex_trigger_
+# modifier (verified); export_trigger_value_to_variable's parameters do NOT resolve
+# it the same way, which read the opinion from the wrong side (player's-opinion-of-them).
+sm_opinion_of_root = {
+	base = 0
+	complex_trigger_modifier = {
+		trigger = opinion
+		parameters = { who = root }
+		mode = add
+	}
+}
+
+sm_dipl_1_op = { base = 0  add = event_target:sm_dipl_1.sm_dipl_op }
+sm_dipl_2_op = { base = 0  add = event_target:sm_dipl_2.sm_dipl_op }
+sm_dipl_3_op = { base = 0  add = event_target:sm_dipl_3.sm_dipl_op }
+sm_dipl_4_op = { base = 0  add = event_target:sm_dipl_4.sm_dipl_op }
+sm_dipl_5_op = { base = 0  add = event_target:sm_dipl_5.sm_dipl_op }
+sm_dipl_6_op = { base = 0  add = event_target:sm_dipl_6.sm_dipl_op }
+sm_dipl_7_op = { base = 0  add = event_target:sm_dipl_7.sm_dipl_op }
+sm_dipl_8_op = { base = 0  add = event_target:sm_dipl_8.sm_dipl_op }
+sm_dipl_9_op = { base = 0  add = event_target:sm_dipl_9.sm_dipl_op }
+sm_dipl_10_op = { base = 0  add = event_target:sm_dipl_10.sm_dipl_op }
+
+# ---- 'Everything at once' dashboard: per-slot lease readouts ----
+# Active-lease monthly fee + remaining days, read from each leased-out fleet
+# (sm_lease_monthly_fee set at signing; sm_lease_days_left ticked monthly).
+sm_lactive_1_fee  = { base = 0  add = event_target:sm_lactive_1.sm_lease_monthly_fee }
+sm_lactive_2_fee  = { base = 0  add = event_target:sm_lactive_2.sm_lease_monthly_fee }
+sm_lactive_3_fee  = { base = 0  add = event_target:sm_lactive_3.sm_lease_monthly_fee }
+sm_lactive_4_fee  = { base = 0  add = event_target:sm_lactive_4.sm_lease_monthly_fee }
+sm_lactive_5_fee  = { base = 0  add = event_target:sm_lactive_5.sm_lease_monthly_fee }
+sm_lactive_6_fee  = { base = 0  add = event_target:sm_lactive_6.sm_lease_monthly_fee }
+# Inbound leases (v0.9.27): fee + remaining days on fleets root leases FROM others.
+sm_lin_1_fee  = { base = 0  add = event_target:sm_lin_1.sm_lease_monthly_fee }
+sm_lin_2_fee  = { base = 0  add = event_target:sm_lin_2.sm_lease_monthly_fee }
+sm_lin_3_fee  = { base = 0  add = event_target:sm_lin_3.sm_lease_monthly_fee }
+sm_lin_4_fee  = { base = 0  add = event_target:sm_lin_4.sm_lease_monthly_fee }
+sm_lin_5_fee  = { base = 0  add = event_target:sm_lin_5.sm_lease_monthly_fee }
+sm_lin_6_fee  = { base = 0  add = event_target:sm_lin_6.sm_lease_monthly_fee }
+sm_lin_1_days = { base = 0  add = event_target:sm_lin_1.sm_lease_days_left }
+sm_lin_2_days = { base = 0  add = event_target:sm_lin_2.sm_lease_days_left }
+sm_lin_3_days = { base = 0  add = event_target:sm_lin_3.sm_lease_days_left }
+sm_lin_4_days = { base = 0  add = event_target:sm_lin_4.sm_lease_days_left }
+sm_lin_5_days = { base = 0  add = event_target:sm_lin_5.sm_lease_days_left }
+sm_lin_6_days = { base = 0  add = event_target:sm_lin_6.sm_lease_days_left }
+
+sm_lactive_1_days = { base = 0  add = event_target:sm_lactive_1.sm_lease_days_left }
+sm_lactive_2_days = { base = 0  add = event_target:sm_lactive_2.sm_lease_days_left }
+sm_lactive_3_days = { base = 0  add = event_target:sm_lactive_3.sm_lease_days_left }
+sm_lactive_4_days = { base = 0  add = event_target:sm_lactive_4.sm_lease_days_left }
+sm_lactive_5_days = { base = 0  add = event_target:sm_lactive_5.sm_lease_days_left }
+sm_lactive_6_days = { base = 0  add = event_target:sm_lactive_6.sm_lease_days_left }
+
+# ---- Terminal dashboard KPIs (v0.9.9 / v0.9.12) ----
+# Aggregate totals (computed each open by sm_count_inventory).
+sm_total_lease_income_display    = { base = 0  add = sm_total_lease_income }
+sm_total_mothball_alloys_display = { base = 0  add = sm_total_mothball_alloys }
+sm_fp_leased_display  = { base = 0  add = sm_fp_leased }
+sm_fp_stored_display  = { base = 0  add = sm_fp_stored }
+sm_fp_listed_display  = { base = 0  add = sm_fp_listed }
+sm_val_listed_display = { base = 0  add = sm_val_listed }
+# Per-stored-slot alloy build cost (mothball inventory rows).
+sm_ucand_1_alloys = { base = 0  add = event_target:sm_ucand_1.sm_cost_alloys }
+sm_ucand_2_alloys = { base = 0  add = event_target:sm_ucand_2.sm_cost_alloys }
+sm_ucand_3_alloys = { base = 0  add = event_target:sm_ucand_3.sm_cost_alloys }
+sm_ucand_4_alloys = { base = 0  add = event_target:sm_ucand_4.sm_cost_alloys }
+sm_ucand_5_alloys = { base = 0  add = event_target:sm_ucand_5.sm_cost_alloys }
+sm_ucand_6_alloys = { base = 0  add = event_target:sm_ucand_6.sm_cost_alloys }
