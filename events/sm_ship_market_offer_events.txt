@@ -42,12 +42,12 @@ country_event = {
 		sm_build_sale_offer_candidates = yes
 	}
 
-	option = { name = "sm_offer.10.pick_1" trigger = { exists = event_target:sm_socand_1  event_target:sm_socand_1 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_1 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.10.pick_2" trigger = { exists = event_target:sm_socand_2  event_target:sm_socand_2 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_2 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.10.pick_3" trigger = { exists = event_target:sm_socand_3  event_target:sm_socand_3 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_3 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.10.pick_4" trigger = { exists = event_target:sm_socand_4  event_target:sm_socand_4 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_4 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.10.pick_5" trigger = { exists = event_target:sm_socand_5  event_target:sm_socand_5 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_5 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.10.pick_6" trigger = { exists = event_target:sm_socand_6  event_target:sm_socand_6 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_6 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
+	option = { name = "sm_offer.10.pick_1" trigger = { exists = event_target:sm_socand_1 event_target:sm_socand_1 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_1 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
+	option = { name = "sm_offer.10.pick_2" trigger = { exists = event_target:sm_socand_2 event_target:sm_socand_2 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_2 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
+	option = { name = "sm_offer.10.pick_3" trigger = { exists = event_target:sm_socand_3 event_target:sm_socand_3 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_3 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
+	option = { name = "sm_offer.10.pick_4" trigger = { exists = event_target:sm_socand_4 event_target:sm_socand_4 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_4 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
+	option = { name = "sm_offer.10.pick_5" trigger = { exists = event_target:sm_socand_5 event_target:sm_socand_5 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_5 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
+	option = { name = "sm_offer.10.pick_6" trigger = { exists = event_target:sm_socand_6 event_target:sm_socand_6 = { sm_fleet_offerable_sale = yes } } custom_tooltip = "sm_offer.10.pick.tt" hidden_effect = { event_target:sm_socand_6 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } } }
 
 	option = { name = "sm_market.exit" default_hide_option = yes }
 }
@@ -69,46 +69,46 @@ country_event = {
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
 
-	option = { name = "sm_offer.20.pick_1"  trigger = { exists = event_target:sm_orecip_1   event_target:sm_orecip_1  = { sm_lease_target_valid = yes } } event_target:sm_orecip_1  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_2"  trigger = { exists = event_target:sm_orecip_2   event_target:sm_orecip_2  = { sm_lease_target_valid = yes } } event_target:sm_orecip_2  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_3"  trigger = { exists = event_target:sm_orecip_3   event_target:sm_orecip_3  = { sm_lease_target_valid = yes } } event_target:sm_orecip_3  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_4"  trigger = { exists = event_target:sm_orecip_4   event_target:sm_orecip_4  = { sm_lease_target_valid = yes } } event_target:sm_orecip_4  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_5"  trigger = { exists = event_target:sm_orecip_5   event_target:sm_orecip_5  = { sm_lease_target_valid = yes } } event_target:sm_orecip_5  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_6"  trigger = { exists = event_target:sm_orecip_6   event_target:sm_orecip_6  = { sm_lease_target_valid = yes } } event_target:sm_orecip_6  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_7"  trigger = { exists = event_target:sm_orecip_7   event_target:sm_orecip_7  = { sm_lease_target_valid = yes } } event_target:sm_orecip_7  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_8"  trigger = { exists = event_target:sm_orecip_8   event_target:sm_orecip_8  = { sm_lease_target_valid = yes } } event_target:sm_orecip_8  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_9"  trigger = { exists = event_target:sm_orecip_9   event_target:sm_orecip_9  = { sm_lease_target_valid = yes } } event_target:sm_orecip_9  = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_10" trigger = { exists = event_target:sm_orecip_10  event_target:sm_orecip_10 = { sm_lease_target_valid = yes } } event_target:sm_orecip_10 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_11" trigger = { exists = event_target:sm_orecip_11 event_target:sm_orecip_11 = { sm_lease_target_valid = yes } } event_target:sm_orecip_11 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_12" trigger = { exists = event_target:sm_orecip_12 event_target:sm_orecip_12 = { sm_lease_target_valid = yes } } event_target:sm_orecip_12 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_13" trigger = { exists = event_target:sm_orecip_13 event_target:sm_orecip_13 = { sm_lease_target_valid = yes } } event_target:sm_orecip_13 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_14" trigger = { exists = event_target:sm_orecip_14 event_target:sm_orecip_14 = { sm_lease_target_valid = yes } } event_target:sm_orecip_14 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_15" trigger = { exists = event_target:sm_orecip_15 event_target:sm_orecip_15 = { sm_lease_target_valid = yes } } event_target:sm_orecip_15 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_16" trigger = { exists = event_target:sm_orecip_16 event_target:sm_orecip_16 = { sm_lease_target_valid = yes } } event_target:sm_orecip_16 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_17" trigger = { exists = event_target:sm_orecip_17 event_target:sm_orecip_17 = { sm_lease_target_valid = yes } } event_target:sm_orecip_17 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_18" trigger = { exists = event_target:sm_orecip_18 event_target:sm_orecip_18 = { sm_lease_target_valid = yes } } event_target:sm_orecip_18 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_19" trigger = { exists = event_target:sm_orecip_19 event_target:sm_orecip_19 = { sm_lease_target_valid = yes } } event_target:sm_orecip_19 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_20" trigger = { exists = event_target:sm_orecip_20 event_target:sm_orecip_20 = { sm_lease_target_valid = yes } } event_target:sm_orecip_20 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_21" trigger = { exists = event_target:sm_orecip_21 event_target:sm_orecip_21 = { sm_lease_target_valid = yes } } event_target:sm_orecip_21 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_22" trigger = { exists = event_target:sm_orecip_22 event_target:sm_orecip_22 = { sm_lease_target_valid = yes } } event_target:sm_orecip_22 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_23" trigger = { exists = event_target:sm_orecip_23 event_target:sm_orecip_23 = { sm_lease_target_valid = yes } } event_target:sm_orecip_23 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_24" trigger = { exists = event_target:sm_orecip_24 event_target:sm_orecip_24 = { sm_lease_target_valid = yes } } event_target:sm_orecip_24 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_25" trigger = { exists = event_target:sm_orecip_25 event_target:sm_orecip_25 = { sm_lease_target_valid = yes } } event_target:sm_orecip_25 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_26" trigger = { exists = event_target:sm_orecip_26 event_target:sm_orecip_26 = { sm_lease_target_valid = yes } } event_target:sm_orecip_26 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_27" trigger = { exists = event_target:sm_orecip_27 event_target:sm_orecip_27 = { sm_lease_target_valid = yes } } event_target:sm_orecip_27 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_28" trigger = { exists = event_target:sm_orecip_28 event_target:sm_orecip_28 = { sm_lease_target_valid = yes } } event_target:sm_orecip_28 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_29" trigger = { exists = event_target:sm_orecip_29 event_target:sm_orecip_29 = { sm_lease_target_valid = yes } } event_target:sm_orecip_29 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_30" trigger = { exists = event_target:sm_orecip_30 event_target:sm_orecip_30 = { sm_lease_target_valid = yes } } event_target:sm_orecip_30 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_31" trigger = { exists = event_target:sm_orecip_31 event_target:sm_orecip_31 = { sm_lease_target_valid = yes } } event_target:sm_orecip_31 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_32" trigger = { exists = event_target:sm_orecip_32 event_target:sm_orecip_32 = { sm_lease_target_valid = yes } } event_target:sm_orecip_32 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_33" trigger = { exists = event_target:sm_orecip_33 event_target:sm_orecip_33 = { sm_lease_target_valid = yes } } event_target:sm_orecip_33 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_34" trigger = { exists = event_target:sm_orecip_34 event_target:sm_orecip_34 = { sm_lease_target_valid = yes } } event_target:sm_orecip_34 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_35" trigger = { exists = event_target:sm_orecip_35 event_target:sm_orecip_35 = { sm_lease_target_valid = yes } } event_target:sm_orecip_35 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_36" trigger = { exists = event_target:sm_orecip_36 event_target:sm_orecip_36 = { sm_lease_target_valid = yes } } event_target:sm_orecip_36 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_37" trigger = { exists = event_target:sm_orecip_37 event_target:sm_orecip_37 = { sm_lease_target_valid = yes } } event_target:sm_orecip_37 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_38" trigger = { exists = event_target:sm_orecip_38 event_target:sm_orecip_38 = { sm_lease_target_valid = yes } } event_target:sm_orecip_38 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_39" trigger = { exists = event_target:sm_orecip_39 event_target:sm_orecip_39 = { sm_lease_target_valid = yes } } event_target:sm_orecip_39 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.20.pick_40" trigger = { exists = event_target:sm_orecip_40 event_target:sm_orecip_40 = { sm_lease_target_valid = yes } } event_target:sm_orecip_40 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.20.pick_1" trigger = { exists = event_target:sm_orecip_1 event_target:sm_orecip_1 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_1 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_2" trigger = { exists = event_target:sm_orecip_2 event_target:sm_orecip_2 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_2 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_3" trigger = { exists = event_target:sm_orecip_3 event_target:sm_orecip_3 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_3 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_4" trigger = { exists = event_target:sm_orecip_4 event_target:sm_orecip_4 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_4 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_5" trigger = { exists = event_target:sm_orecip_5 event_target:sm_orecip_5 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_5 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_6" trigger = { exists = event_target:sm_orecip_6 event_target:sm_orecip_6 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_6 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_7" trigger = { exists = event_target:sm_orecip_7 event_target:sm_orecip_7 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_7 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_8" trigger = { exists = event_target:sm_orecip_8 event_target:sm_orecip_8 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_8 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_9" trigger = { exists = event_target:sm_orecip_9 event_target:sm_orecip_9 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_9 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_10" trigger = { exists = event_target:sm_orecip_10 event_target:sm_orecip_10 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_10 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_11" trigger = { exists = event_target:sm_orecip_11 event_target:sm_orecip_11 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_11 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_12" trigger = { exists = event_target:sm_orecip_12 event_target:sm_orecip_12 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_12 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_13" trigger = { exists = event_target:sm_orecip_13 event_target:sm_orecip_13 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_13 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_14" trigger = { exists = event_target:sm_orecip_14 event_target:sm_orecip_14 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_14 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_15" trigger = { exists = event_target:sm_orecip_15 event_target:sm_orecip_15 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_15 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_16" trigger = { exists = event_target:sm_orecip_16 event_target:sm_orecip_16 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_16 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_17" trigger = { exists = event_target:sm_orecip_17 event_target:sm_orecip_17 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_17 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_18" trigger = { exists = event_target:sm_orecip_18 event_target:sm_orecip_18 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_18 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_19" trigger = { exists = event_target:sm_orecip_19 event_target:sm_orecip_19 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_19 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_20" trigger = { exists = event_target:sm_orecip_20 event_target:sm_orecip_20 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_20 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_21" trigger = { exists = event_target:sm_orecip_21 event_target:sm_orecip_21 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_21 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_22" trigger = { exists = event_target:sm_orecip_22 event_target:sm_orecip_22 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_22 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_23" trigger = { exists = event_target:sm_orecip_23 event_target:sm_orecip_23 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_23 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_24" trigger = { exists = event_target:sm_orecip_24 event_target:sm_orecip_24 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_24 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_25" trigger = { exists = event_target:sm_orecip_25 event_target:sm_orecip_25 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_25 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_26" trigger = { exists = event_target:sm_orecip_26 event_target:sm_orecip_26 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_26 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_27" trigger = { exists = event_target:sm_orecip_27 event_target:sm_orecip_27 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_27 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_28" trigger = { exists = event_target:sm_orecip_28 event_target:sm_orecip_28 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_28 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_29" trigger = { exists = event_target:sm_orecip_29 event_target:sm_orecip_29 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_29 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_30" trigger = { exists = event_target:sm_orecip_30 event_target:sm_orecip_30 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_30 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_31" trigger = { exists = event_target:sm_orecip_31 event_target:sm_orecip_31 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_31 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_32" trigger = { exists = event_target:sm_orecip_32 event_target:sm_orecip_32 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_32 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_33" trigger = { exists = event_target:sm_orecip_33 event_target:sm_orecip_33 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_33 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_34" trigger = { exists = event_target:sm_orecip_34 event_target:sm_orecip_34 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_34 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_35" trigger = { exists = event_target:sm_orecip_35 event_target:sm_orecip_35 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_35 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_36" trigger = { exists = event_target:sm_orecip_36 event_target:sm_orecip_36 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_36 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_37" trigger = { exists = event_target:sm_orecip_37 event_target:sm_orecip_37 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_37 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_38" trigger = { exists = event_target:sm_orecip_38 event_target:sm_orecip_38 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_38 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_39" trigger = { exists = event_target:sm_orecip_39 event_target:sm_orecip_39 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_39 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.20.pick_40" trigger = { exists = event_target:sm_orecip_40 event_target:sm_orecip_40 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_offer.20.pick.tt" hidden_effect = { event_target:sm_orecip_40 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } } }
 
 	option = { name = "sm_offer.20.back"  country_event = { id = sm_offer.10 } }
 	option = { name = "sm_market.exit" default_hide_option = yes }
@@ -126,24 +126,19 @@ country_event = {
 	is_triggered_only = yes
 
 	# Fine increments, capped at +/-1000 (v0.9.20). Option keys are legacy names; the real step is `value`.
-	option = { name = "sm_offer.30.add_1k"   change_variable = { which = sm_working_price value = 1000 }  sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.add_5k"   change_variable = { which = sm_working_price value = 100 }   sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.add_25k"  change_variable = { which = sm_working_price value = 10 }    sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.add_100k" change_variable = { which = sm_working_price value = -10 }   sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.sub_5k"   change_variable = { which = sm_working_price value = -100 }  sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.sub_1k"   change_variable = { which = sm_working_price value = -1000 } sm_clamp_working_price = yes  country_event = { id = sm_offer.30 } }
-	option = { name = "sm_offer.30.reset"    sm_set_recommended_price = yes                               country_event = { id = sm_offer.30 } }
+	option = { name = "sm_offer.30.add_1k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 1000 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.add_5k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 100 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.add_25k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 10 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.add_100k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = -10 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.sub_5k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = -100 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.sub_1k" custom_tooltip = "sm_offer.30.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = -1000 } sm_clamp_working_price = yes country_event = { id = sm_offer.30 } } }
+	option = { name = "sm_offer.30.reset" custom_tooltip = "sm_offer.30.reset.tt" hidden_effect = { sm_set_recommended_price = yes country_event = { id = sm_offer.30 } } }
 
 	# Confirm: send the offer to the recipient.
 	option = {
 		name = "sm_offer.30.send"
-		sm_send_sale_offer = yes
-		if = {
-			limit = { has_country_flag = sm_sale_offer_sent }
-			remove_country_flag = sm_sale_offer_sent
-			country_event = { id = sm_offer.40 }
-		}
-		else = { country_event = { id = sm_offer.41 } }
+		custom_tooltip = "sm_offer.30.send.tt"
+		hidden_effect = { sm_send_sale_offer = yes if = { limit = { has_country_flag = sm_sale_offer_sent } remove_country_flag = sm_sale_offer_sent country_event = { id = sm_offer.40 } } else = { country_event = { id = sm_offer.41 } } }
 	}
 
 	option = { name = "sm_offer.30.back"  country_event = { id = sm_offer.20 } }
@@ -232,18 +227,8 @@ country_event = {
 	# seller, or the price is a bargain.
 	option = {
 		name = "sm_offer.100.accept"
-		trigger = {
-			exists = event_target:sm_sale_offer_fleet
-			event_target:sm_sale_offer_fleet = { has_fleet_flag = sm_offer_pending  exists = owner  NOT = { owner = { is_same_value = root } } }
-			OR = {
-				has_global_flag = sm_debug_ai_autoaccept   # DEBUG force-accept: skip affordability
-				resource_stockpile_compare = { resource = trade  value >= value:sm_sale_offer_price }
-			}
-		}
-		# Soft-weight model: NEED (do they want warships?) x LIKE-US (opinion/trust) x
-		# PRICE (vs a fair price). Everything is a multiplier - nothing is an absolute
-		# "never" - so a great deal can still tempt a neutral empire, and a friend at
-		# war will almost always bite. Evaluated in root = buyer scope.
+		trigger = { exists = event_target:sm_sale_offer_fleet event_target:sm_sale_offer_fleet = { has_fleet_flag = sm_offer_pending exists = owner NOT = { owner = { is_same_value = root } } } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_sale_offer_price } } }
+		custom_tooltip = "sm_offer.100.accept.tt"
 		ai_chance = {
 			base = 3
 			modifier = { factor = 1000  has_global_flag = sm_debug_ai_autoaccept }   # console testing: `effect set_global_flag = sm_debug_ai_autoaccept`
@@ -327,26 +312,19 @@ country_event = {
 			modifier = { factor = 0.4  event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value > 200 } } }  # pricey
 			modifier = { factor = 0.15 event_target:sm_sale_offer_fleet = { check_variable = { which = sm_deal_pct value > 300 } } }  # gouging
 		}
-		sm_accept_sale_offer = yes
-		if = {
-			limit = { has_country_flag = sm_sale_bought }
-			remove_country_flag = sm_sale_bought
-			event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.200 } }
-			country_event = { id = sm_offer.201 }
-		}
-		else = { country_event = { id = sm_offer.202 } }
+		hidden_effect = { sm_accept_sale_offer = yes if = { limit = { has_country_flag = sm_sale_bought } remove_country_flag = sm_sale_bought event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.200 } } country_event = { id = sm_offer.201 } } else = { country_event = { id = sm_offer.202 } } }
 	}
 
 	# DECLINE — always available; release the seller's reserved fleet.
 	option = {
 		name = "sm_offer.100.decline"
 		default_hide_option = yes
+		custom_tooltip = "sm_offer.100.decline.tt"
 		ai_chance = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
 		}
-		sm_decline_sale_offer = yes
-		event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } }
+		hidden_effect = { sm_decline_sale_offer = yes event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } } }
 	}
 }
 

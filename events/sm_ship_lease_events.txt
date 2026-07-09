@@ -48,12 +48,12 @@ country_event = {
 		sm_build_lease_candidates = yes
 	}
 
-	option = { name = "sm_lease.10.pick_1" trigger = { exists = event_target:sm_lcand_1  event_target:sm_lcand_1 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_1 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
-	option = { name = "sm_lease.10.pick_2" trigger = { exists = event_target:sm_lcand_2  event_target:sm_lcand_2 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_2 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
-	option = { name = "sm_lease.10.pick_3" trigger = { exists = event_target:sm_lcand_3  event_target:sm_lcand_3 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_3 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
-	option = { name = "sm_lease.10.pick_4" trigger = { exists = event_target:sm_lcand_4  event_target:sm_lcand_4 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_4 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
-	option = { name = "sm_lease.10.pick_5" trigger = { exists = event_target:sm_lcand_5  event_target:sm_lcand_5 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_5 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
-	option = { name = "sm_lease.10.pick_6" trigger = { exists = event_target:sm_lcand_6  event_target:sm_lcand_6 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_6 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
+	option = { name = "sm_lease.10.pick_1" trigger = { exists = event_target:sm_lcand_1 event_target:sm_lcand_1 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_1 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
+	option = { name = "sm_lease.10.pick_2" trigger = { exists = event_target:sm_lcand_2 event_target:sm_lcand_2 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_2 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
+	option = { name = "sm_lease.10.pick_3" trigger = { exists = event_target:sm_lcand_3 event_target:sm_lcand_3 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_3 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
+	option = { name = "sm_lease.10.pick_4" trigger = { exists = event_target:sm_lcand_4 event_target:sm_lcand_4 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_4 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
+	option = { name = "sm_lease.10.pick_5" trigger = { exists = event_target:sm_lcand_5 event_target:sm_lcand_5 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_5 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
+	option = { name = "sm_lease.10.pick_6" trigger = { exists = event_target:sm_lcand_6 event_target:sm_lcand_6 = { sm_fleet_can_be_leased = yes } } custom_tooltip = "sm_lease.10.pick.tt" hidden_effect = { event_target:sm_lcand_6 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes } }
 
 	option = { name = "sm_market.exit" default_hide_option = yes }
 }
@@ -75,46 +75,46 @@ country_event = {
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
 
-	option = { name = "sm_lease.20.pick_1"  trigger = { exists = event_target:sm_ltarget_1   event_target:sm_ltarget_1  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_1  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_2"  trigger = { exists = event_target:sm_ltarget_2   event_target:sm_ltarget_2  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_2  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_3"  trigger = { exists = event_target:sm_ltarget_3   event_target:sm_ltarget_3  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_3  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_4"  trigger = { exists = event_target:sm_ltarget_4   event_target:sm_ltarget_4  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_4  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_5"  trigger = { exists = event_target:sm_ltarget_5   event_target:sm_ltarget_5  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_5  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_6"  trigger = { exists = event_target:sm_ltarget_6   event_target:sm_ltarget_6  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_6  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_7"  trigger = { exists = event_target:sm_ltarget_7   event_target:sm_ltarget_7  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_7  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_8"  trigger = { exists = event_target:sm_ltarget_8   event_target:sm_ltarget_8  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_8  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_9"  trigger = { exists = event_target:sm_ltarget_9   event_target:sm_ltarget_9  = { sm_lease_target_valid = yes } } event_target:sm_ltarget_9  = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_10" trigger = { exists = event_target:sm_ltarget_10  event_target:sm_ltarget_10 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_10 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_11" trigger = { exists = event_target:sm_ltarget_11  event_target:sm_ltarget_11 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_11 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_12" trigger = { exists = event_target:sm_ltarget_12  event_target:sm_ltarget_12 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_12 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_13" trigger = { exists = event_target:sm_ltarget_13  event_target:sm_ltarget_13 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_13 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_14" trigger = { exists = event_target:sm_ltarget_14  event_target:sm_ltarget_14 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_14 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_15" trigger = { exists = event_target:sm_ltarget_15  event_target:sm_ltarget_15 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_15 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_16" trigger = { exists = event_target:sm_ltarget_16  event_target:sm_ltarget_16 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_16 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_17" trigger = { exists = event_target:sm_ltarget_17  event_target:sm_ltarget_17 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_17 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_18" trigger = { exists = event_target:sm_ltarget_18  event_target:sm_ltarget_18 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_18 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_19" trigger = { exists = event_target:sm_ltarget_19  event_target:sm_ltarget_19 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_19 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_20" trigger = { exists = event_target:sm_ltarget_20  event_target:sm_ltarget_20 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_20 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_21" trigger = { exists = event_target:sm_ltarget_21 event_target:sm_ltarget_21 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_21 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_22" trigger = { exists = event_target:sm_ltarget_22 event_target:sm_ltarget_22 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_22 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_23" trigger = { exists = event_target:sm_ltarget_23 event_target:sm_ltarget_23 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_23 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_24" trigger = { exists = event_target:sm_ltarget_24 event_target:sm_ltarget_24 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_24 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_25" trigger = { exists = event_target:sm_ltarget_25 event_target:sm_ltarget_25 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_25 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_26" trigger = { exists = event_target:sm_ltarget_26 event_target:sm_ltarget_26 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_26 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_27" trigger = { exists = event_target:sm_ltarget_27 event_target:sm_ltarget_27 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_27 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_28" trigger = { exists = event_target:sm_ltarget_28 event_target:sm_ltarget_28 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_28 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_29" trigger = { exists = event_target:sm_ltarget_29 event_target:sm_ltarget_29 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_29 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_30" trigger = { exists = event_target:sm_ltarget_30 event_target:sm_ltarget_30 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_30 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_31" trigger = { exists = event_target:sm_ltarget_31 event_target:sm_ltarget_31 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_31 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_32" trigger = { exists = event_target:sm_ltarget_32 event_target:sm_ltarget_32 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_32 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_33" trigger = { exists = event_target:sm_ltarget_33 event_target:sm_ltarget_33 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_33 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_34" trigger = { exists = event_target:sm_ltarget_34 event_target:sm_ltarget_34 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_34 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_35" trigger = { exists = event_target:sm_ltarget_35 event_target:sm_ltarget_35 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_35 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_36" trigger = { exists = event_target:sm_ltarget_36 event_target:sm_ltarget_36 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_36 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_37" trigger = { exists = event_target:sm_ltarget_37 event_target:sm_ltarget_37 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_37 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_38" trigger = { exists = event_target:sm_ltarget_38 event_target:sm_ltarget_38 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_38 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_39" trigger = { exists = event_target:sm_ltarget_39 event_target:sm_ltarget_39 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_39 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
-	option = { name = "sm_lease.20.pick_40" trigger = { exists = event_target:sm_ltarget_40 event_target:sm_ltarget_40 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_40 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
+	option = { name = "sm_lease.20.pick_1" trigger = { exists = event_target:sm_ltarget_1 event_target:sm_ltarget_1 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_1 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_2" trigger = { exists = event_target:sm_ltarget_2 event_target:sm_ltarget_2 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_2 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_3" trigger = { exists = event_target:sm_ltarget_3 event_target:sm_ltarget_3 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_3 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_4" trigger = { exists = event_target:sm_ltarget_4 event_target:sm_ltarget_4 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_4 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_5" trigger = { exists = event_target:sm_ltarget_5 event_target:sm_ltarget_5 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_5 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_6" trigger = { exists = event_target:sm_ltarget_6 event_target:sm_ltarget_6 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_6 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_7" trigger = { exists = event_target:sm_ltarget_7 event_target:sm_ltarget_7 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_7 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_8" trigger = { exists = event_target:sm_ltarget_8 event_target:sm_ltarget_8 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_8 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_9" trigger = { exists = event_target:sm_ltarget_9 event_target:sm_ltarget_9 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_9 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_10" trigger = { exists = event_target:sm_ltarget_10 event_target:sm_ltarget_10 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_10 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_11" trigger = { exists = event_target:sm_ltarget_11 event_target:sm_ltarget_11 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_11 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_12" trigger = { exists = event_target:sm_ltarget_12 event_target:sm_ltarget_12 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_12 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_13" trigger = { exists = event_target:sm_ltarget_13 event_target:sm_ltarget_13 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_13 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_14" trigger = { exists = event_target:sm_ltarget_14 event_target:sm_ltarget_14 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_14 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_15" trigger = { exists = event_target:sm_ltarget_15 event_target:sm_ltarget_15 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_15 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_16" trigger = { exists = event_target:sm_ltarget_16 event_target:sm_ltarget_16 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_16 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_17" trigger = { exists = event_target:sm_ltarget_17 event_target:sm_ltarget_17 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_17 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_18" trigger = { exists = event_target:sm_ltarget_18 event_target:sm_ltarget_18 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_18 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_19" trigger = { exists = event_target:sm_ltarget_19 event_target:sm_ltarget_19 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_19 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_20" trigger = { exists = event_target:sm_ltarget_20 event_target:sm_ltarget_20 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_20 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_21" trigger = { exists = event_target:sm_ltarget_21 event_target:sm_ltarget_21 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_21 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_22" trigger = { exists = event_target:sm_ltarget_22 event_target:sm_ltarget_22 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_22 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_23" trigger = { exists = event_target:sm_ltarget_23 event_target:sm_ltarget_23 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_23 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_24" trigger = { exists = event_target:sm_ltarget_24 event_target:sm_ltarget_24 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_24 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_25" trigger = { exists = event_target:sm_ltarget_25 event_target:sm_ltarget_25 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_25 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_26" trigger = { exists = event_target:sm_ltarget_26 event_target:sm_ltarget_26 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_26 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_27" trigger = { exists = event_target:sm_ltarget_27 event_target:sm_ltarget_27 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_27 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_28" trigger = { exists = event_target:sm_ltarget_28 event_target:sm_ltarget_28 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_28 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_29" trigger = { exists = event_target:sm_ltarget_29 event_target:sm_ltarget_29 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_29 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_30" trigger = { exists = event_target:sm_ltarget_30 event_target:sm_ltarget_30 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_30 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_31" trigger = { exists = event_target:sm_ltarget_31 event_target:sm_ltarget_31 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_31 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_32" trigger = { exists = event_target:sm_ltarget_32 event_target:sm_ltarget_32 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_32 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_33" trigger = { exists = event_target:sm_ltarget_33 event_target:sm_ltarget_33 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_33 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_34" trigger = { exists = event_target:sm_ltarget_34 event_target:sm_ltarget_34 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_34 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_35" trigger = { exists = event_target:sm_ltarget_35 event_target:sm_ltarget_35 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_35 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_36" trigger = { exists = event_target:sm_ltarget_36 event_target:sm_ltarget_36 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_36 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_37" trigger = { exists = event_target:sm_ltarget_37 event_target:sm_ltarget_37 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_37 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_38" trigger = { exists = event_target:sm_ltarget_38 event_target:sm_ltarget_38 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_38 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_39" trigger = { exists = event_target:sm_ltarget_39 event_target:sm_ltarget_39 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_39 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
+	option = { name = "sm_lease.20.pick_40" trigger = { exists = event_target:sm_ltarget_40 event_target:sm_ltarget_40 = { sm_lease_target_valid = yes } } custom_tooltip = "sm_lease.20.pick.tt" hidden_effect = { event_target:sm_ltarget_40 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } } }
 
 	option = { name = "sm_lease.20.back"  country_event = { id = sm_lease.10 } }
 	option = { name = "sm_market.exit" default_hide_option = yes }
@@ -130,10 +130,10 @@ country_event = {
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
 
-	option = { name = "sm_lease.30.y1"  event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 360 } }  sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.30.y3"  event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 1080 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.30.y5"  event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 1800 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.30.y10" event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 3600 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } }
+	option = { name = "sm_lease.30.y1" custom_tooltip = "sm_lease.30.term.tt" hidden_effect = { event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 360 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.30.y3" custom_tooltip = "sm_lease.30.term.tt" hidden_effect = { event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 1080 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.30.y5" custom_tooltip = "sm_lease.30.term.tt" hidden_effect = { event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 1800 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.30.y10" custom_tooltip = "sm_lease.30.term.tt" hidden_effect = { event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 3600 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } } }
 
 	option = { name = "sm_lease.30.back"  country_event = { id = sm_lease.20 } }
 	option = { name = "sm_market.exit" default_hide_option = yes }
@@ -151,15 +151,15 @@ country_event = {
 	is_triggered_only = yes
 
 	# Fine increments +/-1/5/25 (v0.9.20). Option keys are legacy names; the real step is `value`.
-	option = { name = "sm_lease.32.add_1k"  change_variable = { which = sm_lease_working_fee value = 25 }  sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.add_100" change_variable = { which = sm_lease_working_fee value = 5 }   sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.add_10"  change_variable = { which = sm_lease_working_fee value = 1 }   sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.sub_10"  change_variable = { which = sm_lease_working_fee value = -1 }  sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.sub_100" change_variable = { which = sm_lease_working_fee value = -5 }  sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.sub_1k"  change_variable = { which = sm_lease_working_fee value = -25 } sm_clamp_lease_fee = yes  country_event = { id = sm_lease.32 } }
-	option = { name = "sm_lease.32.reset"   sm_set_reco_lease_fee = yes  country_event = { id = sm_lease.32 } }
+	option = { name = "sm_lease.32.add_1k" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = 25 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.add_100" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = 5 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.add_10" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = 1 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.sub_10" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = -1 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.sub_100" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = -5 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.sub_1k" custom_tooltip = "sm_lease.32.adj.tt" hidden_effect = { change_variable = { which = sm_lease_working_fee value = -25 } sm_clamp_lease_fee = yes country_event = { id = sm_lease.32 } } }
+	option = { name = "sm_lease.32.reset" custom_tooltip = "sm_lease.32.reset.tt" hidden_effect = { sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } } }
 
-	option = { name = "sm_lease.32.send"  sm_prepare_offer = yes  country_event = { id = sm_lease.45 } }
+	option = { name = "sm_lease.32.send" custom_tooltip = "sm_lease.32.send.tt" hidden_effect = { sm_prepare_offer = yes country_event = { id = sm_lease.45 } } }
 	option = { name = "sm_lease.32.back"  country_event = { id = sm_lease.30 } }
 	option = { name = "sm_market.exit" default_hide_option = yes }
 }
@@ -200,17 +200,8 @@ country_event = {
 	# enemy, or fond of the lessor.
 	option = {
 		name = "sm_lease.50.accept"
-		trigger = {
-			exists = event_target:sm_lease_offer_fleet
-			event_target:sm_lease_offer_fleet = { is_leased = no  exists = owner  has_fleet_flag = sm_mothballed }
-			OR = {
-				has_global_flag = sm_debug_ai_autoaccept   # DEBUG force-accept: skip affordability
-				resource_stockpile_compare = { resource = trade  value >= value:sm_offer_fee }
-			}
-		}
-		# Soft-weight model, mirroring the sale offer (sm_offer.100): NEED x LIKE-US x
-		# PRICE, all multipliers. Evaluated in root = lessee scope. sm_lease_ratio =
-		# asking fee as a % of the fair fee.
+		trigger = { exists = event_target:sm_lease_offer_fleet event_target:sm_lease_offer_fleet = { is_leased = no exists = owner has_fleet_flag = sm_mothballed } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_offer_fee } } }
+		custom_tooltip = "sm_lease.50.accept.tt"
 		ai_chance = {
 			base = 3
 			modifier = { factor = 1000  has_global_flag = sm_debug_ai_autoaccept }   # console testing: `effect set_global_flag = sm_debug_ai_autoaccept`
@@ -295,25 +286,19 @@ country_event = {
 			modifier = { factor = 0.4  event_target:sm_lease_offer_fleet = { check_variable = { which = sm_lease_ratio value > 200 } } }  # pricey (>2x fair)
 			modifier = { factor = 0.15 event_target:sm_lease_offer_fleet = { check_variable = { which = sm_lease_ratio value > 300 } } }  # gouging (>3x fair)
 		}
-		sm_finalize_lease = yes
-		if = {
-			limit = { event_target:sm_lease_offer_fleet = { has_fleet_flag = sm_leased_out  controller = { is_same_value = root } } }
-			event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.55 } }
-		}
-		else = { event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } }
+		hidden_effect = { sm_finalize_lease = yes if = { limit = { event_target:sm_lease_offer_fleet = { has_fleet_flag = sm_leased_out controller = { is_same_value = root } } } event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.55 } } } else = { event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } } }
 	}
 
 	# DECLINE — always available.
 	option = {
 		name = "sm_lease.50.decline"
 		default_hide_option = yes
+		custom_tooltip = "sm_lease.50.decline.tt"
 		ai_chance = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
 		}
-		sm_load_deal_slot = yes		# resolve this offer's globals for the notice, then free the slot
-		sm_free_deal_slot = yes
-		event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } }
+		hidden_effect = { sm_load_deal_slot = yes sm_free_deal_slot = yes event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } }
 	}
 }
 

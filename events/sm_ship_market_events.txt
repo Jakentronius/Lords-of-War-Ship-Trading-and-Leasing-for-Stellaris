@@ -54,63 +54,63 @@ country_event = {
 
 	option = {
 		name = "sm_market.1.buy_1"
-		trigger = { exists = event_target:sm_bcand_1  event_target:sm_bcand_1 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_1 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_1 event_target:sm_bcand_1 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_1 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_2"
-		trigger = { exists = event_target:sm_bcand_2  event_target:sm_bcand_2 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_2 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_2 event_target:sm_bcand_2 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_2 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_3"
-		trigger = { exists = event_target:sm_bcand_3  event_target:sm_bcand_3 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_3 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_3 event_target:sm_bcand_3 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_3 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_4"
-		trigger = { exists = event_target:sm_bcand_4  event_target:sm_bcand_4 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_4 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_4 event_target:sm_bcand_4 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_4 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_5"
-		trigger = { exists = event_target:sm_bcand_5  event_target:sm_bcand_5 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_5 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_5 event_target:sm_bcand_5 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_5 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_6"
-		trigger = { exists = event_target:sm_bcand_6  event_target:sm_bcand_6 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_6 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_6 event_target:sm_bcand_6 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_6 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_7"
-		trigger = { exists = event_target:sm_bcand_7  event_target:sm_bcand_7 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_7 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_7 event_target:sm_bcand_7 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_7 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_8"
-		trigger = { exists = event_target:sm_bcand_8  event_target:sm_bcand_8 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_8 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_8 event_target:sm_bcand_8 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_8 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_9"
-		trigger = { exists = event_target:sm_bcand_9  event_target:sm_bcand_9 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_9 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_9 event_target:sm_bcand_9 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_9 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 	option = {
 		name = "sm_market.1.buy_10"
-		trigger = { exists = event_target:sm_bcand_10  event_target:sm_bcand_10 = { sm_fleet_is_buyable = yes } }
-		event_target:sm_bcand_10 = { save_event_target_as = sm_inspect_fleet  owner = { save_global_event_target_as = sm_inspect_seller } }
-		country_event = { id = sm_market.210 }
+		trigger = { exists = event_target:sm_bcand_10 event_target:sm_bcand_10 = { sm_fleet_is_buyable = yes } }
+		custom_tooltip = "sm_market.1.buy.tt"
+		hidden_effect = { event_target:sm_bcand_10 = { save_event_target_as = sm_inspect_fleet owner = { save_global_event_target_as = sm_inspect_seller } } country_event = { id = sm_market.210 } }
 	}
 
 	# (v0.9.23: dropped the "Back" option that routed to the retired no-op hub;
@@ -159,73 +159,63 @@ country_event = {
 	# Retract a specific listing (one option per listing you own, up to 10).
 	option = {
 		name = "sm_market.2.retract_1"
-		trigger = { exists = event_target:sm_rcand_1  event_target:sm_rcand_1 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_1 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_1 event_target:sm_rcand_1 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_1 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_2"
-		trigger = { exists = event_target:sm_rcand_2  event_target:sm_rcand_2 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_2 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_2 event_target:sm_rcand_2 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_2 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_3"
-		trigger = { exists = event_target:sm_rcand_3  event_target:sm_rcand_3 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_3 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_3 event_target:sm_rcand_3 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_3 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_4"
-		trigger = { exists = event_target:sm_rcand_4  event_target:sm_rcand_4 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_4 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_4 event_target:sm_rcand_4 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_4 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_5"
-		trigger = { exists = event_target:sm_rcand_5  event_target:sm_rcand_5 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_5 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_5 event_target:sm_rcand_5 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_5 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_6"
-		trigger = { exists = event_target:sm_rcand_6  event_target:sm_rcand_6 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_6 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_6 event_target:sm_rcand_6 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_6 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_7"
-		trigger = { exists = event_target:sm_rcand_7  event_target:sm_rcand_7 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_7 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_7 event_target:sm_rcand_7 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_7 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_8"
-		trigger = { exists = event_target:sm_rcand_8  event_target:sm_rcand_8 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_8 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_8 event_target:sm_rcand_8 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_8 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_9"
-		trigger = { exists = event_target:sm_rcand_9  event_target:sm_rcand_9 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_9 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_9 event_target:sm_rcand_9 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_9 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 	option = {
 		name = "sm_market.2.retract_10"
-		trigger = { exists = event_target:sm_rcand_10  event_target:sm_rcand_10 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
-		event_target:sm_rcand_10 = { sm_unlist_fleet = yes }
-		hidden_effect = { sm_refresh_seller_mothball_modifier = yes }
-		country_event = { id = sm_market.2 }
+		trigger = { exists = event_target:sm_rcand_10 event_target:sm_rcand_10 = { has_fleet_flag = sm_market_listing owner = { is_same_value = root } } }
+		custom_tooltip = "sm_market.2.retract.tt"
+		hidden_effect = { event_target:sm_rcand_10 = { sm_unlist_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.2 } }
 	}
 
 	option = { name = "sm_market.2.close"  country_event = { id = sm_market.5 } }
@@ -242,24 +232,19 @@ country_event = {
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
 
-	option = { name = "sm_market.110.add_1k"   change_variable = { which = sm_working_price value = 100 }   sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.add_5k"   change_variable = { which = sm_working_price value = 500 }   sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.add_25k"  change_variable = { which = sm_working_price value = 2500 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.add_100k" change_variable = { which = sm_working_price value = 10000 } sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.sub_5k"   change_variable = { which = sm_working_price value = -500 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.sub_1k"   change_variable = { which = sm_working_price value = -100 }  sm_clamp_working_price = yes  country_event = { id = sm_market.110 } }
-	option = { name = "sm_market.110.reset"    sm_set_recommended_price = yes                               country_event = { id = sm_market.110 } }
+	option = { name = "sm_market.110.add_1k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 100 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.add_5k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 500 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.add_25k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 2500 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.add_100k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = 10000 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.sub_5k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = -500 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.sub_1k" custom_tooltip = "sm_market.110.adj.tt" hidden_effect = { change_variable = { which = sm_working_price value = -100 } sm_clamp_working_price = yes country_event = { id = sm_market.110 } } }
+	option = { name = "sm_market.110.reset" custom_tooltip = "sm_market.110.reset.tt" hidden_effect = { sm_set_recommended_price = yes country_event = { id = sm_market.110 } } }
 
 	# Confirm: list the chosen fleet at this price.
 	option = {
 		name = "sm_market.110.confirm"
-		sm_list_pending_fleet = yes
-		if = {
-			limit = { has_country_flag = sm_just_listed }
-			remove_country_flag = sm_just_listed
-			country_event = { id = sm_market.140 }
-		}
-		else = { country_event = { id = sm_market.141 } }
+		custom_tooltip = "sm_market.110.confirm.tt"
+		hidden_effect = { sm_list_pending_fleet = yes if = { limit = { has_country_flag = sm_just_listed } remove_country_flag = sm_just_listed country_event = { id = sm_market.140 } } else = { country_event = { id = sm_market.141 } } }
 	}
 
 	option = { name = "sm_market.110.cancel" default_hide_option = yes }
@@ -302,45 +287,39 @@ country_event = {
 
 	option = {
 		name = "sm_market.300.pick_1"
-		trigger = { exists = event_target:sm_cand_1  event_target:sm_cand_1 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_1 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_1 event_target:sm_cand_1 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_1 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 	option = {
 		name = "sm_market.300.pick_2"
-		trigger = { exists = event_target:sm_cand_2  event_target:sm_cand_2 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_2 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_2 event_target:sm_cand_2 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_2 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 	option = {
 		name = "sm_market.300.pick_3"
-		trigger = { exists = event_target:sm_cand_3  event_target:sm_cand_3 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_3 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_3 event_target:sm_cand_3 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_3 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 	option = {
 		name = "sm_market.300.pick_4"
-		trigger = { exists = event_target:sm_cand_4  event_target:sm_cand_4 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_4 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_4 event_target:sm_cand_4 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_4 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 	option = {
 		name = "sm_market.300.pick_5"
-		trigger = { exists = event_target:sm_cand_5  event_target:sm_cand_5 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_5 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_5 event_target:sm_cand_5 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_5 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 	option = {
 		name = "sm_market.300.pick_6"
-		trigger = { exists = event_target:sm_cand_6  event_target:sm_cand_6 = { sm_fleet_can_be_listed = yes } }
-		event_target:sm_cand_6 = { save_event_target_as = sm_pending_fleet }
-		sm_set_recommended_price = yes
-		country_event = { id = sm_market.110 }
+		trigger = { exists = event_target:sm_cand_6 event_target:sm_cand_6 = { sm_fleet_can_be_listed = yes } }
+		custom_tooltip = "sm_market.300.pick.tt"
+		hidden_effect = { event_target:sm_cand_6 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes country_event = { id = sm_market.110 } }
 	}
 
 	option = { name = "sm_market.300.back"  country_event = { id = sm_market.2 } }
@@ -374,35 +353,35 @@ country_event = {
 
 	# Bulk mothball every eligible active fleet.
 	option = {
-		name = "sm_market.400.mothball_all"
+		name = "sm_market.400.mothball_all" custom_tooltip = "sm_market.400.moth_all.tt"
 		trigger = { exists = event_target:sm_mocand_1 }
 		hidden_effect = { sm_mothball_all_eligible = yes }
 		country_event = { id = sm_market.400 }
 	}
 
 	# Mothball a specific active fleet (up to 6 shown).
-	option = { name = "sm_market.400.moth_1" trigger = { exists = event_target:sm_mocand_1  event_target:sm_mocand_1 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_1 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.moth_2" trigger = { exists = event_target:sm_mocand_2  event_target:sm_mocand_2 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_2 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.moth_3" trigger = { exists = event_target:sm_mocand_3  event_target:sm_mocand_3 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_3 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.moth_4" trigger = { exists = event_target:sm_mocand_4  event_target:sm_mocand_4 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_4 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.moth_5" trigger = { exists = event_target:sm_mocand_5  event_target:sm_mocand_5 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_5 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.moth_6" trigger = { exists = event_target:sm_mocand_6  event_target:sm_mocand_6 = { sm_fleet_can_be_mothballed = yes } } event_target:sm_mocand_6 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.moth_1" trigger = { exists = event_target:sm_mocand_1 event_target:sm_mocand_1 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_1 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.moth_2" trigger = { exists = event_target:sm_mocand_2 event_target:sm_mocand_2 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_2 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.moth_3" trigger = { exists = event_target:sm_mocand_3 event_target:sm_mocand_3 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_3 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.moth_4" trigger = { exists = event_target:sm_mocand_4 event_target:sm_mocand_4 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_4 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.moth_5" trigger = { exists = event_target:sm_mocand_5 event_target:sm_mocand_5 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_5 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.moth_6" trigger = { exists = event_target:sm_mocand_6 event_target:sm_mocand_6 = { sm_fleet_can_be_mothballed = yes } } custom_tooltip = "sm_market.400.moth.tt" hidden_effect = { event_target:sm_mocand_6 = { sm_mothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
 
 	# Bulk wake every mothballed, unlisted fleet (360-day recommission each).
 	option = {
-		name = "sm_market.400.unmothball_all"
+		name = "sm_market.400.unmothball_all" custom_tooltip = "sm_market.400.wake_all.tt"
 		trigger = { exists = event_target:sm_ucand_1 }
 		hidden_effect = { sm_unmothball_all = yes }
 		country_event = { id = sm_market.400 }
 	}
 
 	# Wake a specific mothballed fleet (up to 6 shown).
-	option = { name = "sm_market.400.wake_1" trigger = { exists = event_target:sm_ucand_1  event_target:sm_ucand_1 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_1 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.wake_2" trigger = { exists = event_target:sm_ucand_2  event_target:sm_ucand_2 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_2 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.wake_3" trigger = { exists = event_target:sm_ucand_3  event_target:sm_ucand_3 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_3 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.wake_4" trigger = { exists = event_target:sm_ucand_4  event_target:sm_ucand_4 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_4 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.wake_5" trigger = { exists = event_target:sm_ucand_5  event_target:sm_ucand_5 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_5 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
-	option = { name = "sm_market.400.wake_6" trigger = { exists = event_target:sm_ucand_6  event_target:sm_ucand_6 = { sm_fleet_can_be_unmothballed = yes } } event_target:sm_ucand_6 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } }
+	option = { name = "sm_market.400.wake_1" trigger = { exists = event_target:sm_ucand_1 event_target:sm_ucand_1 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_1 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.wake_2" trigger = { exists = event_target:sm_ucand_2 event_target:sm_ucand_2 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_2 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.wake_3" trigger = { exists = event_target:sm_ucand_3 event_target:sm_ucand_3 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_3 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.wake_4" trigger = { exists = event_target:sm_ucand_4 event_target:sm_ucand_4 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_4 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.wake_5" trigger = { exists = event_target:sm_ucand_5 event_target:sm_ucand_5 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_5 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
+	option = { name = "sm_market.400.wake_6" trigger = { exists = event_target:sm_ucand_6 event_target:sm_ucand_6 = { sm_fleet_can_be_unmothballed = yes } } custom_tooltip = "sm_market.400.wake.tt" hidden_effect = { event_target:sm_ucand_6 = { sm_unmothball_fleet = yes } hidden_effect = { sm_refresh_seller_mothball_modifier = yes } country_event = { id = sm_market.400 } } }
 
 	# View the recommissioning countdown for fleets returning to service.
 	option = {
