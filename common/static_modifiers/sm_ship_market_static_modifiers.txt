@@ -56,3 +56,18 @@ sm_mothball_upkeep_discount = {
 sm_lease_shipwright_tune = {
 	ship_fire_rate_mult = 0.25
 }
+
+# v0.9.41 LEASE CASH FLOW as real economy lines. The monthly lease fee used to
+# be an add_resource transfer on the monthly pulse - the trade arrived in the
+# stockpile but was INVISIBLE in the monthly income/budget breakdown. It now
+# flows through this COUNTRY modifier pair instead (added with
+# multiplier = <sum of active monthly fees> by sm_refresh_lease_flows), so it
+# shows as production/drain in the trade tooltip and the AI's
+# has_monthly_income checks see it. Vanilla precedent for the negative side:
+# country_base_energy_produces_add = -25 (16_static_modifiers_paragon.txt).
+sm_lease_income = {
+	country_base_trade_produces_add = 1
+}
+sm_lease_expense = {
+	country_base_trade_produces_add = -1
+}

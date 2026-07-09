@@ -219,7 +219,7 @@ country_event = {
 			country_event = { id = sm_market_debug.8 }
 		}
 	}
-	option = { name = "sm_market.ok" }
+	option = { name = "sm_market.ok" default_hide_option = yes }
 }
 
 # PROBE: open the custom GUI test window (interface/sm_ship_inventory.gui). Fire with
@@ -275,5 +275,5 @@ country_event = {
 		name = "sm_market_debug.10.hub"
 		country_event = { id = sm_market.5 }
 	}
-	option = { name = "sm_market.ok" }	# close
+	option = { name = "sm_market.ok" default_hide_option = yes }	# close
 }

@@ -55,7 +55,7 @@ country_event = {
 	option = { name = "sm_lease.10.pick_5" trigger = { exists = event_target:sm_lcand_5  event_target:sm_lcand_5 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_5 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
 	option = { name = "sm_lease.10.pick_6" trigger = { exists = event_target:sm_lcand_6  event_target:sm_lcand_6 = { sm_fleet_can_be_leased = yes } } event_target:sm_lcand_6 = { save_event_target_as = sm_lease_fleet } sm_lease_after_fleet_pick = yes }
 
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -117,7 +117,7 @@ country_event = {
 	option = { name = "sm_lease.20.pick_40" trigger = { exists = event_target:sm_ltarget_40 event_target:sm_ltarget_40 = { sm_lease_target_valid = yes } } event_target:sm_ltarget_40 = { save_event_target_as = sm_lease_target } country_event = { id = sm_lease.30 } }
 
 	option = { name = "sm_lease.20.back"  country_event = { id = sm_lease.10 } }
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -136,7 +136,7 @@ country_event = {
 	option = { name = "sm_lease.30.y10" event_target:sm_lease_fleet = { set_variable = { which = sm_lease_offer_days value = 3600 } } sm_set_reco_lease_fee = yes country_event = { id = sm_lease.32 } }
 
 	option = { name = "sm_lease.30.back"  country_event = { id = sm_lease.20 } }
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -161,7 +161,7 @@ country_event = {
 
 	option = { name = "sm_lease.32.send"  sm_prepare_offer = yes  country_event = { id = sm_lease.45 } }
 	option = { name = "sm_lease.32.back"  country_event = { id = sm_lease.30 } }
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -173,7 +173,7 @@ country_event = {
 	desc = "sm_lease.45.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -238,10 +238,15 @@ country_event = {
 			modifier = { factor = 0.3  is_at_war = no  has_ethic = "ethic_fanatic_pacifist" }
 
 			# --- STATE (v0.9.25): can they field the fleet and carry the monthly fee? ---
+			# v0.9.41 HARD GATE: never sign a lease you cannot even pay the first
+			# month of - the deposit is charged on accept, and a broke lessee just
+			# gets drained by the fee flow and recalled at the next pulse.
+			modifier = { factor = 0    NOT = { resource_stockpile_compare = { resource = trade  value >= value:sm_offer_fee } } }
 			modifier = { factor = 1.5  used_naval_capacity_percent < 0.7 }    # plenty of naval-cap headroom
 			modifier = { factor = 0.4  used_naval_capacity_percent > 0.95 }   # at/over cap - can't support more ships
 			modifier = { factor = 1.4  has_monthly_income = { resource = trade  value > 50 } }  # income easily covers a fee
 			modifier = { factor = 0.5  has_monthly_income = { resource = trade  value < 10 } }   # tight income - recurring fee hurts
+			modifier = { factor = 0.5  has_monthly_income = { resource = trade  value < 0 } }    # already in deficit - stacks to x0.25
 			modifier = { factor = 1.3  resource_stockpile_compare = { resource = alloys  value < 500 } }  # alloy-starved - leasing beats building
 
 			# --- LIKE US: opinion of, and trust in, the lessor ---
@@ -301,6 +306,7 @@ country_event = {
 	# DECLINE — always available.
 	option = {
 		name = "sm_lease.50.decline"
+		default_hide_option = yes
 		ai_chance = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
@@ -331,7 +337,7 @@ country_event = {
 			}
 		}
 	}
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_lease.56
@@ -347,7 +353,7 @@ country_event = {
 			event_target:sm_lease_offer_fleet = { remove_fleet_flag = sm_ai_wait }
 		}
 	}
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_lease.60
@@ -355,7 +361,19 @@ country_event = {
 	desc = "sm_lease.60.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
+}
+
+# v0.9.41: the lease ran its FULL term and the engine returned the fleet (fired
+# from sm_lease_cleanup on the lessor). Distinct from .60 (default) so a normal
+# completion never reads as a cancellation.
+country_event = {
+	id = sm_lease.61
+	title = "sm_lease.61.name"
+	desc = "sm_lease.61.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -437,6 +455,10 @@ country_event = {
 			log = "SM_DEAL,lease_settled,lessor=[Root.GetName],lessee=[sm_settle_lessee.GetName],amount=[GetSettleTotal]"
 			country_event = { id = sm_lease.65 }
 		}
+		# v0.9.41: the fleet is destroyed, so no lease event will fire for it again -
+		# rebuild the cash-flow modifiers NOW or the monthly fee would keep flowing
+		# forever (the settlement above is a one-off lump sum, not the flow).
+		sm_refresh_lease_flows = yes
 	}
 }
 
@@ -447,7 +469,7 @@ country_event = {
 	desc = "sm_lease.65.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_lease.66
@@ -455,7 +477,7 @@ country_event = {
 	desc = "sm_lease.66.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_lease.ok" }
+	option = { name = "sm_lease.ok" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -471,5 +493,9 @@ country_event = {
 	immediate = {
 		sm_lease_bill_monthly = yes
 		sm_lease_cleanup = yes
+		# v0.9.41: rebuild the cash-flow modifiers after ticking/cleanup - this is
+		# what drops naturally-expired leases (engine auto-return) from both
+		# empires' income, and monthly self-heals any drift.
+		sm_refresh_lease_flows = yes
 	}
 }

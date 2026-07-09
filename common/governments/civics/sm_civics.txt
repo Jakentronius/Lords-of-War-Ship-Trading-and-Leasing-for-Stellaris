@@ -22,6 +22,7 @@
 ########################################################################
 
 civic_sm_arms_consortium = {
+	icon = "gfx/interface/icons/governments/civics/civic_naval_contractors.dds"
 	potential = {
 		ethics = { NOT = { value = ethic_gestalt_consciousness } }
 		authority = { NOT = { value = auth_corporate } }
@@ -37,6 +38,7 @@ civic_sm_arms_consortium = {
 }
 
 civic_sm_fleet_chandlers = {
+	icon = "gfx/interface/icons/governments/civics/civic_private_military_companies.dds"
 	potential = {
 		ethics = { NOT = { value = ethic_gestalt_consciousness } }
 		authority = { value = auth_corporate }
@@ -52,6 +54,7 @@ civic_sm_fleet_chandlers = {
 }
 
 civic_sm_assembly_line_shipwrights = {
+	icon = "gfx/interface/icons/governments/civics/civic_relentless_industrialists.dds"
 	potential = {
 		ethics = { NOT = { value = ethic_gestalt_consciousness } }
 	}

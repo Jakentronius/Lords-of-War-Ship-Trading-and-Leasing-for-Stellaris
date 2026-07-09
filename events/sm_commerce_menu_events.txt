@@ -35,5 +35,5 @@ country_event = {
 		}
 	}
 	option = { name = "sm_market.600.back"  country_event = { id = sm_market.5 } }
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }

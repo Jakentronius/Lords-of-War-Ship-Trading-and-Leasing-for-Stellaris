@@ -49,7 +49,7 @@ country_event = {
 	option = { name = "sm_offer.10.pick_5" trigger = { exists = event_target:sm_socand_5  event_target:sm_socand_5 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_5 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
 	option = { name = "sm_offer.10.pick_6" trigger = { exists = event_target:sm_socand_6  event_target:sm_socand_6 = { sm_fleet_offerable_sale = yes } } event_target:sm_socand_6 = { save_event_target_as = sm_pending_fleet } sm_set_recommended_price = yes sm_build_offer_recipients = yes country_event = { id = sm_offer.20 } }
 
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -111,7 +111,7 @@ country_event = {
 	option = { name = "sm_offer.20.pick_40" trigger = { exists = event_target:sm_orecip_40 event_target:sm_orecip_40 = { sm_lease_target_valid = yes } } event_target:sm_orecip_40 = { save_event_target_as = sm_offer_recipient } country_event = { id = sm_offer.30 } }
 
 	option = { name = "sm_offer.20.back"  country_event = { id = sm_offer.10 } }
-	option = { name = "sm_market.exit" }
+	option = { name = "sm_market.exit" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -147,7 +147,8 @@ country_event = {
 	}
 
 	option = { name = "sm_offer.30.back"  country_event = { id = sm_offer.20 } }
-	option = { name = "sm_offer.30.cancel" }
+	option = { name = "sm_offer.30.cancel"
+		default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -159,7 +160,7 @@ country_event = {
 	desc = "sm_offer.40.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_offer.41
@@ -167,7 +168,7 @@ country_event = {
 	desc = "sm_offer.41.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_offer.200
@@ -186,7 +187,7 @@ country_event = {
 			}
 		}
 	}
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_offer.210
@@ -202,7 +203,7 @@ country_event = {
 			event_target:sm_sale_offer_fleet = { remove_fleet_flag = sm_ai_wait }
 		}
 	}
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------
@@ -339,6 +340,7 @@ country_event = {
 	# DECLINE — always available; release the seller's reserved fleet.
 	option = {
 		name = "sm_offer.100.decline"
+		default_hide_option = yes
 		ai_chance = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
@@ -357,7 +359,7 @@ country_event = {
 	desc = "sm_offer.201.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 country_event = {
 	id = sm_offer.202
@@ -365,7 +367,7 @@ country_event = {
 	desc = "sm_offer.202.desc"
 	picture = GFX_evt_ship_in_orbit
 	is_triggered_only = yes
-	option = { name = "sm_offer.ok" }
+	option = { name = "sm_offer.ok" default_hide_option = yes }
 }
 
 # ----------------------------------------------------------------------

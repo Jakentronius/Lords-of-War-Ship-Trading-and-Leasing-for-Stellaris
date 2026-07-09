@@ -250,7 +250,9 @@
  sm_lease.56.name:0 "Lease Declined"
  sm_lease.56.desc:0 "§Y[event_target:sm_lease_offer_lessee.GetName]§! declined. The fleet stays under your command."
  sm_lease.60.name:0 "Lease Defaulted"
- sm_lease.60.desc:0 "A lessee could not pay, so the contract ended and the fleet returned to you."
+ sm_lease.60.desc:0 "§Y[sm_recall_lessee.GetName]§! could not pay the monthly fee for §Y[sm_recall_fleet.GetName]§! and defaulted on the lease. The contract has ended and the fleet has been recalled to your service."
+ sm_lease.61.name:0 "Lease Concluded"
+ sm_lease.61.desc:0 "The lease on §Y[sm_returned_fleet.GetName]§! has run its full term. The contract is complete and the fleet has been released back to your command - it may show as Missing In Action while it travels home."
  sm_lease.65.name:0 "Leased Fleet Destroyed"
  sm_lease.65.desc:0 "A fleet you leased out was destroyed. §Y[event_target:sm_settle_lessee.GetName]§! settled the remaining contract: £trade£§G+[GetSettleTotal]§!."
  sm_lease.66.name:0 "Leased Fleet Destroyed"
@@ -311,6 +313,10 @@
  sm_reactivating_fleet_desc:0 "This fleet has left the Ship Market and is being recommissioned. It remains immobilised, unable to fight, and using almost no naval capacity until recommissioning completes, after which it returns to normal service."
  sm_mothball_upkeep_discount:0 "Mothball Fleet Storage"
  sm_mothball_upkeep_discount_desc:0 "Showroom inventory drives commerce: each mothballed fleet increases the £trade£ trade value your empire produces and reduces military ship £alloys£ upkeep. Scales with the number of fleets you have mothballed (whether or not they are listed for sale)."
+ sm_lease_income:0 "Fleet Lease Income"
+ sm_lease_income_desc:0 "Monthly fees from fleets your empire has leased out, paid by the lessees for as long as the contracts run. Counted in your monthly £trade£ trade value."
+ sm_lease_expense:0 "Fleet Lease Fees"
+ sm_lease_expense_desc:0 "Monthly fees for the fleets your empire is leasing, paid to the lessors for as long as the contracts run. Deducted from your monthly £trade£ trade value."
 
  # === Direct Offers - sale fleet picker (sm_offer.10) =================
  sm_offer.10.name:0 "Choose a Fleet to Sell"

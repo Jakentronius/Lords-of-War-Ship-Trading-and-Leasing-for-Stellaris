@@ -165,7 +165,18 @@ sm_compute_lease_reco = {
 	event_target:sm_lease_fleet = {
 		save_event_target_as = sm_stat_fleet
 		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
-		sm_apply_build_quality = yes
+		# v0.9.40: sm_apply_build_quality INLINED - the call put the AI-deal chain
+		# (sm_ai_force_deal_now -> sm_ai_send_lease_offer -> sm_set_reco_lease_fee ->
+		# sm_compute_lease_reco -> here) at the engine's post-init nesting cap.
+		# KEEP IN SYNC with sm_apply_build_quality (sm_ship_market_effects.txt).
+		if = {
+			limit = { check_variable = { which = sm_quality value > 0 } }
+			multiply_variable = { which = sm_build_value value = sm_quality }
+		}
+		if = {
+			limit = { exists = owner  owner = { has_valid_civic = civic_sm_assembly_line_shipwrights } }
+			multiply_variable = { which = sm_build_value value = 1.2 }
+		}
 	}
 	# Value basis: estimated build cost; fallback fleet-power x3 (the sale-price
 	# proxy); floor 25 so a fee is never trivially 0 (trade scale, was 100).
@@ -338,14 +349,88 @@ sm_finalize_lease = {
 			sm_apply_trade_goodwill = { BUYER = sm_lease_offer_lessee  SELLER = sm_lease_offer_lessor }
 		}
 		log = "SM_DEAL,lease_start,lessee=[Root.GetName],lessor=[sm_lease_offer_lessor.GetName],fee=[GetLeaseMonthlyOffer],days=[GetLeaseOfferDays]"
+		# v0.9.41: start the fee flowing through the income/expense modifiers
+		# right away (the upfront month above stays a one-off stockpile transfer).
+		sm_refresh_lease_flows = yes
+		# Token-free diagnostic (loc-token logs are unreliable on 4.4.5): this line
+		# in game.log = the lease REALLY started (validation passed, fleet handed over).
+		log = "SM_LEASE,finalize_ok"
+	}
+	else = {
+		# The offer was accepted but the deal could NOT be executed (the fleet
+		# changed state since the offer was sent, or the deal-slot targets did not
+		# resolve). Without this branch the deal evaporated with no trace.
+		log = "SM_LEASE,finalize_INVALID"
 	}
 	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)
 }
 
 # ----- Monthly billing -------------------------------------------------------
-# COUNTRY SCOPE (root = lessor). Bill each leased-out fleet's monthly fee from the
-# lessee (controller) to the lessor (owner). If the lessee cannot pay, end the
-# contract early (recall) and notify the lessor.
+# ANY SCOPE. v0.9.41: rebuild the lease cash-flow modifiers on EVERY empire from
+# live fleet state. The monthly fee is paid through paired production modifiers
+# (sm_lease_income on the lessor / sm_lease_expense on the lessee, multiplier =
+# the empire's TOTAL active monthly fees) so it appears in the monthly trade
+# income - an add_resource transfer never did. Full recompute from scratch =
+# self-healing and immune to double-count drift; leases are rare, so the
+# every-country x every-fleet sweep is cheap. Called on the monthly pulse
+# (sm_lease.900), at lease start (sm_finalize_lease), on every recall
+# (sm_recall_lease), and after a destroyed-fleet settlement (sm_lease.910).
+sm_refresh_lease_flows = {
+	every_playable_country = {
+		remove_modifier = sm_lease_income
+		remove_modifier = sm_lease_expense
+		set_variable = { which = sm_lease_in_total value = 0 }
+		set_variable = { which = sm_lease_out_total value = 0 }
+	}
+	every_playable_country = {
+		every_owned_fleet = {
+			# Gate on the FLAG (set synchronously at finalize), NOT on
+			# is_leased/controller: give_fleet's handover is DEFERRED past the
+			# signing event, so those tests skipped a just-signed lease and the
+			# income line never appeared at signing. The flag lifecycle already
+			# brackets the flow exactly (set at finalize; cleared by recall and
+			# by the monthly cleanup when the engine returns the fleet).
+			limit = {
+				has_fleet_flag = sm_leased_out
+				exists = owner
+				check_variable = { which = sm_lease_monthly_fee value > 0 }
+			}
+			# prev = this fleet (scope block entered from fleet scope). Direct scope
+			# refs, NOT an event target - in-block target saves are unreliable on 4.4.5.
+			owner = { change_variable = { which = sm_lease_in_total  value = prev.sm_lease_monthly_fee } }
+			# Expense needs the REAL controller; until the engine processes the
+			# handover the controller still reads as the owner, so the lessee's
+			# expense side appears at the next refresh (monthly pulse at latest).
+			if = {
+				limit = { exists = controller  NOT = { controller = { is_same_value = owner } } }
+				controller = { change_variable = { which = sm_lease_out_total value = prev.sm_lease_monthly_fee } }
+			}
+		}
+	}
+	every_playable_country = {
+		if = {
+			limit = { check_variable = { which = sm_lease_in_total value > 0 } }
+			add_modifier = { modifier = sm_lease_income  multiplier = value:sm_lease_flow_in  days = -1 }
+			log = "SM_FLOW,lease_income,country=[This.GetName],monthly=[This.GetLeaseFlowIn]"
+		}
+		if = {
+			limit = { check_variable = { which = sm_lease_out_total value > 0 } }
+			add_modifier = { modifier = sm_lease_expense  multiplier = value:sm_lease_flow_out  days = -1 }
+			log = "SM_FLOW,lease_expense,country=[This.GetName],monthly=[This.GetLeaseFlowOut]"
+		}
+	}
+	# Token-free marker: this line in game.log proves the rebuild RAN. If it
+	# appears with no lease_income line while a lease is active, the summation
+	# itself failed (loc-token fields above may print empty on 4.4.5 - the
+	# line's presence is the signal, not its fields).
+	log = "SM_FLOW,refresh_done"
+}
+
+# COUNTRY SCOPE (root = lessor). Monthly per-lease upkeep. v0.9.41: the fee is
+# NO LONGER transferred here - it flows through the sm_lease_income/expense
+# modifiers (sm_refresh_lease_flows above), which is what makes it show in both
+# empires' monthly trade income. This loop only ticks the displayed term down
+# and recalls the fleet when the lessee has gone broke.
 sm_lease_bill_monthly = {
 	every_owned_fleet = {
 		limit = { has_fleet_flag = sm_leased_out  is_leased = yes  exists = controller }
@@ -353,13 +438,23 @@ sm_lease_bill_monthly = {
 		# Time passes regardless of payment: tick the displayed term down one month.
 		change_variable = { which = sm_lease_days_left value = -30 }
 		if = { limit = { check_variable = { which = sm_lease_days_left value < 0 } } set_variable = { which = sm_lease_days_left value = 0 } }
+		# Solvency check (was the payment gate): a lessee that cannot cover even
+		# one month's fee from stockpile has been bled dry by the expense
+		# modifier - end the contract early and notify the lessor. The fee > 0
+		# guard means a missing/zero fee can NEVER recall a healthy lease.
 		if = {
-			limit = { controller = { resource_stockpile_compare = { resource = trade  value >= value:sm_billed_fee } } }
-			controller = { add_resource = { trade = -1  mult = value:sm_billed_fee } }
-			owner = { add_resource = { trade = 1  mult = value:sm_billed_fee } }
-		}
-		else = {
+			limit = {
+				check_variable = { which = sm_lease_monthly_fee value > 0 }
+				controller = { NOT = { resource_stockpile_compare = { resource = trade  value >= value:sm_billed_fee } } }
+			}
+			# GLOBAL targets so sm_lease.60's desc can print the NAMES (local
+			# targets don't resolve .GetName in loc - see setup notes). Saved
+			# BEFORE the recall strips the lease state. Several defaults in one
+			# pulse overwrite these; each popup then names the latest default.
+			save_global_event_target_as = sm_recall_fleet
+			controller = { save_global_event_target_as = sm_recall_lessee }
 			owner = { country_event = { id = sm_lease.60 } }
+			log = "SM_LEASE,default_recall"
 			sm_recall_lease = yes
 		}
 	}
@@ -372,6 +467,9 @@ sm_recall_lease = {
 	if = { limit = { is_leased = yes } end_fleet_contract = { initiator = owner  reason = cancelled } }
 	remove_fleet_flag = sm_leased_out
 	remove_modifier = sm_lease_shipwright_tune		# v0.9.29 (safe no-op if absent)
+	# v0.9.41: the flag is gone, so the rebuild drops this lease from both
+	# empires' cash-flow modifiers. Covers voluntary termination AND insolvency.
+	sm_refresh_lease_flows = yes
 }
 
 # FLEET SCOPE (root = owner terminating from the Contracts screen). v0.9.30
@@ -396,10 +494,18 @@ sm_terminate_contract = {
 }
 
 # COUNTRY SCOPE. Monthly: clear sm_leased_out on fleets whose contract has ended
-# (engine returned control), so the active-lease list stays accurate.
+# (engine returned control), so the active-lease list stays accurate. Only
+# NATURAL term completions reach here - recalls (default/termination) strip the
+# flag immediately in sm_recall_lease and never enter this loop.
 sm_lease_cleanup = {
 	every_owned_fleet = {
 		limit = { has_fleet_flag = sm_leased_out  is_leased = no }
+		# v0.9.41: announce the completed term. Without this the fleet silently
+		# came home as MIA and read as a canceled contract. Global target so the
+		# popup can print the fleet's name.
+		save_global_event_target_as = sm_returned_fleet
+		log = "SM_LEASE,term_completed"
+		owner = { country_event = { id = sm_lease.61 } }
 		remove_fleet_flag = sm_leased_out
 		remove_modifier = sm_lease_shipwright_tune	# v0.9.29 (safe no-op if absent)
 		clear_variable = sm_lease_days_left

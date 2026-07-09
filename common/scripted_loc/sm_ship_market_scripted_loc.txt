@@ -53,6 +53,10 @@ defined_text = { name = GetDbgmOffmap  value = value:sm_dbgm_offmap_display }
 defined_text = { name = GetDbgmMothoff value = value:sm_dbgm_mothoff_display }
 defined_text = { name = GetDbgmCombat  value = value:sm_dbgm_combat_display }
 
+# v0.9.41 lease cash-flow totals (current scope = the country).
+defined_text = { name = GetLeaseFlowIn   value = value:sm_lease_flow_in }
+defined_text = { name = GetLeaseFlowOut  value = value:sm_lease_flow_out }
+
 # v0.9.32 telemetry census stamp.
 defined_text = { name = GetTelemYear  value = value:sm_telem_year_display }
 

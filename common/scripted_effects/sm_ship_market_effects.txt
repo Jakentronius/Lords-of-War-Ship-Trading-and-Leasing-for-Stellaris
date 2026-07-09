@@ -156,7 +156,24 @@ sm_capture_fleet_stats = {
 	# Estimated TRADE build cost, counted via count_owned_ship restricted to this fleet
 	# (sm_stat_fleet). Captured AT MOTHBALL and stored; pricing reads sm_build_value.
 	set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
-	sm_apply_market_value = yes
+	# v0.9.40: sm_apply_market_value INLINED here (not called). The extra scripted-
+	# effect frames pushed the AI-deal chains (sm_ai_force_deal_now -> sm_ai_send_* ->
+	# sm_mothball_fleet -> here) past the engine's post-init nesting cap -> effects
+	# left uninitialized -> CTD at new-game init (4.4.5). The sm_ensure_cost_alloys
+	# backfill is skipped on this path: counts + sm_cost_alloys are fresh (just set
+	# above). KEEP IN SYNC with sm_apply_market_value below.
+	# Direct `owner` scope refs, NOT an event target: on 4.4.5 a target saved
+	# inside the owner block is already undefined right after the block exits
+	# (confirmed via error.log), which silently killed the live-market price.
+	if = {
+		limit = { exists = owner }
+		owner = { set_variable = { which = sm_mkt_tmp value = value:sm_fleet_market_value } }
+		if = {
+			limit = { owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
+			set_variable = { which = sm_build_value value = owner.sm_mkt_tmp }
+		}
+		owner = { clear_variable = sm_mkt_tmp }
+	}
 	# v0.9.31 QUALITY appraisal: absolute per-ship costs are NOT readable in 4.4
 	# (ship_size_cost_resource_percent returns composition fractions only), so we
 	# proxy "what it actually took to build" with the fleet's POWER at mothball
@@ -183,7 +200,16 @@ sm_capture_fleet_stats = {
 		if = { limit = { check_variable = { which = sm_quality value > 3 } }   set_variable = { which = sm_quality value = 3 } }
 	}
 	clear_variable = sm_ref_power
-	sm_apply_build_quality = yes
+	# v0.9.40: sm_apply_build_quality INLINED (same nesting-cap reason as the
+	# market-value block above). KEEP IN SYNC with sm_apply_build_quality below.
+	if = {
+		limit = { check_variable = { which = sm_quality value > 0 } }
+		multiply_variable = { which = sm_build_value value = sm_quality }
+	}
+	if = {
+		limit = { exists = owner  owner = { has_valid_civic = civic_sm_assembly_line_shipwrights } }
+		multiply_variable = { which = sm_build_value value = 1.2 }
+	}
 }
 
 # FLEET SCOPE. Scale a freshly recomputed sm_build_value by the mothball-time
@@ -209,20 +235,37 @@ sm_apply_build_quality = {
 # the static recompute and BEFORE sm_apply_build_quality.
 sm_apply_market_value = {
 	save_event_target_as = sm_stat_fleet
-	sm_ensure_cost_alloys = yes
+	# v0.9.40: sm_ensure_cost_alloys INLINED - the call put the AI-deal chains
+	# (sm_ai_force_deal_now -> sm_ai_* -> sm_set_recommended_price -> here) at the
+	# engine's post-init nesting cap. KEEP IN SYNC with sm_ensure_cost_alloys below.
+	if = {
+		limit = { NOT = { check_variable = { which = sm_cost_alloys value > 0 } } }
+		set_variable = { which = sm_n_corv value = 0 }
+		set_variable = { which = sm_n_frig value = 0 }
+		set_variable = { which = sm_n_dest value = 0 }
+		set_variable = { which = sm_n_cru value = 0 }
+		set_variable = { which = sm_n_bb value = 0 }
+		set_variable = { which = sm_n_tit value = 0 }
+		every_owned_ship = { limit = { is_ship_size = corvette }   event_target:sm_stat_fleet = { change_variable = { which = sm_n_corv value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = frigate }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_frig value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = destroyer }  event_target:sm_stat_fleet = { change_variable = { which = sm_n_dest value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = cruiser }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_cru value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = battleship } event_target:sm_stat_fleet = { change_variable = { which = sm_n_bb value = 1 } } }
+		every_owned_ship = { limit = { is_ship_size = titan }      event_target:sm_stat_fleet = { change_variable = { which = sm_n_tit value = 1 } } }
+		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+	}
+	# Direct `owner` scope refs, NOT an event target: on 4.4.5 a target saved
+	# inside the owner block is already undefined right after the block exits
+	# (confirmed via error.log). KEEP IN SYNC with the inline copy in
+	# sm_capture_fleet_stats above.
 	if = {
 		limit = { exists = owner }
-		# Evaluate in the owner's (market) scope; copy back via event targets only
-		# (proven constructs: value = event_target:X.var - see setup notes).
-		owner = {
-			save_event_target_as = sm_mkt_owner
-			set_variable = { which = sm_mkt_tmp value = value:sm_fleet_market_value }
-		}
+		owner = { set_variable = { which = sm_mkt_tmp value = value:sm_fleet_market_value } }
 		if = {
-			limit = { event_target:sm_mkt_owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
-			set_variable = { which = sm_build_value value = event_target:sm_mkt_owner.sm_mkt_tmp }
+			limit = { owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
+			set_variable = { which = sm_build_value value = owner.sm_mkt_tmp }
 		}
-		event_target:sm_mkt_owner = { clear_variable = sm_mkt_tmp }
+		owner = { clear_variable = sm_mkt_tmp }
 	}
 }
 
@@ -448,7 +491,7 @@ sm_buy_fleet = {
 		}
 		# Refresh the (former) seller's listing modifier now their count dropped.
 		event_target:sm_sale_seller = { sm_refresh_seller_mothball_modifier = yes }
-		log = "SM_DEAL,board_sale,buyer=[Root.GetName],seller=[sm_sale_seller.GetName],price=[GetShipMarketLastValue]"
+		log = "SM_DEAL,board_sale,buyer=[Root.GetName],seller=[sm_sale_seller.GetName],price=[Root.GetShipMarketLastValue]"
 		country_event = { id = sm_market.231 }
 	}
 	else = {
@@ -845,7 +888,7 @@ sm_accept_sale_offer = {
 			limit = { check_variable = { which = sm_last_market_value value >= 300 } }
 			sm_apply_trade_goodwill = { BUYER = sm_sale_offer_buyer  SELLER = sm_sale_offer_seller }
 		}
-		log = "SM_DEAL,direct_sale,buyer=[Root.GetName],seller=[sm_sale_offer_seller.GetName],price=[GetShipMarketLastValue]"
+		log = "SM_DEAL,direct_sale,buyer=[Root.GetName],seller=[sm_sale_offer_seller.GetName],price=[Root.GetShipMarketLastValue]"
 		set_country_flag = sm_sale_bought
 	}
 	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)
