@@ -200,7 +200,11 @@ country_event = {
 	# enemy, or fond of the lessor.
 	option = {
 		name = "sm_lease.50.accept"
-		trigger = { exists = event_target:sm_lease_offer_fleet event_target:sm_lease_offer_fleet = { is_leased = no exists = owner has_fleet_flag = sm_mothballed } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_offer_fee } } }
+		# has_country_flag: the offer may have EXPIRED (sm_offer.900) while this
+		# popup sat in a human's message queue. Worse than the sale twin: the fleet
+		# STAYS mothballed until the lessor's monthly reconcile, so without this
+		# gate a stale Accept could still sign a lease off freed-slot globals.
+		trigger = { has_country_flag = sm_pending_player_offer exists = event_target:sm_lease_offer_fleet event_target:sm_lease_offer_fleet = { is_leased = no exists = owner has_fleet_flag = sm_mothballed } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_offer_fee } } }
 		custom_tooltip = "sm_lease.50.accept.tt"
 		ai_chance = {
 			base = 3
@@ -289,6 +293,15 @@ country_event = {
 		hidden_effect = { sm_finalize_lease = yes if = { limit = { event_target:sm_lease_offer_fleet = { has_fleet_flag = sm_leased_out controller = { is_same_value = root } } } event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.55 } } } else = { event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } } }
 	}
 
+	# EXPIRED — informational; shown on a stale queued popup whose offer already
+	# auto-declined (sm_offer.900). Everything was cleaned up at expiry; just close.
+	option = {
+		name = "sm_lease.50.expired"
+		trigger = { NOT = { has_country_flag = sm_pending_player_offer } }
+		custom_tooltip = "sm_lease.50.expired.tt"
+		ai_chance = { base = 0 }
+	}
+
 	# DECLINE — always available.
 	option = {
 		name = "sm_lease.50.decline"
@@ -298,7 +311,9 @@ country_event = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
 		}
-		hidden_effect = { sm_load_deal_slot = yes sm_free_deal_slot = yes event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } }
+		# Guard: on a stale popup the slot is already freed (sm_my_deal_slot = 0) -
+		# re-freeing + re-notifying the lessor would hit another deal's globals.
+		hidden_effect = { if = { limit = { has_country_flag = sm_pending_player_offer } sm_load_deal_slot = yes sm_free_deal_slot = yes event_target:sm_lease_offer_lessor = { country_event = { id = sm_lease.56 } } } }
 	}
 }
 

@@ -52,6 +52,13 @@ sm_lactive_3_fee  = { base = 0  add = event_target:sm_lactive_3.sm_lease_monthly
 sm_lactive_4_fee  = { base = 0  add = event_target:sm_lactive_4.sm_lease_monthly_fee }
 sm_lactive_5_fee  = { base = 0  add = event_target:sm_lactive_5.sm_lease_monthly_fee }
 sm_lactive_6_fee  = { base = 0  add = event_target:sm_lactive_6.sm_lease_monthly_fee }
+# v0.9.44: contracts page 2 (sm_market.55, leases 7-12).
+sm_lactive_7_fee  = { base = 0  add = event_target:sm_lactive_7.sm_lease_monthly_fee }
+sm_lactive_8_fee  = { base = 0  add = event_target:sm_lactive_8.sm_lease_monthly_fee }
+sm_lactive_9_fee  = { base = 0  add = event_target:sm_lactive_9.sm_lease_monthly_fee }
+sm_lactive_10_fee = { base = 0  add = event_target:sm_lactive_10.sm_lease_monthly_fee }
+sm_lactive_11_fee = { base = 0  add = event_target:sm_lactive_11.sm_lease_monthly_fee }
+sm_lactive_12_fee = { base = 0  add = event_target:sm_lactive_12.sm_lease_monthly_fee }
 # Inbound leases (v0.9.27): fee + remaining days on fleets root leases FROM others.
 sm_lin_1_fee  = { base = 0  add = event_target:sm_lin_1.sm_lease_monthly_fee }
 sm_lin_2_fee  = { base = 0  add = event_target:sm_lin_2.sm_lease_monthly_fee }
@@ -72,6 +79,13 @@ sm_lactive_3_days = { base = 0  add = event_target:sm_lactive_3.sm_lease_days_le
 sm_lactive_4_days = { base = 0  add = event_target:sm_lactive_4.sm_lease_days_left }
 sm_lactive_5_days = { base = 0  add = event_target:sm_lactive_5.sm_lease_days_left }
 sm_lactive_6_days = { base = 0  add = event_target:sm_lactive_6.sm_lease_days_left }
+# v0.9.44: contracts page 2 (sm_market.55, leases 7-12).
+sm_lactive_7_days  = { base = 0  add = event_target:sm_lactive_7.sm_lease_days_left }
+sm_lactive_8_days  = { base = 0  add = event_target:sm_lactive_8.sm_lease_days_left }
+sm_lactive_9_days  = { base = 0  add = event_target:sm_lactive_9.sm_lease_days_left }
+sm_lactive_10_days = { base = 0  add = event_target:sm_lactive_10.sm_lease_days_left }
+sm_lactive_11_days = { base = 0  add = event_target:sm_lactive_11.sm_lease_days_left }
+sm_lactive_12_days = { base = 0  add = event_target:sm_lactive_12.sm_lease_days_left }
 
 # ---- Terminal dashboard KPIs (v0.9.9 / v0.9.12) ----
 # Aggregate totals (computed each open by sm_count_inventory).

@@ -232,6 +232,19 @@ defined_text = { name = GetLease3Days  value = value:sm_lactive_3_days }
 defined_text = { name = GetLease4Days  value = value:sm_lactive_4_days }
 defined_text = { name = GetLease5Days  value = value:sm_lactive_5_days }
 defined_text = { name = GetLease6Days  value = value:sm_lactive_6_days }
+# v0.9.44: contracts page 2 (sm_market.55, leases 7-12).
+defined_text = { name = GetLease7Fee   value = value:sm_lactive_7_fee }
+defined_text = { name = GetLease8Fee   value = value:sm_lactive_8_fee }
+defined_text = { name = GetLease9Fee   value = value:sm_lactive_9_fee }
+defined_text = { name = GetLease10Fee  value = value:sm_lactive_10_fee }
+defined_text = { name = GetLease11Fee  value = value:sm_lactive_11_fee }
+defined_text = { name = GetLease12Fee  value = value:sm_lactive_12_fee }
+defined_text = { name = GetLease7Days  value = value:sm_lactive_7_days }
+defined_text = { name = GetLease8Days  value = value:sm_lactive_8_days }
+defined_text = { name = GetLease9Days  value = value:sm_lactive_9_days }
+defined_text = { name = GetLease10Days value = value:sm_lactive_10_days }
+defined_text = { name = GetLease11Days value = value:sm_lactive_11_days }
+defined_text = { name = GetLease12Days value = value:sm_lactive_12_days }
 
 # Terminal dashboard KPIs (v0.9.9): aggregate totals + per-stored-slot alloy cost.
 defined_text = { name = GetLeaseIncomeTotal   value = value:sm_total_lease_income_display }
@@ -341,6 +354,37 @@ defined_text = {
 	name = GetLeaseRow6
 	text = { trigger = { NOT = { exists = event_target:sm_lactive_6 } }  localization_key = sm_dipl_blank }
 	text = { trigger = { exists = event_target:sm_lactive_6 }             localization_key = sm_lease_row_6 }
+}
+# v0.9.44: contracts page 2 (sm_market.55, leases 7-12).
+defined_text = {
+	name = GetLeaseRow7
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_7 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_7 }             localization_key = sm_lease_row_7 }
+}
+defined_text = {
+	name = GetLeaseRow8
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_8 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_8 }             localization_key = sm_lease_row_8 }
+}
+defined_text = {
+	name = GetLeaseRow9
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_9 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_9 }             localization_key = sm_lease_row_9 }
+}
+defined_text = {
+	name = GetLeaseRow10
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_10 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_10 }             localization_key = sm_lease_row_10 }
+}
+defined_text = {
+	name = GetLeaseRow11
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_11 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_11 }             localization_key = sm_lease_row_11 }
+}
+defined_text = {
+	name = GetLeaseRow12
+	text = { trigger = { NOT = { exists = event_target:sm_lactive_12 } }  localization_key = sm_dipl_blank }
+	text = { trigger = { exists = event_target:sm_lactive_12 }             localization_key = sm_lease_row_12 }
 }
 
 # Per-section 'empty' fallbacks (mutually exclusive branches).

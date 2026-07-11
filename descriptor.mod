@@ -1,5 +1,5 @@
 name="Ship Market"
-version="0.9.42"
+version="0.9.44"
 picture="thumbnail.png"
 tags={
 	"Gameplay"

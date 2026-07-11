@@ -51,6 +51,13 @@
  sm_lease_row_4:0 " £trigger_yes£ £time£§Y[GetLease4Days]§!d  £trade£§G+[GetLease4Fee]§!/mo  §Y[event_target:sm_lactive_4.Controller.GetName]§!  §H[event_target:sm_lactive_4.GetName]§!\n"
  sm_lease_row_5:0 " £trigger_yes£ £time£§Y[GetLease5Days]§!d  £trade£§G+[GetLease5Fee]§!/mo  §Y[event_target:sm_lactive_5.Controller.GetName]§!  §H[event_target:sm_lactive_5.GetName]§!\n"
  sm_lease_row_6:0 " £trigger_yes£ £time£§Y[GetLease6Days]§!d  £trade£§G+[GetLease6Fee]§!/mo  §Y[event_target:sm_lactive_6.Controller.GetName]§!  §H[event_target:sm_lactive_6.GetName]§!\n"
+ # v0.9.44: contracts page 2 (sm_market.55, leases 7-12).
+ sm_lease_row_7:0 " £trigger_yes£ £time£§Y[GetLease7Days]§!d  £trade£§G+[GetLease7Fee]§!/mo  §Y[event_target:sm_lactive_7.Controller.GetName]§!  §H[event_target:sm_lactive_7.GetName]§!\n"
+ sm_lease_row_8:0 " £trigger_yes£ £time£§Y[GetLease8Days]§!d  £trade£§G+[GetLease8Fee]§!/mo  §Y[event_target:sm_lactive_8.Controller.GetName]§!  §H[event_target:sm_lactive_8.GetName]§!\n"
+ sm_lease_row_9:0 " £trigger_yes£ £time£§Y[GetLease9Days]§!d  £trade£§G+[GetLease9Fee]§!/mo  §Y[event_target:sm_lactive_9.Controller.GetName]§!  §H[event_target:sm_lactive_9.GetName]§!\n"
+ sm_lease_row_10:0 " £trigger_yes£ £time£§Y[GetLease10Days]§!d  £trade£§G+[GetLease10Fee]§!/mo  §Y[event_target:sm_lactive_10.Controller.GetName]§!  §H[event_target:sm_lactive_10.GetName]§!\n"
+ sm_lease_row_11:0 " £trigger_yes£ £time£§Y[GetLease11Days]§!d  £trade£§G+[GetLease11Fee]§!/mo  §Y[event_target:sm_lactive_11.Controller.GetName]§!  §H[event_target:sm_lactive_11.GetName]§!\n"
+ sm_lease_row_12:0 " £trigger_yes£ £time£§Y[GetLease12Days]§!d  £trade£§G+[GetLease12Fee]§!/mo  §Y[event_target:sm_lactive_12.Controller.GetName]§!  §H[event_target:sm_lactive_12.GetName]§!\n"
  # Inbound leases (v0.9.27): fleets YOU lease from others - red fee (you pay).
  sm_lin_row_1:0 " £trigger_yes£ £time£§Y[GetLin1Days]§!d  £trade£§R-[GetLin1Fee]§!/mo  §Y[event_target:sm_lin_1.Owner.GetName]§!  §H[event_target:sm_lin_1.GetName]§!\n"
  sm_lin_row_2:0 " £trigger_yes£ £time£§Y[GetLin2Days]§!d  £trade£§R-[GetLin2Fee]§!/mo  §Y[event_target:sm_lin_2.Owner.GetName]§!  §H[event_target:sm_lin_2.GetName]§!\n"

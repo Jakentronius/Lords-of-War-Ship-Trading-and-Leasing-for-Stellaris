@@ -45,6 +45,17 @@
  sm_market.54.recall_4:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_4.GetName]"
  sm_market.54.recall_5:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_5.GetName]"
  sm_market.54.recall_6:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_6.GetName]"
+ sm_market.54.more:0 "More contracts..."
+ sm_market.54.more.tt:0 "You have more than six active leases. Show contracts 7-12."
+ sm_market.55.name:0 "Outstanding Contracts (page 2)"
+ sm_market.55.desc:0 "§HOUTSTANDING CONTRACTS - PAGE 2§!   £trade£§G+[GetLeaseIncomeTotal]§!/mo   £military_power£§Y[GetFPLeased]§!\n§H(£trigger_yes£ active lease: §G+§!£trade£ leased out; £trigger_no£ terminate ends a contract early)§!\n\n[GetLeaseRow7][GetLeaseRow8][GetLeaseRow9][GetLeaseRow10][GetLeaseRow11][GetLeaseRow12]"
+ sm_market.55.recall_7:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_7.GetName]"
+ sm_market.55.recall_8:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_8.GetName]"
+ sm_market.55.recall_9:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_9.GetName]"
+ sm_market.55.recall_10:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_10.GetName]"
+ sm_market.55.recall_11:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_11.GetName]"
+ sm_market.55.recall_12:0 "£trigger_no£ Terminate contract: [event_target:sm_lactive_12.GetName]"
+ sm_market.55.back:0 "Back to page 1"
 
  # Shared: hard exit available on every menu.
  sm_market.exit:0 "Close window"
@@ -244,6 +255,7 @@
  sm_lease.50.name:0 "Fleet Lease Offer"
  sm_lease.50.desc:0 "§Y[event_target:sm_lease_offer_lessor.GetName]§! offers §Y[event_target:sm_lease_offer_fleet.GetName]§! for £time£§Y[GetLeaseOfferDays]§!d at £trade£§Y[GetLeaseMonthlyOffer]§!/mo (first month due now). Survivors return to the owner at term end.\n\n§HIf the fleet is destroyed mid-contract, the remaining months are still owed.§!"
  sm_lease.50.accept:0 "£trigger_yes£ Accept - £trade£§Y[GetLeaseMonthlyOffer]§!/mo"
+ sm_lease.50.expired:0 "This offer has lapsed"
  sm_lease.50.decline:0 "£trigger_no£ Decline"
  sm_lease.55.name:0 "Lease Accepted"
  sm_lease.55.desc:0 "§Y[event_target:sm_lease_offer_lessee.GetName]§! accepted and now commands §Y[event_target:sm_lease_offer_fleet.GetName]§!: £trade£§G+[GetLeaseMonthlyOffer]§!/mo. Terminate the contract early from the §YContracts§! screen."
@@ -317,6 +329,9 @@
  sm_lease_income_desc:0 "Monthly fees from fleets your empire has leased out, paid by the lessees for as long as the contracts run. Counted in your monthly £trade£ trade value."
  sm_lease_expense:0 "Fleet Lease Fees"
  sm_lease_expense_desc:0 "Monthly fees for the fleets your empire is leasing, paid to the lessors for as long as the contracts run. Deducted from your monthly £trade£ trade value."
+ # 4.4.5: the engine wants this generic modifier-effect key localized (used by
+ # sm_lease_income / sm_lease_expense tooltips); vanilla does not provide it.
+ mod_country_base_trade_produces_add:0 "Monthly £trade£ Trade"
 
  # === Direct Offers - sale fleet picker (sm_offer.10) =================
  sm_offer.10.name:0 "Choose a Fleet to Sell"
@@ -404,6 +419,7 @@
  sm_offer.100.name:0 "Fleet Sale Offer"
  sm_offer.100.desc:0 "§Y[event_target:sm_sale_offer_seller.GetName]§! offers §Y[event_target:sm_sale_offer_fleet.GetName]§! for £trade£§Y[GetSaleOfferPrice]§!.\n\n§HDelivered to your capital; £time£10d recommission. Components included; their tech is not.§!"
  sm_offer.100.accept:0 "£trigger_yes£ Buy - £trade£§Y[GetSaleOfferPrice]§!"
+ sm_offer.100.expired:0 "This offer has lapsed"
  sm_offer.100.decline:0 "£trigger_no£ Decline"
  sm_offer.201.name:0 "Purchase Complete"
  sm_offer.201.desc:0 "Fleet delivered to your §Ycapital§! for £trade£§Y[GetShipMarketLastValue]§!. £time£§Y10§! days to recommission."
@@ -426,6 +442,7 @@
  sm_lease.32.reset.tt:0 "Restore the recommended fee for this fleet and term."
  sm_lease.32.send.tt:0 "Send the lease offer. The recipient has £time£§Y30§! days to decide."
  sm_lease.50.accept.tt:0 "Sign the lease: pay the first month (£trade£§Y[GetLeaseMonthlyOffer]§!) now and take command of the fleet for the term. The monthly fee is deducted from your £trade£ income."
+ sm_lease.50.expired.tt:0 "The offer sat unanswered too long and was withdrawn. The fleet remains with its owner; no action is possible."
  sm_lease.50.decline.tt:0 "Decline the offer. The fleet remains with its owner."
  sm_market.1.buy.tt:0 "Inspect this listing - stats, seller, and price - and buy from the inspection screen."
  sm_market.2.retract.tt:0 "Retract this listing. The fleet returns to £deep_sleep£ mothball storage, unsold."
@@ -444,4 +461,5 @@
  sm_offer.30.reset.tt:0 "Restore the recommended price."
  sm_offer.30.send.tt:0 "Send the sale offer. The recipient has £time£§Y30§! days to decide."
  sm_offer.100.accept.tt:0 "Buy the fleet for £trade£§Y[GetSaleOfferPrice]§!. It is delivered to your capital and recommissions in £time£§Y10§! days."
+ sm_offer.100.expired.tt:0 "The offer sat unanswered too long and was withdrawn. The fleet remains with its owner; no action is possible."
  sm_offer.100.decline.tt:0 "Decline the offer."

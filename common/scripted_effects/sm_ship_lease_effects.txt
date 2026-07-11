@@ -79,10 +79,14 @@ sm_build_lease_target_candidates = {
 	every_country = { limit = { has_country_flag = sm_ltarget_tmp } remove_country_flag = sm_ltarget_tmp }
 }
 
-# COUNTRY SCOPE (root = lessor). Up to 6 of MY currently leased-out fleets -> sm_lactive_1..6
+# COUNTRY SCOPE (root = lessor). Up to 12 of MY currently leased-out fleets ->
+# sm_lactive_1..12 (v0.9.44: was 6; the Outstanding Contracts screen now pages,
+# 1-6 on sm_market.54, 7-12 on sm_market.55).
 sm_build_active_lease_candidates = {
 	clear_global_event_target = sm_lactive_1  clear_global_event_target = sm_lactive_2  clear_global_event_target = sm_lactive_3
 	clear_global_event_target = sm_lactive_4  clear_global_event_target = sm_lactive_5  clear_global_event_target = sm_lactive_6
+	clear_global_event_target = sm_lactive_7  clear_global_event_target = sm_lactive_8  clear_global_event_target = sm_lactive_9
+	clear_global_event_target = sm_lactive_10 clear_global_event_target = sm_lactive_11 clear_global_event_target = sm_lactive_12
 	every_owned_fleet = { limit = { has_fleet_flag = sm_lactive_tmp } remove_fleet_flag = sm_lactive_tmp }
 	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_1 set_fleet_flag = sm_lactive_tmp }
 	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_2 set_fleet_flag = sm_lactive_tmp }
@@ -90,6 +94,12 @@ sm_build_active_lease_candidates = {
 	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_4 set_fleet_flag = sm_lactive_tmp }
 	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_5 set_fleet_flag = sm_lactive_tmp }
 	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_6 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_7 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_8 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_9 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_10 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_11 set_fleet_flag = sm_lactive_tmp }
+	random_owned_fleet = { limit = { has_fleet_flag = sm_leased_out NOT = { has_fleet_flag = sm_lactive_tmp } } save_global_event_target_as = sm_lactive_12 set_fleet_flag = sm_lactive_tmp }
 	every_owned_fleet = { limit = { has_fleet_flag = sm_lactive_tmp } remove_fleet_flag = sm_lactive_tmp }
 }
 
@@ -165,6 +175,19 @@ sm_compute_lease_reco = {
 	event_target:sm_lease_fleet = {
 		save_event_target_as = sm_stat_fleet
 		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		# v0.9.43 market-rate appraisal, INLINED (this chain sits AT the depth-4 cap,
+		# so no sm_apply_market_value call; KEEP IN SYNC with it): recount the live
+		# alloy content, apply the mothball-frozen alloys->trade rate. Lease recos
+		# were static-table only - ~2-3x under the sale-anchored design targets.
+		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys_live }
+		if = {
+			limit = {
+				check_variable = { which = sm_mkt_rate value > 0 }
+				check_variable = { which = sm_cost_alloys value > 0 }
+			}
+			set_variable = { which = sm_build_value value = sm_cost_alloys }
+			multiply_variable = { which = sm_build_value value = sm_mkt_rate }
+		}
 		# v0.9.40: sm_apply_build_quality INLINED - the call put the AI-deal chain
 		# (sm_ai_force_deal_now -> sm_ai_send_lease_offer -> sm_set_reco_lease_fee ->
 		# sm_compute_lease_reco -> here) at the engine's post-init nesting cap.
@@ -179,16 +202,34 @@ sm_compute_lease_reco = {
 		}
 	}
 	# Value basis: estimated build cost; fallback fleet-power x3 (the sale-price
-	# proxy); floor 25 so a fee is never trivially 0 (trade scale, was 100).
+	# proxy); floored so a fee is never trivially 0.
 	set_variable = { which = sm_lease_reco_fee value = event_target:sm_lease_fleet.sm_build_value }
 	if = {
 		limit = { check_variable = { which = sm_lease_reco_fee value < 1 } }
 		set_variable = { which = sm_lease_reco_fee value = event_target:sm_lease_fleet.sm_fp }
 	}
+	# v0.9.44: the floor is PER SHIP (25 x live ship count, min 25) instead of a
+	# flat 25 per fleet, so a degenerate appraisal (missing build value AND zero
+	# cached power) on a big fleet can't quote a token fee. Normal fleets never
+	# touch it (per-ship market value is >= ~240 trade). Live num_ships also
+	# refreshes sm_nships, keeping the count honest after post-mothball splits.
+	# (Variable-vs-variable check_variable is unproven in this codebase; the
+	# floor test uses the subtract-and-test pattern instead.)
+	event_target:sm_lease_fleet = { set_variable = { which = sm_nships value = trigger:num_ships } }
+	set_variable = { which = sm_reco_floor value = event_target:sm_lease_fleet.sm_nships }
+	multiply_variable = { which = sm_reco_floor value = 25 }
 	if = {
-		limit = { check_variable = { which = sm_lease_reco_fee value < 25 } }
-		set_variable = { which = sm_lease_reco_fee value = 25 }
+		limit = { check_variable = { which = sm_reco_floor value < 25 } }
+		set_variable = { which = sm_reco_floor value = 25 }
 	}
+	set_variable = { which = sm_reco_tmp value = sm_lease_reco_fee }
+	subtract_variable = { which = sm_reco_tmp value = sm_reco_floor }
+	if = {
+		limit = { check_variable = { which = sm_reco_tmp value < 0 } }
+		set_variable = { which = sm_lease_reco_fee value = sm_reco_floor }
+	}
+	clear_variable = sm_reco_tmp
+	clear_variable = sm_reco_floor
 	# Term divisor (see table above). Unset/unknown terms fall to the 10y rate.
 	if = {
 		limit = { event_target:sm_lease_fleet = { check_variable = { which = sm_lease_offer_days value = 360 } } }
@@ -246,6 +287,11 @@ sm_prepare_offer = {
 		# v0.9.30: re-appraise before pricing fairness (see sm_list_fleet).
 		save_event_target_as = sm_stat_fleet
 		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		# v0.9.43: market-rate appraisal (mothball-frozen alloys->trade rate) so the
+		# lease side prices off the same basis as sales - was static-table only,
+		# which silently broke the v0.9.29 sale-anchored fee doctrine when v0.9.39
+		# moved sales to the live market (fees ran ~2-3x under their design targets).
+		sm_apply_market_value = yes
 		sm_apply_build_quality = yes
 		set_variable = { which = sm_lease_monthly_fee value = root.sm_lease_working_fee }
 		# Asking price as a PERCENT of the fair (recommended) fee, for the AI's
@@ -275,7 +321,10 @@ sm_prepare_offer = {
 		event_target:sm_lease_target = {
 			set_country_flag = sm_pending_player_offer
 			set_variable = { which = sm_my_deal_type value = 2 }
-			set_variable = { which = sm_offer_ttl value = 30 }		# auto-decline after ~30 days if unanswered (sm_offer.900)
+			# TTL before auto-decline (sm_offer.900): 180d for humans, 30d for AI -
+			# see the twin in sm_send_sale_offer for why (queued-popup zombie).
+			if = { limit = { is_ai = no } set_variable = { which = sm_offer_ttl value = 180 } }
+			else = { set_variable = { which = sm_offer_ttl value = 30 } }
 			sm_alloc_deal_slot = yes
 			country_event = { id = sm_lease.50  days = 3 }
 		}

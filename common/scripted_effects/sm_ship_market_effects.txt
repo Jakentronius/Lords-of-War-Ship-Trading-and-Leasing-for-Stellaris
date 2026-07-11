@@ -81,6 +81,7 @@ sm_clear_fleet_stats = {
 	clear_variable = sm_cost_alloys
 	clear_variable = sm_build_value
 	clear_variable = sm_quality
+	clear_variable = sm_mkt_rate	# v0.9.43: rate re-freezes at the next mothball
 }
 
 # FLEET SCOPE. Remove the MOTHBALL layer (flag + modifier + cached stats). No
@@ -171,6 +172,15 @@ sm_capture_fleet_stats = {
 		if = {
 			limit = { owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
 			set_variable = { which = sm_build_value value = owner.sm_mkt_tmp }
+			# v0.9.43: FREEZE the alloys->trade rate AT MOTHBALL (pre-quality).
+			# Every later re-appraisal (list/offer/lease reco) recounts the LIVE
+			# alloy content and multiplies by this stored rate - one market read
+			# per mothball, stable quotes, and sale/lease/deal_pct share one basis.
+			if = {
+				limit = { check_variable = { which = sm_cost_alloys value > 0 } }
+				set_variable = { which = sm_mkt_rate value = owner.sm_mkt_tmp }
+				divide_variable = { which = sm_mkt_rate value = sm_cost_alloys }
+			}
 		}
 		owner = { clear_variable = sm_mkt_tmp }
 	}
@@ -228,6 +238,31 @@ sm_apply_build_quality = {
 	}
 }
 
+# FLEET SCOPE. v0.9.44 "HULLS SELL, CAPABILITY RENTS": the SALE-side quality
+# multiplier, clamped to [0.5, 1.2] - the open market prices tonnage, not
+# technology (the buy screen already says "components included; their tech is
+# not"). LEASES keep the full 0.5-3.0 quality (sm_apply_build_quality above):
+# the lessor's support contract is exactly what capability rents for. Result:
+# advanced fleets earn 2-2.5x more per hull by leasing; obsolete stock sells at
+# ~full relative value - selling becomes the liquidation channel by design.
+# Shipwright +20% stays on both sides (it is a hull property).
+sm_apply_sale_quality = {
+	if = {
+		limit = { check_variable = { which = sm_quality value > 0 } }
+		set_variable = { which = sm_sale_q value = sm_quality }
+		if = {
+			limit = { check_variable = { which = sm_sale_q value > 1.2 } }
+			set_variable = { which = sm_sale_q value = 1.2 }
+		}
+		multiply_variable = { which = sm_build_value value = sm_sale_q }
+		clear_variable = sm_sale_q
+	}
+	if = {
+		limit = { exists = owner  owner = { has_valid_civic = civic_sm_assembly_line_shipwrights } }
+		multiply_variable = { which = sm_build_value value = 1.2 }
+	}
+}
+
 # FLEET SCOPE. v0.9.39 LIVE-MARKET APPRAISAL: replace the static-table
 # sm_build_value with the trade cost of buying this fleet's alloys on the
 # market right now (sm_fleet_market_value). Falls back silently to the static
@@ -235,35 +270,42 @@ sm_apply_build_quality = {
 # the static recompute and BEFORE sm_apply_build_quality.
 sm_apply_market_value = {
 	save_event_target_as = sm_stat_fleet
-	# v0.9.40: sm_ensure_cost_alloys INLINED - the call put the AI-deal chains
-	# (sm_ai_force_deal_now -> sm_ai_* -> sm_set_recommended_price -> here) at the
-	# engine's post-init nesting cap. KEEP IN SYNC with sm_ensure_cost_alloys below.
+	# v0.9.43: recount the alloy content UNCONDITIONALLY (was: only when unset).
+	# sm_cost_alloys used to stay at its mothball-time value, so splitting ships
+	# out of a mothballed fleet kept the FULL-fleet alloy amount feeding the
+	# market appraisal - the market-path twin of the v0.9.30 husk exploit.
+	# sm_fleet_alloys_live is a count_owned_ship script value: no effect frames,
+	# so this also replaces the v0.9.40 inlined every_owned_ship recount block.
+	set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys_live }
+	# v0.9.43: prefer the alloys->trade rate FROZEN AT MOTHBALL (sm_mkt_rate,
+	# set in sm_capture_fleet_stats): the fleet is appraised at the market rate
+	# in effect when it entered inventory - stable quotes, one market read per
+	# mothball, and sale/lease/deal_pct all share one basis. The live read
+	# below remains as the fallback for fleets mothballed before the rate
+	# existed (save-compat) and re-freezes the rate when it succeeds.
 	if = {
-		limit = { NOT = { check_variable = { which = sm_cost_alloys value > 0 } } }
-		set_variable = { which = sm_n_corv value = 0 }
-		set_variable = { which = sm_n_frig value = 0 }
-		set_variable = { which = sm_n_dest value = 0 }
-		set_variable = { which = sm_n_cru value = 0 }
-		set_variable = { which = sm_n_bb value = 0 }
-		set_variable = { which = sm_n_tit value = 0 }
-		every_owned_ship = { limit = { is_ship_size = corvette }   event_target:sm_stat_fleet = { change_variable = { which = sm_n_corv value = 1 } } }
-		every_owned_ship = { limit = { is_ship_size = frigate }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_frig value = 1 } } }
-		every_owned_ship = { limit = { is_ship_size = destroyer }  event_target:sm_stat_fleet = { change_variable = { which = sm_n_dest value = 1 } } }
-		every_owned_ship = { limit = { is_ship_size = cruiser }    event_target:sm_stat_fleet = { change_variable = { which = sm_n_cru value = 1 } } }
-		every_owned_ship = { limit = { is_ship_size = battleship } event_target:sm_stat_fleet = { change_variable = { which = sm_n_bb value = 1 } } }
-		every_owned_ship = { limit = { is_ship_size = titan }      event_target:sm_stat_fleet = { change_variable = { which = sm_n_tit value = 1 } } }
-		set_variable = { which = sm_cost_alloys value = value:sm_fleet_alloys }
+		limit = {
+			check_variable = { which = sm_mkt_rate value > 0 }
+			check_variable = { which = sm_cost_alloys value > 0 }
+		}
+		set_variable = { which = sm_build_value value = sm_cost_alloys }
+		multiply_variable = { which = sm_build_value value = sm_mkt_rate }
 	}
 	# Direct `owner` scope refs, NOT an event target: on 4.4.5 a target saved
 	# inside the owner block is already undefined right after the block exits
 	# (confirmed via error.log). KEEP IN SYNC with the inline copy in
 	# sm_capture_fleet_stats above.
-	if = {
+	else_if = {
 		limit = { exists = owner }
 		owner = { set_variable = { which = sm_mkt_tmp value = value:sm_fleet_market_value } }
 		if = {
 			limit = { owner = { check_variable = { which = sm_mkt_tmp value >= 1 } } }
 			set_variable = { which = sm_build_value value = owner.sm_mkt_tmp }
+			if = {
+				limit = { check_variable = { which = sm_cost_alloys value > 0 } }
+				set_variable = { which = sm_mkt_rate value = owner.sm_mkt_tmp }
+				divide_variable = { which = sm_mkt_rate value = sm_cost_alloys }
+			}
 		}
 		owner = { clear_variable = sm_mkt_tmp }
 	}
@@ -325,7 +367,7 @@ sm_set_recommended_price = {
 			save_event_target_as = sm_stat_fleet
 			set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
 			sm_apply_market_value = yes
-			sm_apply_build_quality = yes
+			sm_apply_sale_quality = yes		# v0.9.44: SALE basis - quality clamped 1.2
 		}
 	}
 	# Primary: estimated build cost x1.5 (sm_recommended_price reads stored sm_build_value).
@@ -362,7 +404,7 @@ sm_list_fleet = {
 	save_event_target_as = sm_stat_fleet
 	set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
 	sm_apply_market_value = yes
-	sm_apply_build_quality = yes
+	sm_apply_sale_quality = yes		# v0.9.44: SALE basis - quality clamped 1.2
 	set_fleet_flag = sm_market_listing
 	set_fleet_flag = sm_market_locked
 	set_variable = { which = sm_price_trade value = root.sm_working_price }
@@ -491,7 +533,10 @@ sm_buy_fleet = {
 		}
 		# Refresh the (former) seller's listing modifier now their count dropped.
 		event_target:sm_sale_seller = { sm_refresh_seller_mothball_modifier = yes }
-		log = "SM_DEAL,board_sale,buyer=[Root.GetName],seller=[sm_sale_seller.GetName],price=[Root.GetShipMarketLastValue]"
+		# 4.4.5: a custom defined_text ([Root.GetShipMarketLastValue]) in a log
+		# string is a parse-time macro error ("Invalid macro entry"). Price dropped
+		# from the ledger line until log tokens work again (v0.9.41 note).
+		log = "SM_DEAL,board_sale,buyer=[Root.GetName],seller=[sm_sale_seller.GetName]"
 		country_event = { id = sm_market.231 }
 	}
 	else = {
@@ -811,6 +856,14 @@ sm_send_sale_offer = {
 		# ships out after mothballing (sell a husk at full-fleet "fair" price).
 		save_event_target_as = sm_stat_fleet
 		set_variable = { which = sm_build_value value = value:sm_fleet_build_value }
+		# v0.9.43: apply the SAME market-rate + quality appraisal the asking price
+		# was built on (sm_set_recommended_price). This block used to stop at the
+		# static table, so sm_deal_pct compared a market-based price against a
+		# static-based value (~2-3x lower, quality-less) - every fair direct offer
+		# read as 200-600% = pricey/gouging to the AI recipient, while board
+		# listings (sm_list_fleet, correct basis) read ~105%.
+		sm_apply_market_value = yes
+		sm_apply_sale_quality = yes		# v0.9.44: SALE basis - quality clamped 1.2
 		set_fleet_flag = sm_offer_pending
 			set_variable = { which = sm_price_trade value = root.sm_working_price }
 			# Deal quality for the AI recipient: asking price as a PERCENT of the
@@ -835,7 +888,13 @@ sm_send_sale_offer = {
 			# multiple empires coexist without clobbering (sm_deal_slots.txt).
 			set_country_flag = sm_pending_player_offer
 			set_variable = { which = sm_my_deal_type value = 1 }
-			set_variable = { which = sm_offer_ttl value = 30 }		# auto-decline after ~30 days if unanswered (sm_offer.900)
+			# TTL before auto-decline (sm_offer.900). An AI answers when the decision
+			# event fires (+3d), so its TTL is only the leak reclaimer. A HUMAN reads
+			# the offer from the message queue - at fast speed 1-2 monthly pulses fly
+			# by unnoticed and expiry turned the queued popup into a zombie (reservation
+			# cleared -> Accept trigger failed -> only Decline visible). 180d for humans.
+			if = { limit = { is_ai = no } set_variable = { which = sm_offer_ttl value = 180 } }
+			else = { set_variable = { which = sm_offer_ttl value = 30 } }
 			sm_alloc_deal_slot = yes
 			country_event = { id = sm_offer.100  days = 3 }
 		}
@@ -888,7 +947,8 @@ sm_accept_sale_offer = {
 			limit = { check_variable = { which = sm_last_market_value value >= 300 } }
 			sm_apply_trade_goodwill = { BUYER = sm_sale_offer_buyer  SELLER = sm_sale_offer_seller }
 		}
-		log = "SM_DEAL,direct_sale,buyer=[Root.GetName],seller=[sm_sale_offer_seller.GetName],price=[Root.GetShipMarketLastValue]"
+		# 4.4.5: custom defined_text in log = parse-time macro error (see board_sale).
+		log = "SM_DEAL,direct_sale,buyer=[Root.GetName],seller=[sm_sale_offer_seller.GetName]"
 		set_country_flag = sm_sale_bought
 	}
 	sm_free_deal_slot = yes		# release the slot + drop the "O" row (answered)

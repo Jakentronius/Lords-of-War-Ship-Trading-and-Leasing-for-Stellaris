@@ -162,8 +162,13 @@ sm_ai_send_lease_offer = {
 	}
 	if = {
 		limit = { exists = event_target:sm_lease_target }
-		random_owned_fleet = {
+		# v0.9.44 "hulls sell, capability rents": the lease channel sends the BEST
+		# surplus fleet (ordered by power), while sale/board keep random picks -
+		# advanced hardware rents out, old stock gets liquidated.
+		ordered_owned_fleet = {
 			limit = { sm_fleet_ai_sellable = yes }
+			order_by = trigger:fleet_power
+			position = 0
 			if = { limit = { exists = leader } leader = { unassign_leader = this } }
 			sm_mothball_fleet = yes
 			set_fleet_flag = sm_ai_offered
@@ -222,7 +227,14 @@ sm_ai_force_deal_now = {
 		if = {
 			limit = { check_variable = { which = sm_ai_eligible_count value >= 3 } }
 			random_list = {
-				34 = { sm_ai_send_lease_offer = yes }
+				34 = {
+					# v0.9.44 "hulls sell, capability rents": an AI holding a STRONG
+					# surplus fleet strongly prefers the lease channel (the lease
+					# effect below also picks its BEST fleet, so advanced hardware
+					# moves as leases while sales/board liquidate the old stock).
+					modifier = { factor = 2.5  any_owned_fleet = { sm_fleet_ai_sellable = yes  fleet_power > 5000 } }
+					sm_ai_send_lease_offer = yes
+				}
 				33 = { sm_ai_send_sale_offer = yes }
 				33 = { sm_ai_board_list_fleet = yes }
 			}

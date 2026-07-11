@@ -32,5 +32,37 @@ country_event = {
 	option = { name = "sm_market.54.recall_5" trigger = { exists = event_target:sm_lactive_5 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_5 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.54 } } }
 	option = { name = "sm_market.54.recall_6" trigger = { exists = event_target:sm_lactive_6 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_6 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.54 } } }
 
+	# v0.9.44: more than 6 active leases -> page 2 (leases 7-12).
+	option = { name = "sm_market.54.more" trigger = { exists = event_target:sm_lactive_7 } custom_tooltip = "sm_market.54.more.tt" hidden_effect = { country_event = { id = sm_market.55 } } }
+
+	option = { name = "sm_market.exit" default_hide_option = yes }
+}
+
+################################################################################
+# v0.9.44: Outstanding Contracts, PAGE 2 (active leases 7-12). Same live table +
+# per-lease recall as sm_market.54; reached via its "more contracts" option once
+# a lessor runs more than 6 concurrent leases (the lease-first economy makes
+# that routine). Recalls rebuild the candidate list and reopen THIS page.
+################################################################################
+country_event = {
+	id = sm_market.55
+	title = "sm_market.55.name"
+	desc = "sm_market.55.desc"
+	picture = GFX_evt_ship_in_orbit
+	is_triggered_only = yes
+
+	immediate = {
+		sm_count_inventory = yes
+		sm_build_active_lease_candidates = yes
+	}
+
+	option = { name = "sm_market.55.recall_7" trigger = { exists = event_target:sm_lactive_7 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_7 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+	option = { name = "sm_market.55.recall_8" trigger = { exists = event_target:sm_lactive_8 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_8 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+	option = { name = "sm_market.55.recall_9" trigger = { exists = event_target:sm_lactive_9 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_9 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+	option = { name = "sm_market.55.recall_10" trigger = { exists = event_target:sm_lactive_10 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_10 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+	option = { name = "sm_market.55.recall_11" trigger = { exists = event_target:sm_lactive_11 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_11 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+	option = { name = "sm_market.55.recall_12" trigger = { exists = event_target:sm_lactive_12 } custom_tooltip = "sm_market.54.recall.tt" hidden_effect = { event_target:sm_lactive_12 = { sm_terminate_contract = yes } hidden_effect = { sm_build_active_lease_candidates = yes } country_event = { id = sm_market.55 } } }
+
+	option = { name = "sm_market.55.back" hidden_effect = { country_event = { id = sm_market.54 } } }
 	option = { name = "sm_market.exit" default_hide_option = yes }
 }

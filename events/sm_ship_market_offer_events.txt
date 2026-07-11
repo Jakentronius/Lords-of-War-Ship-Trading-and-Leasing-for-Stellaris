@@ -227,7 +227,11 @@ country_event = {
 	# seller, or the price is a bargain.
 	option = {
 		name = "sm_offer.100.accept"
-		trigger = { exists = event_target:sm_sale_offer_fleet event_target:sm_sale_offer_fleet = { has_fleet_flag = sm_offer_pending exists = owner NOT = { owner = { is_same_value = root } } } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_sale_offer_price } } }
+		# has_country_flag: the offer may have EXPIRED (sm_offer.900) while this
+		# popup sat in a human's message queue - the reservation is gone and the
+		# shared globals may already belong to a DIFFERENT deal, so accept must
+		# vanish the moment this recipient no longer holds a pending offer.
+		trigger = { has_country_flag = sm_pending_player_offer exists = event_target:sm_sale_offer_fleet event_target:sm_sale_offer_fleet = { has_fleet_flag = sm_offer_pending exists = owner NOT = { owner = { is_same_value = root } } } OR = { has_global_flag = sm_debug_ai_autoaccept resource_stockpile_compare = { resource = trade value >= value:sm_sale_offer_price } } }
 		custom_tooltip = "sm_offer.100.accept.tt"
 		ai_chance = {
 			base = 3
@@ -315,6 +319,15 @@ country_event = {
 		hidden_effect = { sm_accept_sale_offer = yes if = { limit = { has_country_flag = sm_sale_bought } remove_country_flag = sm_sale_bought event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.200 } } country_event = { id = sm_offer.201 } } else = { country_event = { id = sm_offer.202 } } }
 	}
 
+	# EXPIRED — informational; shown on a stale queued popup whose offer already
+	# auto-declined (sm_offer.900). Everything was cleaned up at expiry; just close.
+	option = {
+		name = "sm_offer.100.expired"
+		trigger = { NOT = { has_country_flag = sm_pending_player_offer } }
+		custom_tooltip = "sm_offer.100.expired.tt"
+		ai_chance = { base = 0 }
+	}
+
 	# DECLINE — always available; release the seller's reserved fleet.
 	option = {
 		name = "sm_offer.100.decline"
@@ -324,7 +337,10 @@ country_event = {
 			base = 10
 			modifier = { factor = 0  has_global_flag = sm_debug_ai_autoaccept }   # DEBUG force-accept
 		}
-		hidden_effect = { sm_decline_sale_offer = yes event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } } }
+		# Guard: on a stale popup (offer expired -> slot freed, sm_my_deal_slot = 0)
+		# sm_decline_sale_offer would run against whatever fleet the SHARED globals
+		# last pointed at and could strip a live deal's reservation. No-op instead.
+		hidden_effect = { if = { limit = { has_country_flag = sm_pending_player_offer } sm_decline_sale_offer = yes event_target:sm_sale_offer_seller = { country_event = { id = sm_offer.210 } } } }
 	}
 }
 
@@ -429,6 +445,9 @@ country_event = {
 					4 = {
 						# v0.9.36: dealer civics roll heavier (8 vs 4 each)
 						modifier = { add = 4  OR = { has_valid_civic = civic_sm_arms_consortium  has_valid_civic = civic_sm_fleet_chandlers } }
+						# v0.9.44 "hulls sell, capability rents": strong surplus -> lease
+						# channel preferred (see sm_ai_force_deal_now twin).
+						modifier = { factor = 2.5  any_owned_fleet = { sm_fleet_ai_sellable = yes  fleet_power > 5000 } }
 						sm_ai_send_lease_offer = yes
 					}
 					4 = {

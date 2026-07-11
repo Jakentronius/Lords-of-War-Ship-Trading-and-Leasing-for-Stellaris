@@ -62,6 +62,21 @@ sm_fleet_alloys = {
 	add = value:sm_alloys_tit
 }
 
+# v0.9.43: LIVE alloy content of event_target:sm_stat_fleet - the recount twin of
+# sm_fleet_build_value (count_owned_ship engine counter, fleet-restricted), for
+# re-appraisals. Unlike sm_fleet_alloys it does NOT read the stored sm_n_* variables,
+# so it stays correct when ships were split out after mothball (husk exploit).
+# Alloy weights: KEEP IN SYNC with sm_alloys_* above.
+sm_fleet_alloys_live = {
+	base = 0
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 60   parameters = { limit = { is_ship_size = corvette   fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 90   parameters = { limit = { is_ship_size = frigate    fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 120  parameters = { limit = { is_ship_size = destroyer  fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 240  parameters = { limit = { is_ship_size = cruiser    fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 480  parameters = { limit = { is_ship_size = battleship fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+	complex_trigger_modifier = { trigger = count_owned_ship  mode = add  mult = 2000 parameters = { limit = { is_ship_size = titan      fleet = { is_same_value = event_target:sm_stat_fleet } } } }
+}
+
 # LIVE-MARKET APPRAISAL (v0.9.39): the trade cost of buying this fleet's alloy
 # content on the market RIGHT NOW (amount = the fleet's stored sm_cost_alloys,
 # trade_type = market_buy - vanilla sell_resource_at_market_value pattern).
