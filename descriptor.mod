@@ -1,4 +1,4 @@
-name="Ship Market"
+name="Ship Leasing and Trading Mod"
 version="0.9.44"
 picture="thumbnail.png"
 tags={
